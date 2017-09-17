@@ -15,6 +15,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +30,7 @@ public class Volley_Singleton {
     private final String URL="http://miguelarcos.x10.mx/android/movil";
 
     public interface NotesResponseListener{
-        void onSuccess(String reponse);
+        void onSuccess(JSONArray response, int UltimoIDSync, int TotalNumberOfNotes);
         void onError(String error);
     }
     private Volley_Singleton(Context context) {
@@ -54,12 +58,21 @@ public class Volley_Singleton {
         getRequestQueue().add(req);
     }
 
-    public void syncDBLocal_Remota(final String NotasSync, final String NotasNoSync, final int id_uusario, final int UltimoIDSync, final NotesResponseListener listener){
+    public void syncDBLocal_Remota(final String NotasSync, final String NotasNoSync, final int id_usuario, final int UltimoIDSync, final NotesResponseListener listener){
         StringRequest MyRequest = new StringRequest(Request.Method.POST, URL+"/OperacionesBD.php",
                 new Response.Listener<String>(){
                     @Override
                     public void onResponse(String response) {
-                        listener.onSuccess(response);
+                        JSONArray array= null;
+                        JSONObject SyncData= null;
+                        try {
+                            array=new JSONArray(response);
+                            SyncData = array.getJSONObject(array.length()-1);
+                            listener.onSuccess(array, SyncData.getInt("UltimoIDSync"), SyncData.getInt("TotalNumberOfNotes"));
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 },
                 new Response.ErrorListener(){
@@ -95,7 +108,7 @@ public class Volley_Singleton {
                 if (!NotasSync.equals("")){
                     params.put("NotasSyncJSON", NotasSync);
                 }
-                params.put("id_usuario",String.valueOf(id_uusario));
+                params.put("id_usuario",String.valueOf(id_usuario));
                 params.put("UltimoIDSync", String.valueOf(UltimoIDSync));
                 return params;
             }

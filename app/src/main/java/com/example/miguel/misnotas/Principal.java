@@ -2,6 +2,9 @@ package com.example.miguel.misnotas;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.AlarmManager;
+import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -28,8 +31,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Principal extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+import com.example.miguel.misnotas.clases_alarma.Reactivar_Sync;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class Principal extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,Volley_Singleton.NotesResponseListener {
     //boolean Actualizar_notas=false;
     private NavigationView navigationView;
     private final int Permiso_De_Escritura=1;
@@ -41,6 +49,11 @@ public class Principal extends AppCompatActivity
     private SharedPreferences ShPrSync;
     private DrawerLayout drawer;
     private View header;
+    private ProgressDialog progressDialog;
+    private AlarmManager alarmManager;
+    private android.app.PendingIntent pendingIntent;
+    private PackageManager packageManager;
+    private ComponentName receiver;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +84,15 @@ public class Principal extends AppCompatActivity
         EventoSesion();
         Fragment fragment=SelectLastFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+        //Initialize Progress Dialog properties
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
+        progressDialog.setTitle("Notas de MigueLopez :D");
+        mensaje = new AlertDialog.Builder(this).create();
+        mensaje.setTitle("Notas de MigueLopez :D");
+        alarmManager=(AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        packageManager = getPackageManager();
+        receiver = new ComponentName(this, Reactivar_Sync.class);
     }
     private void DatosUsuario(){
         header=navigationView.getHeaderView(0);
@@ -244,8 +266,9 @@ public class Principal extends AppCompatActivity
                 /***
                  * Se envia la instancia del framento que actualmente se esta mostrando a la clase Sincronizacion para que alla se ejecute el metodo onResume() de cualquier fragment y se actualicen las notas en tiempo real (se debe hacer forzosamente en el success de la clase sync ya que de no ser asi, al ser una peticion aincrona el codigo de actualizar BD se ejecutaria inmediatamente despues y no se mostrarianb los cambios
                  */
-                Fragment fragmento=getSupportFragmentManager().findFragmentById(R.id.content_frame);
+                //Fragment fragmento=getSupportFragmentManager().findFragmentById(R.id.content_frame);
                 //Volley_Singleton.getInstance(this).syncDBLocal_Remota(fragmento);
+                DatabaseSync();
                 drawer.closeDrawer(GravityCompat.START);
                 return false;
             case R.id.close_session:
@@ -279,7 +302,30 @@ public class Principal extends AppCompatActivity
         ShPrSync.edit().clear();
         ShPrSync.edit().commit();
         Database.getInstance(this).VaciarNotas();
-        //packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+    }
+    void DatabaseSync(){
+        progressDialog.setMessage("Sincronizando...Por favor espere");
+        progressDialog.show();
+        String NotasNoSync=Database.getInstance(this).crearJSON("SELECT * FROM notas WHERE subida='N'");
+        String NotasSync=Database.getInstance(this).crearJSON("SELECT * FROM notas WHERE subida='S'");
+        Volley_Singleton.getInstance(this).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("id_usuario", 1),ShPrSync.getInt("UltimoIDSync", 0),this);
     }
 
+    @Override
+    public void onSuccess(JSONArray response, int UltimoIDSync, int TotalNumberOfNotes) {
+        progressDialog.dismiss();
+        ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync);
+        ShPrSync.edit().putInt("TotalNumberOfNotes", TotalNumberOfNotes);
+        Database.getInstance(this).NotasServidorALocalDB(response);
+        ShPrSync.edit().commit();
+        getSupportFragmentManager().findFragmentById(R.id.content_frame).onResume();
+    }
+
+    @Override
+    public void onError(String error) {
+        progressDialog.dismiss();
+        mensaje.setMessage(error);
+        mensaje.show();
+    }
 }

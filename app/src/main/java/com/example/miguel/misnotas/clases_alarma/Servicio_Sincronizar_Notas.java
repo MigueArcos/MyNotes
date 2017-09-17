@@ -16,7 +16,7 @@ public class Servicio_Sincronizar_Notas extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d("si","si");
-        Volley_Singleton.getInstance(context).syncDBLocal_Remota();
+        //Volley_Singleton.getInstance(context).syncDBLocal_Remota();
     }
 }
 
