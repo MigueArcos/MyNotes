@@ -58,7 +58,7 @@ public class Principal extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         /*Este editor de SharedPrefs sirve para obtener el ultimo fragmento que se quedo seleccionado, ya que cuando la app se cierra
         con el boton de atras entonces esta se vuelve a construir y siempre volveria al primer fragmento si estos no se guardan*/
-        ShPrFragments= this.getSharedPreferences("fragmentos", Context.MODE_PRIVATE);
+        ShPrFragments= getSharedPreferences("fragmentos", Context.MODE_PRIVATE);
         Editor=ShPrFragments.edit();
         ShPrSync= getSharedPreferences("Sync", Context.MODE_PRIVATE);
         /*Este paquete sirve para que si la llamada a esta actividad es desde la notificacion, siempre inicie en el
@@ -245,7 +245,7 @@ public class Principal extends AppCompatActivity
                  * Se envia la instancia del framento que actualmente se esta mostrando a la clase Sincronizacion para que alla se ejecute el metodo onResume() de cualquier fragment y se actualicen las notas en tiempo real (se debe hacer forzosamente en el success de la clase sync ya que de no ser asi, al ser una peticion aincrona el codigo de actualizar BD se ejecutaria inmediatamente despues y no se mostrarianb los cambios
                  */
                 Fragment fragmento=getSupportFragmentManager().findFragmentById(R.id.content_frame);
-                Volley_Singleton.getInstance(this).syncDBLocal_Remota(fragmento);
+                //Volley_Singleton.getInstance(this).syncDBLocal_Remota(fragmento);
                 drawer.closeDrawer(GravityCompat.START);
                 return false;
             case R.id.close_session:
@@ -274,7 +274,12 @@ public class Principal extends AppCompatActivity
         getSupportActionBar().setTitle(item.getTitle());
         drawer.closeDrawer(GravityCompat.START);
         return true;
-
+    }
+    public void CerrarSesion(){
+        ShPrSync.edit().clear();
+        ShPrSync.edit().commit();
+        Database.getInstance(this).VaciarNotas();
+        //packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
     }
 
 }
