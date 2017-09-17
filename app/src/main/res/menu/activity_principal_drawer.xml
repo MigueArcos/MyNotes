@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/it1"
+            android:icon="@drawable/ic_payment_grey"
+            android:title="Gastos Semanales" />
+        <item
+            android:id="@+id/it2"
+            android:icon="@drawable/ic_attach_money_grey"
+            android:title="Mi Dinero" />
+
+        <item
+            android:id="@+id/it3"
+            android:icon="@drawable/ic_assignment_grey"
+            android:title="Bloc De Notas" />
+        <item
+            android:id="@+id/it4"
+            android:icon="@drawable/ic_delete_grey"
+            android:title="Notas Eliminadas" />
+    </group>
+
+    <item android:title="Opciones">
+        <menu>
+            <item
+                android:id="@+id/sync"
+                android:icon="@drawable/ic_cached_grey"
+                android:title="Sincronizar" />
+            <item
+                android:id="@+id/schedule"
+                android:icon="@drawable/ic_access_time_grey"
+                android:title="Programar horarios " />
+            <item
+                android:id="@+id/about"
+                android:icon="@drawable/ic_info_grey"
+                android:title="Acerca De..." />
+            <item
+                android:id="@+id/close_session"
+                android:icon="@drawable/ic_exit_to_app_grey"
+                android:title="Cerrar sesión" />
+        </menu>
+    </item>
+
+</menu>

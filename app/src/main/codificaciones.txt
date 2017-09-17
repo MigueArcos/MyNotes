@@ -1,0 +1,14 @@
+SELECT table_schema, table_name, column_name, character_set_name, collation_name
+
+FROM information_schema.columns
+
+WHERE collation_name = 'latin1_general_ci'
+
+ORDER BY table_schema, table_name,ordinal_position; 
+
+PREPARE stmt from 'SELECT * FROM usuarios WHERE correo=? AND password=SHA2(?,256)';
+SET @a = 'migue300995@gmail.com';
+SET @b = 'zeusensacion';
+EXECUTE stmt USING @a, @b;
+
+ALTER TABLE table CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci

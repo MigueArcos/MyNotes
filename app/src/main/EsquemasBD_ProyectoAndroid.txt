@@ -1,0 +1,23 @@
+//Tabla de notas que existe en el servidor
+
+CREATE TABLE notas (id INTEGER PRIMARY KEY, id_usuario INTEGER, titulo VARCHAR(100), contenido TEXT, fecha_creacion VARCHAR(25), fecha_modificacion VARCHAR(25),fecha_modificacion_orden VARCHAR(20), eliminado CHAR(1), subida CHAR(1));
+ALTER TABLE `usuarios` CHANGE `id_usuario` `id_usuario` INT(11) NOT NULL;
+//Tabla de notas que existe localmente (solo difieren por el id_usuario)
+CREATE TABLE notas2 (id_nota INTEGER PRIMARY KEY, titulo VARCHAR(100), contenido TEXT, fecha_creacion VARCHAR(25), fecha_modificacion VARCHAR(25),fecha_modificacion_orden VARCHAR(20), eliminado CHAR(1), subida CHAR(1));
+/***
+
+Metodos para rehacer una tabla y quitar indices en SQLite sin perder datos
+
+
+INSERT INTO notas2 (id_nota, titulo, contenido, fecha_creacion, fecha_modificacion,fecha_modificacion_orden, eliminado) SELECT id, titulo, contenido, fecha_creacion, fecha_modificacion,fecha_modificacion_orden, eliminado FROM notas;
+
+ALTER TABLE notas RENAME TO notas_old; (Aqui se podria hacer un DROP)
+ALTER TABLE notas2 RENAME TO notas; 
+*****/
+INSERT INTO notas VALUES(0,'Nota Fantasma', 'Phantom Note', '1975-01-01', '1975-01-01', '0000000000', 'N','N')
+
+//Consulta para obtener datos de usuario
+SELECT * FROM usuarios WHERE password=SHA2('zeusensacion',256);
+//Consulta para insertar usuarios
+INSERT INTO usuarios VALUES (null, 'zeus@gmail.com', 'Zeus el Dios', SHA2('zeusensacion',256));
+
