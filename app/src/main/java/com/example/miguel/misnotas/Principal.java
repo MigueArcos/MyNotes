@@ -39,7 +39,6 @@ public class Principal extends AppCompatActivity
     private SharedPreferences ShPrFragments;
     private SharedPreferences.Editor Editor;
     private SharedPreferences ShPrSync;
-    private SharedPreferences.Editor Editor_Sync;
     private DrawerLayout drawer;
     private View header;
     @Override
@@ -62,7 +61,6 @@ public class Principal extends AppCompatActivity
         ShPrFragments= this.getSharedPreferences("fragmentos", Context.MODE_PRIVATE);
         Editor=ShPrFragments.edit();
         ShPrSync= getSharedPreferences("Sync", Context.MODE_PRIVATE);
-        Editor_Sync=ShPrSync.edit();
         /*Este paquete sirve para que si la llamada a esta actividad es desde la notificacion, siempre inicie en el
         fragmento de gastos */
         if (getIntent().hasExtra("LlamadaDesdeNotificacion")){

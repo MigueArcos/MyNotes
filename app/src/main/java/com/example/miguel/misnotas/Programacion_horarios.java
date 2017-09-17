@@ -29,17 +29,17 @@ import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import java.util.Calendar;
 
 public class Programacion_horarios extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener, TimePickerDialog.OnTimeSetListener, CompoundButton.OnCheckedChangeListener{
-    TextView horario, ampm;
-    NotificationManager notificaciones;
-    AlarmManager alarmas;
+    private TextView horario, ampm;
+    private NotificationManager notificaciones;
+    private AlarmManager alarmas;
     //base1 ob;
-    PendingIntent intentopendiente;
-    SharedPreferences opciones;
-    SharedPreferences.Editor editor;
-    CheckBox[] lista;
-    int HOUR, MINUTE;
-    ComponentName receiver;
-    PackageManager pm;
+    private PendingIntent intentopendiente;
+    private SharedPreferences opciones;
+    private SharedPreferences.Editor editor;
+    private CheckBox[] lista;
+    private int HOUR, MINUTE;
+    private ComponentName receiver;
+    private PackageManager pm;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

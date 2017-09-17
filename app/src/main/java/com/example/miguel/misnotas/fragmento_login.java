@@ -4,7 +4,6 @@ package com.example.miguel.misnotas;
  * Created by Migue on 04/07/2017.
  */
 
-import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -12,14 +11,11 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class fragmento_login extends Fragment implements View.OnClickListener, View.OnFocusChangeListener{

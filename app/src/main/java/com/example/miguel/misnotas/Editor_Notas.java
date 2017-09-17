@@ -13,16 +13,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class Editor_Notas extends AppCompatActivity implements TextWatcher{
-    Base_Datos ob;
-    TextView titulo, contenido;
-    AlertDialog mensaje;
-    Boolean NuevaNota;
-    int id_nota_mod,cambios=0;
+    private TextView titulo, contenido;
+    private AlertDialog mensaje;
+    private Boolean NuevaNota;
+    private int id_nota_mod,cambios=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor_notas);
-        ob=new Base_Datos(this);
         Bundle paquete = getIntent().getExtras();
         NuevaNota= paquete.getBoolean("NuevaNota",true);
         id_nota_mod = paquete.getInt("id_nota_mod",-1);
@@ -90,7 +88,7 @@ public class Editor_Notas extends AppCompatActivity implements TextWatcher{
             builder.setMessage("¿Estás seguro de que deseas eliminar esta nota?").setCancelable(false);
             builder.setPositiveButton("Si", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    ob.eliminar_nota(id_nota_mod);
+                    Database.getInstance(Editor_Notas.this).eliminar_nota(id_nota_mod);
                     Editor_Notas.this.finish();
                 }
             });
@@ -110,13 +108,13 @@ public class Editor_Notas extends AppCompatActivity implements TextWatcher{
         //Toast.makeText(this.getBaseContext(), "¡Guardado!", Toast.LENGTH_LONG).show();
     }
     void guardar(){
-        id_nota_mod=ob.guardar_nota(titulo.getText().toString(), contenido.getText().toString());
+        id_nota_mod=Database.getInstance(Editor_Notas.this).guardar_nota(titulo.getText().toString(), contenido.getText().toString());
         NuevaNota=false;
         Toast.makeText(this.getBaseContext(), "¡Guardado!", Toast.LENGTH_SHORT).show();
         cambios=0;
     }
     void modificar(){
-        ob.modificar_nota(titulo.getText().toString(), contenido.getText().toString(),id_nota_mod);
+        Database.getInstance(Editor_Notas.this).modificar_nota(titulo.getText().toString(), contenido.getText().toString(),id_nota_mod);
         Toast.makeText(this.getBaseContext(), "¡Guardado!", Toast.LENGTH_SHORT).show();
         cambios=0;
     }

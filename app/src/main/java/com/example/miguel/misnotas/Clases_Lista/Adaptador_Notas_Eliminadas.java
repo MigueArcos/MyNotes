@@ -3,26 +3,17 @@ package com.example.miguel.misnotas.Clases_Lista;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.miguel.misnotas.Base_Datos;
-import com.example.miguel.misnotas.Editor_Notas;
+import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.R;
 
 import java.util.ArrayList;
@@ -32,14 +23,12 @@ import java.util.ArrayList;
  */
 public class Adaptador_Notas_Eliminadas extends RecyclerView.Adapter<Adaptador_Notas_Eliminadas.vista_item> {
     private ArrayList<Elemento_Nota> datos;
-    private Base_Datos ob;
     private Context Contexto_Mi_Actividad;
-    AlertDialog mensaje;
+    private AlertDialog mensaje;
     private AlertDialog.Builder builder;
     private ArrayList<Integer> expandidos;
     public Adaptador_Notas_Eliminadas(ArrayList<Elemento_Nota> datos, Context Contexto_Mi_Actividad) {
         this.Contexto_Mi_Actividad=Contexto_Mi_Actividad;
-        ob=new Base_Datos(Contexto_Mi_Actividad);
         expandidos=new ArrayList<>();
         builder=new AlertDialog.Builder(Contexto_Mi_Actividad);
         builder.setTitle("Notas de MigueLópez :D");
@@ -89,7 +78,7 @@ public class Adaptador_Notas_Eliminadas extends RecyclerView.Adapter<Adaptador_N
             builder.setMessage("¿Te gustaría recuperar esta nota?").
                     setPositiveButton("Si", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            ob.recuperar_nota(datos.get(posicion).getID_Nota());
+                            Database.getInstance(Contexto_Mi_Actividad).recuperar_nota(datos.get(posicion).getID_Nota());
                             datos.remove(posicion);
                             notifyItemRemoved(posicion);
                             expandidos.remove(new Integer(posicion));
@@ -176,7 +165,7 @@ public class Adaptador_Notas_Eliminadas extends RecyclerView.Adapter<Adaptador_N
             builder.setMessage("¿Estás seguro de que deseas eliminar completamente esta nota?")
                     .setPositiveButton("Si", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            ob.eliminar_nota_completamente(id_nota_a_borrar);
+                            Database.getInstance(Contexto_Mi_Actividad).eliminar_nota_completamente(id_nota_a_borrar);
                             expandidos.remove(new Integer(adapterPosition));
                         }
                     })

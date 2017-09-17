@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -20,15 +19,13 @@ import android.widget.Toast;
  * Created by Miguel on 13/06/2016.
  */
 public class fragmento_gastos extends Fragment implements View.OnClickListener,TextWatcher {
-    int tot = 0;
-    TextView array[]=new TextView[8];
-    AlertDialog mensaje;
-    Button boton;
-    SharedPreferences Semana;
-    SharedPreferences.Editor Editor;
-    int cambios=0;
-    public fragmento_gastos(){
-    }
+    private int tot = 0;
+    private TextView array[]=new TextView[8];
+    private AlertDialog mensaje;
+    private Button boton;
+    private SharedPreferences Semana;
+    private SharedPreferences.Editor Editor;
+    private int cambios=0;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

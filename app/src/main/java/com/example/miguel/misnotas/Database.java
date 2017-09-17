@@ -28,15 +28,26 @@ import org.json.JSONException;
 /**
  * Created by Miguel on 01/09/2015.
  */
-public class Base_Datos extends SQLiteOpenHelper {
-    public static int DataBase_Version=15;
-    public static String Ruta= Environment.getExternalStorageDirectory().getPath()+"/Mis_Notas.db";
-    public Base_Datos(Context context){
+public class Database extends SQLiteOpenHelper {
+    private static final int DataBase_Version=15;
+    private static final String Ruta= Environment.getExternalStorageDirectory().getPath()+"/Mis_Notas.db";
+    private static Database Instance;
+    private static Context AppContext;
+    private Database(Context context){
         super(context, Ruta, null, DataBase_Version);
+        this.AppContext=context;
     }
+    public static Database getInstance(Context context) {
+
+        if (Instance == null) {
+            Instance = new Database(context.getApplicationContext());
+        }
+        return Instance;
+    }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
-//Crear la tabla activos
+        //Crear la tabla activos
         db.execSQL("CREATE TABLE activos(id INTEGER PRIMARY KEY AUTOINCREMENT, recurso TEXT NOT NULL, valor INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE bitacora(fecha DATETIME PRIMARY KEY, total_en_fecha INTEGER)");
         db.execSQL("CREATE TABLE notas (id_nota INTEGER PRIMARY KEY, titulo VARCHAR(100), contenido TEXT, fecha_creacion VARCHAR(25), fecha_modificacion VARCHAR(25),fecha_modificacion_orden VARCHAR(20), eliminado CHAR(1), subida CHAR(1))");

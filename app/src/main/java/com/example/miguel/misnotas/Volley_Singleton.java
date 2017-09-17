@@ -1,7 +1,6 @@
 package com.example.miguel.misnotas;
 
 import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,8 +9,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -24,7 +21,6 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.miguel.misnotas.clases_alarma.Reactivar_Sync;
@@ -34,7 +30,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,13 +38,11 @@ import java.util.Map;
 public class Volley_Singleton {
     private static Volley_Singleton mInstance;
     private RequestQueue mRequestQueue;
-    private ImageLoader mImageLoader;
     private static Context AppContext;
     private SharedPreferences ShPrSync;
     private SharedPreferences.Editor Editor;
     private ProgressDialog progreso;
     private AlertDialog mensaje;
-    private Base_Datos ob;
     private AlarmManager alarmas;
     private android.app.PendingIntent PendingIntent;
     private PackageManager packageManager;
@@ -58,7 +51,6 @@ public class Volley_Singleton {
     private Volley_Singleton(Context context) {
         this.AppContext = context;
         mRequestQueue = getRequestQueue();
-        ob = new Base_Datos(AppContext);
         ShPrSync= AppContext.getSharedPreferences("Sync", Context.MODE_PRIVATE);
         Editor=ShPrSync.edit();
         //Initialize Progress Dialog properties
@@ -110,7 +102,7 @@ public class Volley_Singleton {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        ob.NotasServidorALocalDB(array);
+                        Database.getInstance(AppContext).NotasServidorALocalDB(array);
                         fragment.onResume();
                         Editor.commit();
                     }
@@ -143,8 +135,8 @@ public class Volley_Singleton {
             @Override
             protected Map<String, String> getParams(){
                 Map<String, String> params = new HashMap<String, String>();
-                String NotasNoSync=ob.crearJSON("SELECT * FROM notas WHERE subida='N'");
-                String NotasSync=ob.crearJSON("SELECT * FROM notas WHERE subida='S'");
+                String NotasNoSync=Database.getInstance(AppContext).crearJSON("SELECT * FROM notas WHERE subida='N'");
+                String NotasSync=Database.getInstance(AppContext).crearJSON("SELECT * FROM notas WHERE subida='S'");
                 //Toast.makeText(getActivity(), NotasSync, Toast.LENGTH_LONG).show();
                 if (!NotasNoSync.equals("")){
                     params.put("NotasNoSyncJSON", NotasNoSync);
@@ -178,7 +170,7 @@ public class Volley_Singleton {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        ob.NotasServidorALocalDB(array);
+                        Database.getInstance(AppContext).NotasServidorALocalDB(array);
                         Editor.commit();
                         AppContext.startActivity(intent);
                     }
@@ -196,8 +188,8 @@ public class Volley_Singleton {
             @Override
             protected Map<String, String> getParams(){
                 Map<String, String> params = new HashMap<String, String>();
-                String NotasNoSync=ob.crearJSON("SELECT * FROM notas WHERE subida='N'");
-                String NotasSync=ob.crearJSON("SELECT * FROM notas WHERE subida='S'");
+                String NotasNoSync=Database.getInstance(AppContext).crearJSON("SELECT * FROM notas WHERE subida='N'");
+                String NotasSync=Database.getInstance(AppContext).crearJSON("SELECT * FROM notas WHERE subida='S'");
                 //Toast.makeText(getActivity(), NotasSync, Toast.LENGTH_LONG).show();
                 if (!NotasNoSync.equals("")){
                     params.put("NotasNoSyncJSON", NotasNoSync);
@@ -228,7 +220,7 @@ public class Volley_Singleton {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        ob.NotasServidorALocalDB(array);
+                        Database.getInstance(AppContext).NotasServidorALocalDB(array);
                         Editor.commit();
                     }
                 },
@@ -241,8 +233,8 @@ public class Volley_Singleton {
             @Override
             protected Map<String, String> getParams(){
                 Map<String, String> params = new HashMap<String, String>();
-                String NotasNoSync=ob.crearJSON("SELECT * FROM notas WHERE subida='N'");
-                String NotasSync=ob.crearJSON("SELECT * FROM notas WHERE subida='S'");
+                String NotasNoSync=Database.getInstance(AppContext).crearJSON("SELECT * FROM notas WHERE subida='N'");
+                String NotasSync=Database.getInstance(AppContext).crearJSON("SELECT * FROM notas WHERE subida='S'");
                 //Toast.makeText(getActivity(), NotasSync, Toast.LENGTH_LONG).show();
                 if (!NotasNoSync.equals("")){
                     params.put("NotasNoSyncJSON", NotasNoSync);
@@ -260,7 +252,7 @@ public class Volley_Singleton {
     public void CerrarSesion(){
         Editor.clear();
         Editor.commit();
-        ob.VaciarNotas();
+        Database.getInstance(AppContext).VaciarNotas();
         packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
     }
     public void Activar_Sincronizacion_Programada(){

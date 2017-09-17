@@ -5,13 +5,9 @@ package com.example.miguel.misnotas;
  */
 import android.app.AlertDialog;
 
-import android.content.Context;
 import android.content.DialogInterface;
 
-import android.content.pm.ActivityInfo;
-
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -24,27 +20,24 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.miguel.misnotas.Clases_Lista.Adaptador_Elementos;
 import com.example.miguel.misnotas.Clases_Lista.Elemento_Lista;
 
 import java.util.ArrayList;
 public class fragmento_finanzas extends Fragment implements MenuItem.OnMenuItemClickListener,AdapterView.OnItemLongClickListener,AdapterView.OnItemClickListener {
-    ListView lista;
-    Adaptador_Elementos adaptador;
-    ArrayList<Elemento_Lista> items;
-    Base_Datos ob;
-    TextView total, last;
-    String tot;
-    int contar_cambios = 0;
-    AlertDialog.Builder builder;
-    AlertDialog mensaje;
+    private ListView lista;
+    private Adaptador_Elementos adaptador;
+    private ArrayList<Elemento_Lista> items;
+    private TextView total, last;
+    private String tot;
+    private int contar_cambios = 0;
+    private AlertDialog.Builder builder;
+    private AlertDialog mensaje;
     public fragmento_finanzas(){
 
     }
@@ -53,16 +46,15 @@ public class fragmento_finanzas extends Fragment implements MenuItem.OnMenuItemC
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragmento_finanzas, container, false);
-        ob = new Base_Datos(this.getActivity());
         total=(TextView)rootView.findViewById(R.id.total);
         items=new ArrayList<>();
         lista =(ListView)rootView.findViewById(R.id.lista);
         builder=new AlertDialog.Builder(this.getActivity());
         adaptador = new Adaptador_Elementos(this.getActivity(),items);
-        ob.leer(adaptador);
+        Database.getInstance(getActivity()).leer(adaptador);
         update_total();
         last=(TextView)rootView.findViewById(R.id.last);
-        last.setText(ob.LastUpdate());
+        last.setText(Database.getInstance(getActivity()).LastUpdate());
         lista.setAdapter(adaptador);
         lista.setOnItemClickListener(this);
         lista.setOnItemLongClickListener(this);
@@ -70,7 +62,7 @@ public class fragmento_finanzas extends Fragment implements MenuItem.OnMenuItemC
         return rootView;
     }
     void update_total() {
-        tot = "$ " + ob.sumatoria();
+        tot = "$ " + Database.getInstance(getActivity()).sumatoria();
         total.setText(tot);
         contar_cambios++;
     }
@@ -113,11 +105,11 @@ public class fragmento_finanzas extends Fragment implements MenuItem.OnMenuItemC
             public void onClick(DialogInterface dialog, int which) {
                 String texto = "$ " + input2.getText().toString();
                 //adaptador.add(input1.getText().toString() + "\n" + texto);
-                int id=ob.guardar_y_mandar_id(input1.getText().toString(), Integer.parseInt(input2.getText().toString()));
+                int id=Database.getInstance(getActivity()).guardar_y_mandar_id(input1.getText().toString(), Integer.parseInt(input2.getText().toString()));
                 adaptador.add(new Elemento_Lista(input1.getText().toString(),Integer.parseInt(input2.getText().toString()),
                         R.drawable.mb, id));
                 update_total();
-                last.setText(ob.LastUpdate());
+                last.setText(Database.getInstance(getActivity()).LastUpdate());
 
             }
         });
@@ -161,11 +153,11 @@ public class fragmento_finanzas extends Fragment implements MenuItem.OnMenuItemC
                 .setPositiveButton("Si", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
-                        ob.eliminarrecurso(adaptador.getItem(position).getidbase());
+                        Database.getInstance(getActivity()).eliminarrecurso(adaptador.getItem(position).getidbase());
 
                         adaptador.remove(adaptador.getItem(position));
                         update_total();
-                        last.setText(ob.LastUpdate());
+                        last.setText(Database.getInstance(getActivity()).LastUpdate());
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -184,7 +176,7 @@ public class fragmento_finanzas extends Fragment implements MenuItem.OnMenuItemC
         builder.setTitle("Modificar...");
         //Contenedor
         final int i = adaptador.getItem(position).getidbase();
-        String array[] = ob.mod(i);
+        String array[] = Database.getInstance(getActivity()).mod(i);
         LinearLayout layout = new LinearLayout(this.getActivity());
         layout.setOrientation(LinearLayout.VERTICAL);
         final EditText input1 = new EditText(this.getActivity());
@@ -217,9 +209,9 @@ public class fragmento_finanzas extends Fragment implements MenuItem.OnMenuItemC
                 items.get(position).setNombre(input1.getText().toString());
                 items.get(position).setValor(Integer.parseInt(input2.getText().toString()));
                 adaptador.notifyDataSetChanged();
-                ob.modificar(input1.getText().toString(), Integer.parseInt(input2.getText().toString()), i);
+                Database.getInstance(getActivity()).modificar(input1.getText().toString(), Integer.parseInt(input2.getText().toString()), i);
                 update_total();
-                last.setText(ob.LastUpdate());
+                last.setText(Database.getInstance(getActivity()).LastUpdate());
                 //Toast.makeText(fragmento_finanzas.this.getActivity(),input2.getText().toString(), Toast.LENGTH_SHORT).show();
             }
         });

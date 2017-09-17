@@ -20,11 +20,10 @@ import java.util.ArrayList;
  * Created by Miguel on 20/06/2016.
  */
 public class fragmento_notas extends Fragment implements View.OnClickListener{
-    RecyclerView lista;
-    Adaptador_Notas adaptador;
-    ArrayList<Elemento_Nota> items;
-    Base_Datos ob;
-    FloatingActionButton crear;
+    private RecyclerView lista;
+    private Adaptador_Notas adaptador;
+    private ArrayList<Elemento_Nota> items;
+    private FloatingActionButton crear;
     private GestureDetectorCompat mDetector;
     public fragmento_notas(){}
     @Override
@@ -32,8 +31,6 @@ public class fragmento_notas extends Fragment implements View.OnClickListener{
                              Bundle savedInstanceState) {
         // Se accede al layout (interfaz) de este fragmento
         View rootView = inflater.inflate(R.layout.fragmento_notas, container, false);
-        //Se crea un objeto de la base de datos
-        ob = new Base_Datos(this.getActivity());
         //Se accede a la lista
         lista =(RecyclerView)rootView.findViewById(R.id.lista);
         //Se crea el adaptador de la lista que contendra todos los datos
@@ -87,7 +84,7 @@ public class fragmento_notas extends Fragment implements View.OnClickListener{
      */
     @Override
     public void onResume() {
-        items=ob.leer_notas("SELECT * FROM notas WHERE eliminado='N' ORDER BY fecha_modificacion_orden DESC");
+        items=Database.getInstance(getActivity()).leer_notas("SELECT * FROM notas WHERE eliminado='N' ORDER BY fecha_modificacion_orden DESC");
         //Método personalizado para volver a cargar los datos :D
         adaptador.setData(items);
         adaptador.notifyDataSetChanged();

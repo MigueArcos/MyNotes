@@ -1,13 +1,9 @@
 package com.example.miguel.misnotas;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,14 +19,11 @@ public class fragmento_notas_eliminadas extends Fragment{
     private RecyclerView lista;
     private Adaptador_Notas_Eliminadas adaptador;
     private ArrayList<Elemento_Nota> items;
-    private Base_Datos ob;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Se accede al layout (interfaz) de este fragmento
         View rootView = inflater.inflate(R.layout.fragmento_notas_eliminadas, container, false);
-        //Se crea un objeto de la base de datos
-        ob = new Base_Datos(this.getActivity());
         //Se accede a la lista
         lista =(RecyclerView)rootView.findViewById(R.id.lista);
         //Se crea el adaptador de la lista que contendra todos los datos
@@ -55,7 +48,7 @@ public class fragmento_notas_eliminadas extends Fragment{
      */
     @Override
     public void onResume() {
-        items=ob.leer_notas("SELECT * FROM notas WHERE eliminado='S' ORDER BY fecha_modificacion_orden DESC");
+        items=Database.getInstance(getActivity()).leer_notas("SELECT * FROM notas WHERE eliminado='S' ORDER BY fecha_modificacion_orden DESC");
         //Método personalizado para volver a cargar los datos :D
         adaptador.setData(items);
         adaptador.notifyDataSetChanged();

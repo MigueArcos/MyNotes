@@ -37,7 +37,6 @@ public class Sincronizacion {
     private SharedPreferences.Editor Editor;
     private ProgressDialog progreso;
     private AlertDialog mensaje;
-    private Base_Datos ob;
     private AlarmManager alarmas;
     private PendingIntent PendingIntent;
     private PackageManager packageManager;
@@ -45,7 +44,6 @@ public class Sincronizacion {
     private final String URL="http://miguelarcos.x10.mx/android/movil";
     public Sincronizacion(Context ActivityContext){
         this.ActivityContext=ActivityContext;
-        ob = new Base_Datos(ActivityContext);
         ShPrSync= ActivityContext.getSharedPreferences("Sync", Context.MODE_PRIVATE);
         Editor=ShPrSync.edit();
         //Initialize Progress Dialog properties
@@ -130,8 +128,8 @@ public class Sincronizacion {
         mensaje.show();
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        String NotasNoSync=ob.crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String NotasSync=ob.crearJSON("SELECT * FROM notas WHERE subida='S'");
+        String NotasNoSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='N'");
+        String NotasSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='S'");
         if (!NotasNoSync.equals("")){
             params.put("NotasNoSyncJSON", NotasNoSync);
         }
@@ -238,7 +236,7 @@ public class Sincronizacion {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                ob.NotasServidorALocalDB(array);
+                Database.getInstance(ActivityContext).NotasServidorALocalDB(array);
                 //Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
                 //mensaje.setMessage(response);
                 //mensaje.show();
@@ -255,8 +253,8 @@ public class Sincronizacion {
         //Create AsycHttpClient object
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        String NotasNoSync=ob.crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String NotasSync=ob.crearJSON("SELECT * FROM notas WHERE subida='S'");
+        String NotasNoSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='N'");
+        String NotasSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='S'");
         //Toast.makeText(getActivity(), NotasSync, Toast.LENGTH_LONG).show();
         progreso.setMessage("Sincronizando...Por favor espere");
         progreso.show();
@@ -299,7 +297,7 @@ public class Sincronizacion {
                 }
 
                 //Activar_Sincronizacion_Programada();
-                ob.NotasServidorALocalDB(array);
+                Database.getInstance(ActivityContext).NotasServidorALocalDB(array);
                 ActivityContext.startActivity(intent);
                 //Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
                 //mensaje.setMessage(response);
@@ -326,8 +324,8 @@ public class Sincronizacion {
         //Create AsycHttpClient object
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        String NotasNoSync=ob.crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String NotasSync=ob.crearJSON("SELECT * FROM notas WHERE subida='S'");
+        String NotasNoSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='N'");
+        String NotasSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='S'");
         //Toast.makeText(getActivity(), NotasSync, Toast.LENGTH_LONG).show();
         progreso.setMessage("Sincronizando...Por favor espere");
         progreso.show();
@@ -370,7 +368,7 @@ public class Sincronizacion {
                 }
 
                 Activar_Sincronizacion_Programada();
-                ob.NotasServidorALocalDB(array);
+                Database.getInstance(ActivityContext).NotasServidorALocalDB(array);
                 fragment.onResume();
                 //Toast.makeText(getActivity(), response, Toast.LENGTH_LONG).show();
                 //mensaje.setMessage(response);
@@ -512,7 +510,7 @@ public class Sincronizacion {
     public void CerrarSesion(){
         Editor.clear();
         Editor.commit();
-        ob.VaciarNotas();
+        Database.getInstance(ActivityContext).VaciarNotas();
         packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
     }
     public void Activar_Sincronizacion_Programada(){

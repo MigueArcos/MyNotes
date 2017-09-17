@@ -22,13 +22,11 @@ import java.util.Calendar;
  * Created by Miguel on 10/02/2016.
  */
 public class Servicio_Notificacion extends BroadcastReceiver {
-    NotificationManager notificaciones;
-    SharedPreferences opciones;
+    private NotificationManager notificaciones;
+    private SharedPreferences opciones;
     @Override
     public void onReceive(Context context, Intent intent) {
-
         //Cuando se inicia el servicio (cada dia) se leen las opciones para ver los dias que estan marcados para sonar.
-
         opciones= context.getSharedPreferences("Opciones", Context.MODE_PRIVATE);
         boolean array[]=new boolean [7];
         for (int i=0; i<7; i++){

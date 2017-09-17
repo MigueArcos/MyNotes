@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.miguel.misnotas.Base_Datos;
+import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.Editor_Notas;
 import com.example.miguel.misnotas.R;
 
@@ -27,12 +27,10 @@ import java.util.ArrayList;
  */
 public class Adaptador_Notas extends RecyclerView.Adapter<Adaptador_Notas.vista_item> {
     private ArrayList<Elemento_Nota> datos;
-    Base_Datos ob;
-    Context Contexto_Mi_Actividad;
-    Snackbar snackbar;
+    private Context Contexto_Mi_Actividad;
+    private Snackbar snackbar;
     public Adaptador_Notas(ArrayList<Elemento_Nota> datos, Context Contexto_Mi_Actividad) {
         this.Contexto_Mi_Actividad=Contexto_Mi_Actividad;
-        ob=new Base_Datos(Contexto_Mi_Actividad);
         this.datos = datos;
     }
     /***
@@ -144,7 +142,7 @@ public class Adaptador_Notas extends RecyclerView.Adapter<Adaptador_Notas.vista_
                 @Override
                 public void onDismissed(Snackbar snackbar, int event) {
                     if (event!=DISMISS_EVENT_ACTION) {
-                        ob.eliminar_nota(id_nota_a_borrar);
+                        Database.getInstance(Contexto_Mi_Actividad).eliminar_nota(id_nota_a_borrar);
                     }
                     //Si hubiera sido por DISMISS_EVENT_ACTION significa que el usuario presiono deshacer y por lo tanto no quiere que se
                     //elimine de la base de datos
