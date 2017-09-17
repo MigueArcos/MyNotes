@@ -27,6 +27,10 @@ public class Adaptador_Notas_Eliminadas extends RecyclerView.Adapter<Adaptador_N
     private AlertDialog mensaje;
     private AlertDialog.Builder builder;
     private ArrayList<Integer> expandidos;
+    public interface AdapterActions{
+        void onClick(int position);
+        void onSwipe(int position);
+    }
     public Adaptador_Notas_Eliminadas(ArrayList<Elemento_Nota> datos, Context Contexto_Mi_Actividad) {
         this.Contexto_Mi_Actividad=Contexto_Mi_Actividad;
         expandidos=new ArrayList<>();

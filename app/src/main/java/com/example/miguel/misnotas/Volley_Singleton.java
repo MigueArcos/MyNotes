@@ -1,14 +1,6 @@
 package com.example.miguel.misnotas;
 
-import android.app.AlarmManager;
-import android.app.ProgressDialog;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -20,48 +12,26 @@ import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.miguel.misnotas.clases_alarma.Reactivar_Sync;
-import com.example.miguel.misnotas.clases_alarma.Servicio_Sincronizar_Notas;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class Volley_Singleton {
+
     private static Volley_Singleton mInstance;
     private RequestQueue mRequestQueue;
     private static Context AppContext;
-    private SharedPreferences ShPrSync;
-    private SharedPreferences.Editor Editor;
-    private ProgressDialog progreso;
-    private AlertDialog mensaje;
-    private AlarmManager alarmas;
-    private android.app.PendingIntent PendingIntent;
-    private PackageManager packageManager;
-    private ComponentName receiver;
     private final String URL="http://miguelarcos.x10.mx/android/movil";
+
+    public interface NotesResponseListener{
+        void onSuccess(String reponse);
+        void onError(String error);
+    }
     private Volley_Singleton(Context context) {
         this.AppContext = context;
         mRequestQueue = getRequestQueue();
-        ShPrSync= AppContext.getSharedPreferences("Sync", Context.MODE_PRIVATE);
-        Editor=ShPrSync.edit();
-        //Initialize Progress Dialog properties
-        progreso = new ProgressDialog(AppContext);
-        progreso.setCancelable(false);
-        progreso.setTitle("Notas de MigueLopez :D");
-        mensaje = new AlertDialog.Builder(AppContext).create();
-        mensaje.setTitle("Notas de MigueLopez :D");
-        alarmas=(AlarmManager)AppContext.getSystemService(Context.ALARM_SERVICE);
-        packageManager = AppContext.getPackageManager();
-        receiver = new ComponentName(AppContext, Reactivar_Sync.class);
     }
 
     public static synchronized Volley_Singleton getInstance(Context context) {
@@ -83,28 +53,13 @@ public class Volley_Singleton {
     public <T> void addToRequestQueue(Request<T> req) {
         getRequestQueue().add(req);
     }
-    public void syncDBLocal_Remota(final Fragment fragment){
-        progreso.setMessage("Sincronizando...Por favor espere");
-        progreso.show();
+
+    public void syncDBLocal_Remota(final String NotasSync, final String NotasNoSync, final int id_uusario, final int UltimoIDSync, final NotesResponseListener listener){
         StringRequest MyRequest = new StringRequest(Request.Method.POST, URL+"/OperacionesBD.php",
                 new Response.Listener<String>(){
                     @Override
                     public void onResponse(String response) {
-                        progreso.dismiss();
-                        JSONArray array= null;
-                        JSONObject SyncData= null;
-                        try {
-                            array=new JSONArray(response);
-                            SyncData = array.getJSONObject(array.length()-1);
-                            Editor.putInt("UltimoIDSync", SyncData.getInt("UltimoIDSync"));
-                            Editor.putInt("TotalNumberOfNotes", SyncData.getInt("TotalNumberOfNotes"));
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        Database.getInstance(AppContext).NotasServidorALocalDB(array);
-                        fragment.onResume();
-                        Editor.commit();
+                        listener.onSuccess(response);
                     }
                 },
                 new Response.ErrorListener(){
@@ -124,137 +79,30 @@ public class Volley_Singleton {
                             message = "Cannot connect to Internet...Please check your connection!";
                         } else if (error instanceof TimeoutError) {
                             message = "Connection TimeOut! Please check your internet connection.";
+                        } else{
+                            message="Error desconocido";
                         }
-                        progreso.dismiss();
-                        mensaje.setMessage(message);
-                        mensaje.show();
-
+                        listener.onError(message);
                     }
                 }
         ){
             @Override
             protected Map<String, String> getParams(){
                 Map<String, String> params = new HashMap<String, String>();
-                String NotasNoSync=Database.getInstance(AppContext).crearJSON("SELECT * FROM notas WHERE subida='N'");
-                String NotasSync=Database.getInstance(AppContext).crearJSON("SELECT * FROM notas WHERE subida='S'");
-                //Toast.makeText(getActivity(), NotasSync, Toast.LENGTH_LONG).show();
                 if (!NotasNoSync.equals("")){
                     params.put("NotasNoSyncJSON", NotasNoSync);
                 }
                 if (!NotasSync.equals("")){
                     params.put("NotasSyncJSON", NotasSync);
                 }
-                params.put("id_usuario",""+ShPrSync.getInt("id_usuario", 1));
-                params.put("UltimoIDSync", ""+ShPrSync.getInt("UltimoIDSync", 0));
+                params.put("id_usuario",String.valueOf(id_uusario));
+                params.put("UltimoIDSync", String.valueOf(UltimoIDSync));
                 return params;
             }
         };
         addToRequestQueue(MyRequest);
     }
-    public void syncDBLocal_Remota(final Intent intent){
-        progreso.setMessage("Sincronizando...Por favor espere");
-        progreso.show();
-        StringRequest MyRequest = new StringRequest(Request.Method.POST, URL+"/OperacionesBD.php",
-                new Response.Listener<String>(){
-                    @Override
-                    public void onResponse(String response) {
-                        progreso.dismiss();
-                        JSONArray array= null;
-                        JSONObject SyncData= null;
-                        try {
-                            array=new JSONArray(response);
-                            SyncData = array.getJSONObject(array.length()-1);
-                            Editor.putInt("UltimoIDSync", SyncData.getInt("UltimoIDSync"));
-                            Editor.putInt("TotalNumberOfNotes", SyncData.getInt("TotalNumberOfNotes"));
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        Database.getInstance(AppContext).NotasServidorALocalDB(array);
-                        Editor.commit();
-                        AppContext.startActivity(intent);
-                    }
-                },
-                new Response.ErrorListener(){
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // TODO Auto-generated method stub
-                        progreso.dismiss();
-                        mensaje.setMessage(error.toString());
-                        mensaje.show();
-                    }
-                }
-        ){
-            @Override
-            protected Map<String, String> getParams(){
-                Map<String, String> params = new HashMap<String, String>();
-                String NotasNoSync=Database.getInstance(AppContext).crearJSON("SELECT * FROM notas WHERE subida='N'");
-                String NotasSync=Database.getInstance(AppContext).crearJSON("SELECT * FROM notas WHERE subida='S'");
-                //Toast.makeText(getActivity(), NotasSync, Toast.LENGTH_LONG).show();
-                if (!NotasNoSync.equals("")){
-                    params.put("NotasNoSyncJSON", NotasNoSync);
-                }
-                if (!NotasSync.equals("")){
-                    params.put("NotasSyncJSON", NotasSync);
-                }
-                params.put("id_usuario",""+ShPrSync.getInt("id_usuario", 1));
-                params.put("UltimoIDSync", ""+ShPrSync.getInt("UltimoIDSync", 0));
-                return params;
-            }
-        };
-        addToRequestQueue(MyRequest);
-    }
-    public void syncDBLocal_Remota(){
-               StringRequest MyRequest = new StringRequest(Request.Method.POST, URL+"/OperacionesBD.php",
-                new Response.Listener<String>(){
-                    @Override
-                    public void onResponse(String response) {
-                        JSONArray array= null;
-                        JSONObject SyncData= null;
-                        try {
-                            array=new JSONArray(response);
-                            SyncData = array.getJSONObject(array.length()-1);
-                            Editor.putInt("UltimoIDSync", SyncData.getInt("UltimoIDSync"));
-                            Editor.putInt("TotalNumberOfNotes", SyncData.getInt("TotalNumberOfNotes"));
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        Database.getInstance(AppContext).NotasServidorALocalDB(array);
-                        Editor.commit();
-                    }
-                },
-                new Response.ErrorListener(){
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                    }
-                }
-        ){
-            @Override
-            protected Map<String, String> getParams(){
-                Map<String, String> params = new HashMap<String, String>();
-                String NotasNoSync=Database.getInstance(AppContext).crearJSON("SELECT * FROM notas WHERE subida='N'");
-                String NotasSync=Database.getInstance(AppContext).crearJSON("SELECT * FROM notas WHERE subida='S'");
-                //Toast.makeText(getActivity(), NotasSync, Toast.LENGTH_LONG).show();
-                if (!NotasNoSync.equals("")){
-                    params.put("NotasNoSyncJSON", NotasNoSync);
-                }
-                if (!NotasSync.equals("")){
-                    params.put("NotasSyncJSON", NotasSync);
-                }
-                params.put("id_usuario",""+ShPrSync.getInt("id_usuario", 1));
-                params.put("UltimoIDSync", ""+ShPrSync.getInt("UltimoIDSync", 0));
-                return params;
-            }
-        };
-        addToRequestQueue(MyRequest);
-    }
-    public void CerrarSesion(){
-        Editor.clear();
-        Editor.commit();
-        Database.getInstance(AppContext).VaciarNotas();
-        packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-    }
+    /*
     public void Activar_Sincronizacion_Programada(){
         //Se genera un intent para acceder a la clase del servicio
         Intent sync_service = new Intent(AppContext, Servicio_Sincronizar_Notas.class);
@@ -264,6 +112,6 @@ public class Volley_Singleton {
         Calendar calendar = Calendar.getInstance();
         alarmas.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 60000, PendingIntent);
         packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-    }
+    }*/
 
 }

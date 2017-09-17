@@ -253,7 +253,7 @@ public class Principal extends AppCompatActivity
                 builder.setMessage("¿Estás seguro de que quieres cerrar tu sesión?")
                         .setPositiveButton("Si", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Volley_Singleton.getInstance(Principal.this).CerrarSesion();
+                                CerrarSesion();
                                 getSupportFragmentManager().findFragmentById(R.id.content_frame).onResume();
                                 drawer.closeDrawer(GravityCompat.START);
                                 DatosUsuario();
