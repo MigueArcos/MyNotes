@@ -1,7 +1,6 @@
 package com.example.miguel.misnotas;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
@@ -22,20 +21,14 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.miguel.misnotas.clases_alarma.Reactivar_Sync;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class Principal extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,Volley_Singleton.NotesResponseListener {
     //boolean Actualizar_notas=false;
@@ -86,7 +79,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
         //Initialize Progress Dialog properties
         progressDialog = new ProgressDialog(this);
-        progressDialog.setCancelable(false);
+        progressDialog.setCancelable(true);
         progressDialog.setTitle("Notas de MigueLopez :D");
         mensaje = new AlertDialog.Builder(this).create();
         mensaje.setTitle("Notas de MigueLopez :D");
@@ -268,7 +261,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
                  */
                 //Fragment fragmento=getSupportFragmentManager().findFragmentById(R.id.content_frame);
                 //Volley_Singleton.getInstance(this).syncDBLocal_Remota(fragmento);
-                DatabaseSync();
+                StartDatabaseSync();
                 drawer.closeDrawer(GravityCompat.START);
                 return false;
             case R.id.close_session:
@@ -299,31 +292,28 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         return true;
     }
     public void CerrarSesion(){
-        ShPrSync.edit().clear();
-        ShPrSync.edit().commit();
+        //If you're not gonna use an editor object (Editor=ShPrSync.edit()) then you must use apply or commit in the same line, if you don't make it, changes will not affect the SharedPreferences. {I don't know why}
+        ShPrSync.edit().clear().apply();
         Database.getInstance(this).VaciarNotas();
         packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
     }
-    void DatabaseSync(){
-        progressDialog.setMessage("Sincronizando...Por favor espere");
-        progressDialog.show();
+    void StartDatabaseSync(){
         String NotasNoSync=Database.getInstance(this).crearJSON("SELECT * FROM notas WHERE subida='N'");
         String NotasSync=Database.getInstance(this).crearJSON("SELECT * FROM notas WHERE subida='S'");
+        progressDialog.setMessage("Sincronizando...Por favor espere");
+        progressDialog.show();
         Volley_Singleton.getInstance(this).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("id_usuario", 1),ShPrSync.getInt("UltimoIDSync", 0),this);
     }
 
     @Override
-    public void onSuccess(JSONArray response, int UltimoIDSync, int TotalNumberOfNotes) {
+    public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
         progressDialog.dismiss();
-        ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync);
-        ShPrSync.edit().putInt("TotalNumberOfNotes", TotalNumberOfNotes);
-        Database.getInstance(this).NotasServidorALocalDB(response);
-        ShPrSync.edit().commit();
+        ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
         getSupportFragmentManager().findFragmentById(R.id.content_frame).onResume();
     }
 
     @Override
-    public void onError(String error) {
+    public void onSyncError(String error) {
         progressDialog.dismiss();
         mensaje.setMessage(error);
         mensaje.show();

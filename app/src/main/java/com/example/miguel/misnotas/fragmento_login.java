@@ -4,9 +4,14 @@ package com.example.miguel.misnotas;
  * Created by Migue on 04/07/2017.
  */
 
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,15 +23,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.util.regex.Pattern;
 
-public class fragmento_login extends Fragment implements View.OnClickListener, View.OnFocusChangeListener{
+public class fragmento_login extends Fragment implements View.OnClickListener, View.OnFocusChangeListener, Volley_Singleton.LoginListener, Volley_Singleton.NotesResponseListener{
 
     private TextInputLayout label_email, label_password;
     private EditText email, password;
     private Button submit;
     private Pattern regex_password;
     private Bundle paquete=null;
-    private Sincronizacion sync;
-
+    private AlertDialog.Builder aBuilder;
+    private ProgressDialog progressDialog;
+    private SharedPreferences ShPrSync;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -60,7 +66,11 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
                 return false; // pass on to other listeners.
             }
         });
-        sync=new Sincronizacion(getActivity());
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setCancelable(true);
+        progressDialog.setTitle("Notas de MigueLopez :D");
+        aBuilder=new AlertDialog.Builder(getActivity()).setTitle("Notas de MigueLópez :D").setCancelable(true);
+        ShPrSync= getActivity().getSharedPreferences("Sync", Context.MODE_PRIVATE);
         return rootView;
     }
 
@@ -74,7 +84,7 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
     public void onClick(View v) {
 
         if (ValidarEmail() && ValidarPassword()){
-            sync.IniciarSesion(email.getText().toString(), password.getText().toString());
+            StartLogin();
         }
         else{
             Toast.makeText(getActivity(), "Hay un error con los datos", Toast.LENGTH_SHORT).show();
@@ -105,6 +115,18 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
         }
     }
     */
+    void StartLogin(){
+        progressDialog.setMessage("Iniciando sesión....Por favor espere");
+        progressDialog.show();
+        Volley_Singleton.getInstance(getActivity()).IniciarSesion(email.getText().toString(), password.getText().toString(),this);
+    }
+    void StartDatabaseSync(){
+        String NotasNoSync=Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='N'");
+        String NotasSync=Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='S'");
+        progressDialog.setMessage("Sincronizando...Por favor espere");
+        progressDialog.show();
+        Volley_Singleton.getInstance(getActivity()).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("id_usuario", 1),ShPrSync.getInt("UltimoIDSync", 0),this);
+    }
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
         if (!hasFocus){
@@ -129,6 +151,35 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
                     break;
             }
         }
+    }
+
+    @Override
+    public void onLoginSuccess(int id_usuario, String username, String email) {
+        progressDialog.dismiss();
+        ShPrSync.edit().putInt("id_usuario",id_usuario).putString("username",username).putString("email",email).apply();
+        StartDatabaseSync();
+    }
+
+    @Override
+    public void onLoginError(String error) {
+        progressDialog.dismiss();
+        aBuilder.setMessage(error);
+        aBuilder.show();
+    }
+
+    @Override
+    public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
+        progressDialog.dismiss();
+        ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
+        Intent i=new Intent(getActivity(), Principal.class);
+        getActivity().startActivity(i);
+    }
+
+    @Override
+    public void onSyncError(String error) {
+        progressDialog.dismiss();
+        aBuilder.setMessage(error);
+        aBuilder.show();
     }
 }
 

@@ -30,8 +30,12 @@ public class Volley_Singleton {
     private final String URL="http://miguelarcos.x10.mx/android/movil";
 
     public interface NotesResponseListener{
-        void onSuccess(JSONArray response, int UltimoIDSync, int TotalNumberOfNotes);
-        void onError(String error);
+        void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes);
+        void onSyncError(String error);
+    }
+    public interface LoginListener{
+        void onLoginSuccess(int id_usuario, String username, String email);
+        void onLoginError(String error);
     }
     private Volley_Singleton(Context context) {
         this.AppContext = context;
@@ -68,7 +72,8 @@ public class Volley_Singleton {
                         try {
                             array=new JSONArray(response);
                             SyncData = array.getJSONObject(array.length()-1);
-                            listener.onSuccess(array, SyncData.getInt("UltimoIDSync"), SyncData.getInt("TotalNumberOfNotes"));
+                            Database.getInstance(AppContext).NotasServidorALocalDB(array);
+                            listener.onSyncSuccess(SyncData.getInt("UltimoIDSync"), SyncData.getInt("TotalNumberOfNotes"));
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -79,23 +84,7 @@ public class Volley_Singleton {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // TODO Auto-generated method stub
-                        String message = null;
-                        if (error instanceof NetworkError) {
-                            message = "Cannot connect to Internet...Please check your connection!";
-                        } else if (error instanceof ServerError) {
-                            message = "The server could not be found. Please try again after some time!!";
-                        } else if (error instanceof AuthFailureError) {
-                            message = "Cannot connect to Internet...Please check your connection!";
-                        } else if (error instanceof ParseError) {
-                            message = "Parsing error! Please try again after some time!!";
-                        } else if (error instanceof NoConnectionError) {
-                            message = "Cannot connect to Internet...Please check your connection!";
-                        } else if (error instanceof TimeoutError) {
-                            message = "Connection TimeOut! Please check your internet connection.";
-                        } else{
-                            message="Error desconocido";
-                        }
-                        listener.onError(message);
+                        listener.onSyncError(getVolleyError(error));
                     }
                 }
         ){
@@ -114,6 +103,102 @@ public class Volley_Singleton {
             }
         };
         addToRequestQueue(MyRequest);
+    }
+    public void IniciarSesion(final String email, final String password, final LoginListener loginListener){
+        StringRequest MyRequest = new StringRequest(Request.Method.POST, URL+"/IniciarSesion.php",
+                new Response.Listener<String>(){
+                    @Override
+                    public void onResponse(String response) {
+                        //Toast.makeText(ActivityContext, response, Toast.LENGTH_SHORT).show();
+                        if (!response.equals("No encontrado")){
+                            try {
+                                JSONObject respuesta=new JSONObject(response);
+                                loginListener.onLoginSuccess(respuesta.getInt("id_usuario"),respuesta.getString("username"),respuesta.getString("email"));
+                                //return ;
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        else{
+                            loginListener.onLoginError("Datos de usuario no encontrados");
+                        }
+                    }
+                },
+                new Response.ErrorListener(){
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO Auto-generated method stub
+                        loginListener.onLoginError(getVolleyError(error));
+                    }
+                }
+        ){
+            @Override
+            protected Map<String, String> getParams(){
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("email",email);
+                params.put("password",password);
+                return params;
+            }
+        };
+        addToRequestQueue(MyRequest);
+    }
+    public void Registrar(final String username, final String email, final String password, final LoginListener loginListener){
+        StringRequest MyRequest = new StringRequest(Request.Method.POST, URL+"/Registrar.php",
+                new Response.Listener<String>(){
+                    @Override
+                    public void onResponse(String response) {
+                        if (!response.equals("Email repetido")){
+                            try {
+                                JSONObject respuesta=new JSONObject(response);
+                                loginListener.onLoginSuccess(respuesta.getInt("id_usuario"),respuesta.getString("username"),respuesta.getString("email"));
+                                //return ;
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        else{
+                            loginListener.onLoginError("Este correo electrónico ya ha sido registrado");
+                        }
+                    }
+                },
+                new Response.ErrorListener(){
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO Auto-generated method stub
+                        loginListener.onLoginError(getVolleyError(error));
+                    }
+                }
+        ){
+            @Override
+            protected Map<String, String> getParams(){
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("email",email);
+                params.put("password",password);
+                params.put("username",username);
+                return params;
+            }
+        };
+        addToRequestQueue(MyRequest);
+    }
+
+    private String getVolleyError(VolleyError error){
+        String message = "Unknown error";
+        if (error instanceof NetworkError) {
+            message = "Cannot connect to Internet...Please check your connection!";
+        } else if (error instanceof ServerError) {
+            message = "The server could not be found. Please try again after some time!!";
+        } else if (error instanceof AuthFailureError) {
+            message = "Cannot connect to Internet...Please check your connection!";
+        } else if (error instanceof ParseError) {
+            message = "Parsing error! Please try again after some time!!";
+        } else if (error instanceof NoConnectionError) {
+            message = "Cannot connect to Internet...Please check your connection!";
+        } else if (error instanceof TimeoutError) {
+            message = "Connection TimeOut! Please check your internet connection.";
+        } else{
+            message="Error desconocido";
+        }
+        return message;
     }
     /*
     public void Activar_Sincronizacion_Programada(){
