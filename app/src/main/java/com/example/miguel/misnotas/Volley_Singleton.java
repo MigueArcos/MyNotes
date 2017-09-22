@@ -1,6 +1,7 @@
 package com.example.miguel.misnotas;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -28,14 +29,15 @@ public class Volley_Singleton {
     private RequestQueue mRequestQueue;
     private static Context AppContext;
     private final String URL="http://miguelarcos.x10.mx/android/movil";
-
+    private final int SYNC_TIME=3600000;
     public interface NotesResponseListener{
         void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes);
         void onSyncError(String error);
     }
     public interface LoginListener{
-        void onLoginSuccess(int id_usuario, String username, String email);
+        void onLoginSuccess(int id_usuario, String username, String email, int sync_time);
         void onLoginError(String error);
+        void activateAutoSync(int time);
     }
     private Volley_Singleton(Context context) {
         this.AppContext = context;
@@ -74,7 +76,7 @@ public class Volley_Singleton {
                             SyncData = array.getJSONObject(array.length()-1);
                             Database.getInstance(AppContext).NotasServidorALocalDB(array);
                             listener.onSyncSuccess(SyncData.getInt("UltimoIDSync"), SyncData.getInt("TotalNumberOfNotes"));
-
+                            Log.d("JSON",response);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -109,12 +111,11 @@ public class Volley_Singleton {
                 new Response.Listener<String>(){
                     @Override
                     public void onResponse(String response) {
-                        //Toast.makeText(ActivityContext, response, Toast.LENGTH_SHORT).show();
                         if (!response.equals("No encontrado")){
                             try {
                                 JSONObject respuesta=new JSONObject(response);
-                                loginListener.onLoginSuccess(respuesta.getInt("id_usuario"),respuesta.getString("username"),respuesta.getString("email"));
-                                //return ;
+                                loginListener.onLoginSuccess(respuesta.getInt("id_usuario"),respuesta.getString("username"),respuesta.getString("email"),SYNC_TIME);
+                                Log.d("Pruebas", response);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -150,7 +151,7 @@ public class Volley_Singleton {
                         if (!response.equals("Email repetido")){
                             try {
                                 JSONObject respuesta=new JSONObject(response);
-                                loginListener.onLoginSuccess(respuesta.getInt("id_usuario"),respuesta.getString("username"),respuesta.getString("email"));
+                                loginListener.onLoginSuccess(respuesta.getInt("id_usuario"),respuesta.getString("username"),respuesta.getString("email"),SYNC_TIME);
                                 //return ;
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -200,16 +201,7 @@ public class Volley_Singleton {
         }
         return message;
     }
-    /*
-    public void Activar_Sincronizacion_Programada(){
-        //Se genera un intent para acceder a la clase del servicio
-        Intent sync_service = new Intent(AppContext, Servicio_Sincronizar_Notas.class);
-        //Se crea el pendingintent que se necesita para el alarmmanager
-        PendingIntent= PendingIntent.getBroadcast(AppContext, 0,sync_service,0);
-        //Se genera una instancia del calendario a una hora determinada
-        Calendar calendar = Calendar.getInstance();
-        alarmas.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 60000, PendingIntent);
-        packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-    }*/
+
+
 
 }

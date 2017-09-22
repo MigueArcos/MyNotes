@@ -10,12 +10,10 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
     private Button cambiar_fragmentos;
     private Fragment fragmento_l;
     private Fragment fragmento_r;
-    private Sincronizacion sync;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        sync=new Sincronizacion(this);
         /*if (savedInstanceState != null) {
             //Restore the fragment's instance
             fragmento_l = getSupportFragmentManager().getFragment(savedInstanceState, "fragmento_login");

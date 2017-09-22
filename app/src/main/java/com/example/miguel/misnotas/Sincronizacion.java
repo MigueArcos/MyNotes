@@ -1,4 +1,9 @@
-package com.example.miguel.misnotas;
+/*package com.example.miguel.misnotas;
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|                       This class has beeen deprecated on 21/09/2017                              |
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ We will let it because we could need it later
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -28,9 +33,11 @@ import java.util.Calendar;
 
 import cz.msebera.android.httpclient.Header;
 
-/**
- * Created by Migue on 01/07/2017.
- */
+/*
+    * Created by Migue on 01/07/2017.
+    *
+*/
+/*
 public class Sincronizacion {
     private Context ActivityContext;
     private SharedPreferences ShPrSync;
@@ -58,7 +65,7 @@ public class Sincronizacion {
         //mensaje.setMessage("Esta App fue programada por Miguel Ángel López Arcos x'D");
         //Se retorna la vista del fragmento que se creo
     }
-    /*public void CrearJSON_SincronizarBDs(final Fragment fragment){
+    public void CrearJSON_SincronizarBDs(final Fragment fragment){
         //Create AsycHttpClient object
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
@@ -90,7 +97,7 @@ public class Sincronizacion {
                 JSONArray array=null;
                 try {
                     array = new JSONArray(response);
-                    /*JSONObject SyncData=array.getJSONObject(array.length()-1);
+                    JSONObject SyncData=array.getJSONObject(array.length()-1);
                     Editor.putInt("UltimoIDSync", SyncData.getInt("UltimoIDSync"));
                     Editor.putInt("TotalNumberOfNotes", SyncData.getInt("TotalNumberOfNotes"));
                     Editor.commit();
@@ -120,7 +127,7 @@ public class Sincronizacion {
 
         });
 
-    }*/
+    }
     public void CrearJSON_SincronizarBDs(){
         //Create AsycHttpClient object
         Toast.makeText(ActivityContext,"Hijo de la verga", Toast.LENGTH_SHORT).show();
@@ -152,10 +159,10 @@ public class Sincronizacion {
                 JSONArray array=null;
                 try {
                     array = new JSONArray(response);
-                    /*JSONObject SyncData=array.getJSONObject(array.length()-1);
+                    JSONObject SyncData=array.getJSONObject(array.length()-1);
                     Editor.putInt("UltimoIDSync", SyncData.getInt("UltimoIDSync"));
                     Editor.putInt("TotalNumberOfNotes", SyncData.getInt("TotalNumberOfNotes"));
-                    Editor.commit();*/
+                    Editor.commit();
                     if ((array.length()-1)==array.getJSONObject(array.length()-1).getInt("TotalNumberOfNotes")){
                         //syncDBLocal_Remota(response);
                     }
@@ -172,7 +179,7 @@ public class Sincronizacion {
         });
 
     }
-    /*public void syncDBLocal_Remota(final Fragment fragment, final String JSONCompleto){
+    public void syncDBLocal_Remota(final Fragment fragment, final String JSONCompleto){
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
         progreso.setMessage("Sincronizando...Por favor espere");
@@ -216,7 +223,7 @@ public class Sincronizacion {
             }
 
         });
-    }*/
+    }
     public void syncDBLocal_Remota(final String JSONCompleto){
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
@@ -278,13 +285,13 @@ public class Sincronizacion {
                 }
                 //int ResponseSize=response.length();
                 //int NewLastSyncID=0;
-                /*for (int i=ResponseSize-1; i>=0; i--){
+                for (int i=ResponseSize-1; i>=0; i--){
                     if (response.charAt(i)==','){
                         NewLastSyncID=Integer.parseInt(response.substring(i+1,ResponseSize));
                         response=response.substring(0,i);
                         break;
                     }
-                }*/
+                }
                 JSONArray array=null;
                 try {
                     array = new JSONArray(response);
@@ -349,13 +356,13 @@ public class Sincronizacion {
                 }
                 //int ResponseSize=response.length();
                 //int NewLastSyncID=0;
-                /*for (int i=ResponseSize-1; i>=0; i--){
+                for (int i=ResponseSize-1; i>=0; i--){
                     if (response.charAt(i)==','){
                         NewLastSyncID=Integer.parseInt(response.substring(i+1,ResponseSize));
                         response=response.substring(0,i);
                         break;
                     }
-                }*/
+                }
                 JSONArray array=null;
                 try {
                     array = new JSONArray(response);
@@ -525,3 +532,4 @@ public class Sincronizacion {
 
     }
 }
+*/
