@@ -38,7 +38,6 @@ public class Database extends SQLiteOpenHelper {
         this.AppContext=context;
     }
     public static Database getInstance(Context context) {
-
         if (Instance == null) {
             Instance = new Database(context.getApplicationContext());
         }
@@ -260,9 +259,9 @@ public class Database extends SQLiteOpenHelper {
         db.close();
     }
     //Este método se usara cuando se cierre la sesión y las notas del usuario que la cerro seran borradas
-    public void VaciarNotas(){
+    public void emptySyncedNotes(){
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DELETE FROM notas");
+        db.execSQL("DELETE FROM notas WHERE subida='S'");
         db.close();
     }
     /***************************************
@@ -293,17 +292,20 @@ public class Database extends SQLiteOpenHelper {
         **/
         return gson.toJson(notas);
     }
-    public void NotasServidorALocalDB(JSONArray array){
+    public void NotasServidorALocalDB(JSONArray array, boolean isLogin){
         //ArrayList<Elemento_Nota> list = new ArrayList<>();
         try {
             if (array.length() > 0) {
                 Gson gson = new Gson();
                 int i = 0;
                 SQLiteDatabase db = getWritableDatabase();
-                db.execSQL("DELETE FROM notas");
+                if (isLogin){
+                    //This line is needed when is a login to guarantee that won´t have been duplicate notes
+                    db.execSQL("DELETE FROM notas");
+                }
                 while (i < array.length()-1) {
                     Elemento_Nota actual=gson.fromJson(array.getJSONObject(i).toString(), Elemento_Nota.class);
-                    String SQL = "INSERT INTO notas (id_nota, titulo, contenido, fecha_creacion, fecha_modificacion, fecha_modificacion_orden,eliminado, subida) VALUES ("+actual.getID_Nota()+",'"+actual.getTitulo().replace("'","\'\'")+"','"+actual.getContenido().replace("'","\'\'")+"','"+actual.getFecha_creacion()+"','"+actual.getFecha_modificacion()+"','"+actual.getFecha_modificacion_orden()+"','"+actual.getEliminado()+"','S')";
+                    String SQL = "REPLACE INTO notas (id_nota, titulo, contenido, fecha_creacion, fecha_modificacion, fecha_modificacion_orden,eliminado, subida) VALUES ("+actual.getID_Nota()+",'"+actual.getTitulo().replace("'","\'\'")+"','"+actual.getContenido().replace("'","\'\'")+"','"+actual.getFecha_creacion()+"','"+actual.getFecha_modificacion()+"','"+actual.getFecha_modificacion_orden()+"','"+actual.getEliminado()+"','S')";
                     db.execSQL(SQL);
                     i++;
                 }

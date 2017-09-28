@@ -20,6 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,14 +40,14 @@ public class Volley_Singleton {
         void onLoginError(String error);
         void activateAutoSync(int time);
     }
-    private Volley_Singleton(Context context) {
-        this.AppContext = context;
+    private Volley_Singleton(Context AppContext) {
+        this.AppContext = AppContext;
         mRequestQueue = getRequestQueue();
     }
 
     public static synchronized Volley_Singleton getInstance(Context context) {
         if (mInstance == null) {
-            mInstance = new Volley_Singleton(context);
+            mInstance = new Volley_Singleton(context.getApplicationContext());
         }
         return mInstance;
     }
@@ -55,7 +56,7 @@ public class Volley_Singleton {
         if (mRequestQueue == null) {
             // getApplicationContext() is key, it keeps you from leaking the
             // Activity or BroadcastReceiver if someone passes one in.
-            mRequestQueue = Volley.newRequestQueue(AppContext.getApplicationContext());
+            mRequestQueue = Volley.newRequestQueue(AppContext);
         }
         return mRequestQueue;
     }
@@ -64,7 +65,7 @@ public class Volley_Singleton {
         getRequestQueue().add(req);
     }
 
-    public void syncDBLocal_Remota(final String NotasSync, final String NotasNoSync, final int id_usuario, final int UltimoIDSync, final NotesResponseListener listener){
+    public void syncDBLocal_Remota(final String NotasSync, final String NotasNoSync, final int id_usuario, final int UltimoIDSync, final boolean isLogin, final NotesResponseListener listener){
         StringRequest MyRequest = new StringRequest(Request.Method.POST, URL+"/OperacionesBD.php",
                 new Response.Listener<String>(){
                     @Override
@@ -74,7 +75,7 @@ public class Volley_Singleton {
                         try {
                             array=new JSONArray(response);
                             SyncData = array.getJSONObject(array.length()-1);
-                            Database.getInstance(AppContext).NotasServidorALocalDB(array);
+                            Database.getInstance(AppContext).NotasServidorALocalDB(array,isLogin);
                             listener.onSyncSuccess(SyncData.getInt("UltimoIDSync"), SyncData.getInt("TotalNumberOfNotes"));
                             Log.d("JSON",response);
                         } catch (JSONException e) {
@@ -198,6 +199,13 @@ public class Volley_Singleton {
             message = "Connection TimeOut! Please check your internet connection.";
         } else{
             message="Error desconocido";
+        }
+        if (error.networkResponse!=null){
+            try {
+                message+="\n"+new String(error.networkResponse.data,"utf-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         }
         return message;
     }

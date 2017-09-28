@@ -2,6 +2,7 @@ package com.example.miguel.misnotas;
 
 import android.Manifest;
 import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -21,6 +22,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -28,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.miguel.misnotas.clases_alarma.Reactivar_Sync;
+import com.example.miguel.misnotas.clases_alarma.Servicio_Sincronizar_Notas;
 
 
 public class Principal extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,Volley_Singleton.NotesResponseListener {
@@ -44,7 +47,6 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
     private View header;
     private ProgressDialog progressDialog;
     private AlarmManager alarmManager;
-    private android.app.PendingIntent pendingIntent;
     private PackageManager packageManager;
     private ComponentName receiver;
     @Override
@@ -79,13 +81,13 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
         //Initialize Progress Dialog properties
         progressDialog = new ProgressDialog(this);
-        progressDialog.setCancelable(true);
+        progressDialog.setCancelable(false);
         progressDialog.setTitle("Notas de MigueLopez :D");
         mensaje = new AlertDialog.Builder(this).create();
         mensaje.setTitle("Notas de MigueLopez :D");
-        alarmManager=(AlarmManager) getSystemService(Context.ALARM_SERVICE);
         packageManager = getPackageManager();
         receiver = new ComponentName(this, Reactivar_Sync.class);
+        alarmManager=(AlarmManager) getSystemService(Context.ALARM_SERVICE);
     }
     private void DatosUsuario(){
         header=navigationView.getHeaderView(0);
@@ -294,15 +296,18 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
     public void CerrarSesion(){
         //If you're not gonna use an editor object (Editor=ShPrSync.edit()) then you must use apply or commit in the same line, if you don't make it, changes will not affect the SharedPreferences. {I don't know why}
         ShPrSync.edit().clear().apply();
-        Database.getInstance(this).VaciarNotas();
+        Database.getInstance(this).emptySyncedNotes();
         packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        alarmManager.cancel(PendingIntent.getBroadcast(this, 0, new Intent(this, Servicio_Sincronizar_Notas.class), 0));
     }
     void StartDatabaseSync(){
         String NotasNoSync=Database.getInstance(this).crearJSON("SELECT * FROM notas WHERE subida='N'");
         String NotasSync=Database.getInstance(this).crearJSON("SELECT * FROM notas WHERE subida='S'");
+        Log.d("NotesSync",NotasSync);
+        Log.d("NotesUnSync",NotasNoSync);
         progressDialog.setMessage("Sincronizando...Por favor espere");
         progressDialog.show();
-        Volley_Singleton.getInstance(this).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("id_usuario", 1),ShPrSync.getInt("UltimoIDSync", 0),this);
+        Volley_Singleton.getInstance(this).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("id_usuario", 1),ShPrSync.getInt("UltimoIDSync", 0), false, this);
     }
 
     @Override
@@ -310,6 +315,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         progressDialog.dismiss();
         ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
         getSupportFragmentManager().findFragmentById(R.id.content_frame).onResume();
+        MyTxtLogger.getInstance().writeToSD(""+TotalNumberOfNotes);
     }
 
     @Override

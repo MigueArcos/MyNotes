@@ -87,7 +87,7 @@ public class fragmento_registro extends Fragment implements View.OnClickListener
         mensaje = new AlertDialog.Builder(getActivity()).create();
         mensaje.setTitle("Notas de MigueLopez :D");
         progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setCancelable(true);
+        progressDialog.setCancelable(false);
         progressDialog.setTitle("Notas de MigueLopez :D");
         aBuilder=new AlertDialog.Builder(getActivity()).setTitle("Notas de MigueLópez :D").setCancelable(true);
         ShPrSync= getActivity().getSharedPreferences("Sync", Context.MODE_PRIVATE);
@@ -132,7 +132,7 @@ public class fragmento_registro extends Fragment implements View.OnClickListener
         String NotasSync = Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='S'");
         progressDialog.setMessage("Sincronizando...Por favor espere");
         progressDialog.show();
-        Volley_Singleton.getInstance(getActivity()).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("id_usuario", 1),ShPrSync.getInt("UltimoIDSync", 0),this);
+        Volley_Singleton.getInstance(getActivity()).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("id_usuario", 1),ShPrSync.getInt("UltimoIDSync", 0), true, this);
     }
 
 
