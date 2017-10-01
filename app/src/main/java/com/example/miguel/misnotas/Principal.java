@@ -75,8 +75,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
             Editor.putInt("FragmentoSeleccionado",1);
             Editor.commit();
         }
-        DatosUsuario();
-        EventoSesion();
+        LoadUserData();
         Fragment fragment=SelectLastFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
         //Initialize Progress Dialog properties
@@ -89,7 +88,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         receiver = new ComponentName(this, Reactivar_Sync.class);
         alarmManager=(AlarmManager) getSystemService(Context.ALARM_SERVICE);
     }
-    private void DatosUsuario(){
+    private void LoadUserData(){
         header=navigationView.getHeaderView(0);
         TextView header_username=(TextView)header.findViewById(R.id.header_username);
         TextView header_email=(TextView)header.findViewById(R.id.header_email);
@@ -104,19 +103,17 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
             header_email.setTextSize(15);
             navigationView.getMenu().findItem(R.id.sync).setVisible(true);
             navigationView.getMenu().findItem(R.id.close_session).setVisible(true);
-        }
-    }
-    private void EventoSesion(){
-        LinearLayout header_linearlayout=(LinearLayout) header.findViewById(R.id.header_linearlayout);
-        header_linearlayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ShPrSync.getInt("id_usuario",0)==0){
-                    Intent login=new Intent(Principal.this, Login.class);
-                    startActivity(login);
+            LinearLayout header_linearlayout=(LinearLayout) header.findViewById(R.id.header_linearlayout);
+            header_linearlayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (ShPrSync.getInt("id_usuario",0)==0){
+                        Intent login=new Intent(Principal.this, Login.class);
+                        startActivity(login);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
     /*La razon de ser de este metodo es debido a que esta actividad fue definida como singleTask, eso implica que cuando llega la notificación de escribir gastos y esta actividad sigue en la pila de procesos, Android no la volvera a crear y por lo tanto los datos del paquete que envia el intent que manda la notificacion ("LlamadaDesdeNotificacion" que sirve para usar el fragmento_gastos en esta actividad) nunca seran recuperados.
      */
@@ -124,7 +121,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         drawer.closeDrawer(GravityCompat.START);
-        DatosUsuario();
+        LoadUserData();
         if (intent.hasExtra("LlamadaDesdeNotificacion")){
             Editor.putInt("FragmentoSeleccionado",1);
             Editor.commit();
@@ -221,6 +218,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         Fragment fragment = null;
+        MyUtils.hideKeyboard(this);
         if (item.getItemId()==CurrentFragment){
             drawer.closeDrawer(GravityCompat.START);
             return false;
@@ -274,7 +272,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
                                 CerrarSesion();
                                 getSupportFragmentManager().findFragmentById(R.id.content_frame).onResume();
                                 drawer.closeDrawer(GravityCompat.START);
-                                DatosUsuario();
+                                LoadUserData();
                             }
                         })
                         .setNegativeButton("No", new DialogInterface.OnClickListener() {

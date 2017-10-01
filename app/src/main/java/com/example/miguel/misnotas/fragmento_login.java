@@ -38,7 +38,6 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
     private EditText email, password;
     private Button submit;
     private Pattern regex_password;
-    private Bundle paquete=null;
     private AlertDialog.Builder aBuilder;
     private ProgressDialog progressDialog;
     private SharedPreferences ShPrSync;
@@ -172,7 +171,7 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
     @Override
     public void onLoginSuccess(int id_usuario, String username, String email, int sync_time) {
         ShPrSync.edit().putInt("sync_time", sync_time).apply();
-        activateAutoSync(sync_time);
+        //activateAutoSync(sync_time);
         progressDialog.dismiss();
         ShPrSync.edit().putInt("id_usuario",id_usuario).putString("username",username).putString("email",email).apply();
         StartDatabaseSync();

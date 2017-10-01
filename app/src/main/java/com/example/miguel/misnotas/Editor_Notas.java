@@ -3,6 +3,7 @@ package com.example.miguel.misnotas;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -75,9 +76,10 @@ public class Editor_Notas extends AppCompatActivity implements TextWatcher{
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        //Toast.makeText(this, "Registre el back", Toast.LENGTH_SHORT).show();
         InsertOrUpdate();
+        //This line is to ensure that this activity will come back to Main Activity (This is useful when this activity is called from search, because in this way is not necessary to remain the query to still showing the coincidences in search activity)
+        NavUtils.navigateUpFromSameTask(this);
+        super.onBackPressed();
         //this.finish();
     }
 

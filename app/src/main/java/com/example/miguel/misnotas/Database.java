@@ -35,7 +35,7 @@ public class Database extends SQLiteOpenHelper {
     private static Context AppContext;
     private Database(Context context){
         super(context, Ruta, null, DataBase_Version);
-        this.AppContext=context;
+        this.AppContext = context;
     }
     public static Database getInstance(Context context) {
         if (Instance == null) {
