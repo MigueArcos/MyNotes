@@ -98,21 +98,23 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
             header_email.setTextSize(25);
             navigationView.getMenu().findItem(R.id.sync).setVisible(false);
             navigationView.getMenu().findItem(R.id.close_session).setVisible(false);
-        }
-        else{
-            header_email.setTextSize(15);
-            navigationView.getMenu().findItem(R.id.sync).setVisible(true);
-            navigationView.getMenu().findItem(R.id.close_session).setVisible(true);
             LinearLayout header_linearlayout=(LinearLayout) header.findViewById(R.id.header_linearlayout);
             header_linearlayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //It is neccesary to repeat this if because when the Login activity redirects to this activity, this event will be fired because it was already set (This is because this activity is SingleTask)
                     if (ShPrSync.getInt("id_usuario",0)==0){
                         Intent login=new Intent(Principal.this, Login.class);
                         startActivity(login);
                     }
                 }
             });
+        }
+        else{
+            header_email.setTextSize(15);
+            navigationView.getMenu().findItem(R.id.sync).setVisible(true);
+            navigationView.getMenu().findItem(R.id.close_session).setVisible(true);
+
         }
     }
     /*La razon de ser de este metodo es debido a que esta actividad fue definida como singleTask, eso implica que cuando llega la notificación de escribir gastos y esta actividad sigue en la pila de procesos, Android no la volvera a crear y por lo tanto los datos del paquete que envia el intent que manda la notificacion ("LlamadaDesdeNotificacion" que sirve para usar el fragmento_gastos en esta actividad) nunca seran recuperados.
