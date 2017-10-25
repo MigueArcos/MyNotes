@@ -12,7 +12,7 @@
             android:id="@+id/email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Correo electrónico"
+            android:hint="@string/fragment_login_email_label"
             android:inputType="textEmailAddress"
             android:maxLines="1"
             android:singleLine="true"/>
@@ -25,7 +25,7 @@
             android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Contraseña"
+            android:hint="@string/fragment_login_password_label"
             android:inputType="textPassword"
             android:maxLines="1"
             android:singleLine="true"
@@ -37,7 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Iniciar Sesión"
+        android:text="@string/fragment_login_login_label"
         android:textStyle="bold"
         android:focusable="true"
         />

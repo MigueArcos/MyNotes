@@ -22,8 +22,7 @@
         android:textSize="20dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/foto"
-        android:text="TextView" />
+        android:layout_toRightOf="@+id/foto" />
 
     <TextView
         android:id="@+id/valor"
@@ -31,7 +30,6 @@
         android:textSize="15dp"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/foto"
-        android:layout_toRightOf="@+id/foto"
-        android:text="TextView" />
+        android:layout_toRightOf="@+id/foto" />
 
 </RelativeLayout>

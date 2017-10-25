@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/nav_header_vertical_spacing"
-            android:text="Miguel Ángel López Arcos"
+            android:text="@string/app_author"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textSize="18sp" />
 
@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="4dp"
-            android:text="migue300995@gmail.com"
+            android:text="@string/app_author_email"
             android:textSize="15sp" />
 
     </LinearLayout>

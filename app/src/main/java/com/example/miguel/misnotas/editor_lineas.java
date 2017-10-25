@@ -15,7 +15,6 @@ public class editor_lineas extends android.support.v7.widget.AppCompatEditText{
     private Rect rect;
     private Paint paint;
 
-
     public editor_lineas(Context context, AttributeSet attrs) {
         super(context, attrs);
 

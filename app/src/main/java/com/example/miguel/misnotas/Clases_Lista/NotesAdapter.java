@@ -22,6 +22,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ItemView> {
     public interface MyRecyclerViewActions{
         void onSwipe(int position);
         void onTouch(int position);
+        void onLongTouch(int position);
     }
 
     public NotesAdapter(List<Elemento_Nota> data, MyRecyclerViewActions listener) {
@@ -33,12 +34,13 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ItemView> {
      * |                    Clase Holder que contiene la vista de cada item                        |
      * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      * */
-    public class ItemView extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class ItemView extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
         public ImageView noteImage;
         public TextView title, modificationDate;
         ItemView(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
             noteImage = (ImageView) itemView.findViewById(R.id.foto);
             title = (TextView)itemView.findViewById(R.id.titulo);
             modificationDate = (TextView)itemView.findViewById(R.id.fecha_modificacion);
@@ -48,6 +50,13 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ItemView> {
         public void onClick(View v) {
             //Create intent to access the other activity with note data
             listener.onTouch(getAdapterPosition());
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            listener.onLongTouch(getAdapterPosition());
+            //Return true to indicate that this event has been consumed, if we don't do this then both events will be called
+            return true;
         }
     }
 

@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="100dp"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Toca"
+        android:text="@string/activity_schedule_default_clock_text"
         android:id="@+id/hora"
         android:gravity="center"
         android:textSize="80dp"
@@ -43,7 +43,7 @@
                 android:layout_height="50dp"
                 android:textSize="20dp"
                 android:gravity="center"
-                android:text="Lunes"
+                android:text="@string/week_monday"
                 android:id="@+id/lunes" />
 
             <CheckBox
@@ -51,7 +51,7 @@
                 android:layout_height="50dp"
                 android:textSize="20dp"
                 android:gravity="center"
-                android:text="Martes"
+                android:text="@string/week_tuesday"
                 android:id="@+id/martes" />
 
             <CheckBox
@@ -59,7 +59,7 @@
                 android:layout_height="50dp"
                 android:textSize="20dp"
                 android:gravity="center"
-                android:text="Miércoles"
+                android:text="@string/week_wednesday"
                 android:id="@+id/miercoles" />
 
             <CheckBox
@@ -67,7 +67,7 @@
                 android:layout_height="50dp"
                 android:textSize="20dp"
                 android:gravity="center"
-                android:text="Jueves"
+                android:text="@string/week_thursday"
                 android:id="@+id/jueves" />
 
             <CheckBox
@@ -75,7 +75,7 @@
                 android:layout_height="50dp"
                 android:textSize="20dp"
                 android:gravity="center"
-                android:text="Viernes"
+                android:text="@string/week_friday"
                 android:id="@+id/viernes" />
 
             <CheckBox
@@ -83,14 +83,14 @@
                 android:layout_height="50dp"
                 android:textSize="20dp"
                 android:gravity="center"
-                android:text="Sábado"
+                android:text="@string/week_saturday"
                 android:id="@+id/sabado" />
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
                 android:textSize="20dp"
                 android:gravity="center"
-                android:text="Domingo"
+                android:text="@string/week_sunday"
                 android:id="@+id/domingo" />
     </LinearLayout>
     </ScrollView>

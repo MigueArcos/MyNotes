@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -37,7 +38,7 @@ public class fragmento_notas extends Fragment implements View.OnClickListener, N
     private TextView emptyList;
     private boolean calledFromSearch;
     private String text = "";
-
+    private AlertDialog.Builder dialogDeleteNoteCompletely;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -82,11 +83,14 @@ public class fragmento_notas extends Fragment implements View.OnClickListener, N
             //Se añade el evento para cuando se presiona el boton de crear
             create.setOnClickListener(this);
             this.setHasOptionsMenu(true);
-            emptyList.setText("No hay notas");
+            emptyList.setText(R.string.empty_list_default_text);
         } else {
             create.setVisibility(View.GONE);
-            emptyList.setText("No hay resultados");
+            emptyList.setText(R.string.empty_list_search_text);
         }
+        dialogDeleteNoteCompletely = new AlertDialog.Builder(getActivity());
+        dialogDeleteNoteCompletely.setTitle(R.string.dialog_default_title).setMessage(getString(R.string.delete_note_completely));
+        dialogDeleteNoteCompletely.setNegativeButton(R.string.negative_button_label, (dialog, which) -> {});
         return rootView;
     }
 
@@ -132,7 +136,6 @@ public class fragmento_notas extends Fragment implements View.OnClickListener, N
 
     @Override
     public void onClick(View v) {
-        Log.d("Holis", "holas");
         //Remove snackbar if exists
         CreateNewNote();
     }
@@ -168,8 +171,8 @@ public class fragmento_notas extends Fragment implements View.OnClickListener, N
         final Elemento_Nota selectedNote = data.get(position);
         final int selectedNoteID = data.get(position).getID_Nota();
 
-        snackbar = Snackbar.make(list, "Nota eliminada", 10000).
-                setAction("Deshacer", new View.OnClickListener() {
+        snackbar = Snackbar.make(list, R.string.fragment_notes_snackbar_label, 10000).
+                setAction(R.string.fragment_notes_snackbar_action_label, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         // Toast.makeText(recyclerView.getContext(),""+adapterPosition, Toast.LENGTH_SHORT).show();
@@ -218,6 +221,18 @@ public class fragmento_notas extends Fragment implements View.OnClickListener, N
         //Add the bundle to the intent
         i.putExtras(pack);
         getActivity().startActivity(i);
+    }
+
+    @Override
+    public void onLongTouch(int position) {
+        dismissSnackbar();
+        dialogDeleteNoteCompletely.setPositiveButton(R.string.positive_button_label, (dialog, which) -> DeleteNoteCompletely(position)).show();
+    }
+
+    private void DeleteNoteCompletely(int position){
+        Database.getInstance(getActivity()).eliminar_nota_completamente(data.get(position).getID_Nota());
+        data.remove(position);
+        adapter.notifyItemRemoved(position);
     }
 
     public void filterNotes(String text) {

@@ -67,7 +67,7 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
                         event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
 
                         if (!ValidarPassword()){
-                            label_password.setError("La contraseña es incorrecta, debe tener al menos 4 caracteres");
+                            label_password.setError(getString(R.string.activity_login_incorrect_password));
                         }
                         else{
                             label_password.setError(null);
@@ -80,8 +80,8 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
         });
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCancelable(false);
-        progressDialog.setTitle("Notas de MigueLopez :D");
-        aBuilder=new AlertDialog.Builder(getActivity()).setTitle("Notas de MigueLópez :D").setCancelable(true);
+        progressDialog.setTitle(R.string.dialog_default_title);
+        aBuilder=new AlertDialog.Builder(getActivity()).setTitle(R.string.dialog_default_title).setCancelable(true);
         ShPrSync= getActivity().getSharedPreferences("Sync", Context.MODE_PRIVATE);
         alarmManager=(AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
         packageManager = getActivity().getPackageManager();
@@ -102,7 +102,7 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
             StartLogin();
         }
         else{
-            Toast.makeText(getActivity(), "Hay un error con los datos", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), R.string.activity_login_data_error, Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -131,14 +131,14 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
     }
     */
     void StartLogin(){
-        progressDialog.setMessage("Iniciando sesión....Por favor espere");
+        progressDialog.setMessage(getString(R.string.fragment_login_progress_dialog_label));
         progressDialog.show();
         Volley_Singleton.getInstance(getActivity()).IniciarSesion(email.getText().toString(), password.getText().toString(),this);
     }
     void StartDatabaseSync(){
         String NotasNoSync=Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='N'");
         String NotasSync=Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='S'");
-        progressDialog.setMessage("Sincronizando...Por favor espere");
+        progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
         Volley_Singleton.getInstance(getActivity()).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("id_usuario", 1),ShPrSync.getInt("UltimoIDSync", 0), true, this);
     }
@@ -148,7 +148,7 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
             switch (v.getId()){
                 case R.id.email:
                     if (!ValidarEmail()){
-                        label_email.setError("El correo electrónico es incorrecto");
+                        label_email.setError(getString(R.string.activity_login_incorrect_email));
                     }
                     else{
                         label_email.setError(null);
@@ -157,7 +157,7 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
                     break;
                 case R.id.password:
                     if (!ValidarPassword()){
-                        label_password.setError("La contraseña es incorrecta, debe tener al menos 4 caracteres");
+                        label_password.setError(getString(R.string.activity_login_incorrect_password));
                     }
                     else{
                         label_password.setError(null);

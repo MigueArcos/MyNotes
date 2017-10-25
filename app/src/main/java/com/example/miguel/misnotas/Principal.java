@@ -81,9 +81,9 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         //Initialize Progress Dialog properties
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
-        progressDialog.setTitle("Notas de MigueLopez :D");
+        progressDialog.setTitle(R.string.dialog_default_title);
         mensaje = new AlertDialog.Builder(this).create();
-        mensaje.setTitle("Notas de MigueLopez :D");
+        mensaje.setTitle(R.string.dialog_default_title);
         packageManager = getPackageManager();
         receiver = new ComponentName(this, Reactivar_Sync.class);
         alarmManager=(AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -183,7 +183,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
                 }
                 else {
                     // permission denied, boo!
-                    Toast.makeText(this.getBaseContext(),"Por favor activa el permiso, es indispensable", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this.getBaseContext(), R.string.main_activity_request_permission, Toast.LENGTH_SHORT).show();
                     this.finish();
 
                 }
@@ -252,8 +252,8 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
                 return false;
             case R.id.about:
                 builder=new AlertDialog.Builder(this);
-                builder.setTitle("Notas de MigueLopez :D");
-                builder.setMessage("Esta App fue programada por Miguel Ángel López Arcos x'D");
+                builder.setTitle(R.string.dialog_default_title);
+                builder.setMessage(getString(R.string.about_app));
                 mensaje=builder.create();
                 mensaje.show();
                 return false;
@@ -268,8 +268,8 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
                 return false;
             case R.id.close_session:
                 builder=new AlertDialog.Builder(this);
-                builder.setMessage("¿Estás seguro de que quieres cerrar tu sesión?")
-                        .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                builder.setMessage(getString(R.string.main_activity_close_session_confirmation))
+                        .setPositiveButton(R.string.positive_button_label, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 CerrarSesion();
                                 getSupportFragmentManager().findFragmentById(R.id.content_frame).onResume();
@@ -277,7 +277,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
                                 LoadUserData();
                             }
                         })
-                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(R.string.negative_button_label, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
 
                             }
@@ -305,7 +305,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         String NotasSync=Database.getInstance(this).crearJSON("SELECT * FROM notas WHERE subida='S'");
         Log.d("NotesSync",NotasSync);
         Log.d("NotesUnSync",NotasNoSync);
-        progressDialog.setMessage("Sincronizando...Por favor espere");
+        progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
         Volley_Singleton.getInstance(this).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("id_usuario", 1),ShPrSync.getInt("UltimoIDSync", 0), false, this);
     }

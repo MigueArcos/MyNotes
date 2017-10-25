@@ -43,7 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:text="Crear una cuenta"
+                android:text="@string/activity_login_switch_fragment_button_label"
                 android:textColor="#00897B"
                 android:id="@+id/cambiar_fragmentos"
                 android:layout_gravity="right"/>

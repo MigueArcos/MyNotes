@@ -76,15 +76,15 @@ public class fragmento_finanzas extends Fragment implements MenuItem.OnMenuItemC
     @Override
     public boolean onMenuItemClick(MenuItem item){
         AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
-        builder.setTitle("Nueva entrada");
+        builder.setTitle(R.string.fragment_my_money_dialog_title);
         //Contenedor
         LinearLayout layout = new LinearLayout(this.getActivity());
         layout.setOrientation(LinearLayout.VERTICAL);
         final EditText input1 = new EditText(this.getActivity());
-        input1.setHint("Recurso");
+        input1.setHint(R.string.fragment_my_money_dialog_placeholder_resource_name);
         input1.setInputType(InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         final EditText input2 = new EditText(this.getActivity());
-        input2.setHint("Valor");
+        input2.setHint(R.string.fragment_my_money_dialog_placeholder_resource_value);
         input2.setInputType(InputType.TYPE_CLASS_NUMBER);
         input2.setFilters(new InputFilter[] {new InputFilter.LengthFilter(7)});
         layout.addView(input1);
@@ -100,10 +100,9 @@ public class fragmento_finanzas extends Fragment implements MenuItem.OnMenuItemC
         builder.setView(input);
 */
 // Set up the buttons
-        builder.setPositiveButton("Listo", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(R.string.positive_button_finish_action), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String texto = "$ " + input2.getText().toString();
                 //adaptador.add(input1.getText().toString() + "\n" + texto);
                 int id=Database.getInstance(getActivity()).guardar_y_mandar_id(input1.getText().toString(), Integer.parseInt(input2.getText().toString()));
                 adaptador.add(new Elemento_Lista(input1.getText().toString(),Integer.parseInt(input2.getText().toString()),
@@ -113,7 +112,7 @@ public class fragmento_finanzas extends Fragment implements MenuItem.OnMenuItemC
 
             }
         });
-        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.negative_button_cancel_action, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -148,9 +147,9 @@ public class fragmento_finanzas extends Fragment implements MenuItem.OnMenuItemC
     }
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-        builder.setMessage("¿Estás seguro de que deseas borrar esto?")
+        builder.setMessage(R.string.delete_item_confirmation)
                 .setCancelable(false)
-                .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.positive_button_label, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
                         Database.getInstance(getActivity()).eliminarrecurso(adaptador.getItem(position).getidbase());
@@ -160,7 +159,7 @@ public class fragmento_finanzas extends Fragment implements MenuItem.OnMenuItemC
                         last.setText(Database.getInstance(getActivity()).LastUpdate());
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.negative_button_label, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
@@ -173,7 +172,7 @@ public class fragmento_finanzas extends Fragment implements MenuItem.OnMenuItemC
     }
     @Override
     public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-        builder.setTitle("Modificar...");
+        builder.setTitle(R.string.fragment_my_money_modify_label);
         //Contenedor
         final int i = adaptador.getItem(position).getidbase();
         String array[] = Database.getInstance(getActivity()).mod(i);
@@ -199,7 +198,7 @@ public class fragmento_finanzas extends Fragment implements MenuItem.OnMenuItemC
         builder.setView(input);
 */
 // Set up the buttons
-        builder.setPositiveButton("Listo", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.positive_button_finish_action, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //String texto = input1.getText().toString() + "\n$ " + input2.getText().toString();
@@ -215,7 +214,7 @@ public class fragmento_finanzas extends Fragment implements MenuItem.OnMenuItemC
                 //Toast.makeText(fragmento_finanzas.this.getActivity(),input2.getText().toString(), Toast.LENGTH_SHORT).show();
             }
         });
-        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.negative_button_cancel_action, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();

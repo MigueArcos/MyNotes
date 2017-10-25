@@ -38,15 +38,15 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
     }
     @Override
     public void onClick(View v) {
-        if (getSupportActionBar().getTitle().equals("Inicio De Sesión")){
+        if (getSupportActionBar().getTitle().equals(getString(R.string.activity_login_login_label))){
             getSupportFragmentManager().beginTransaction().replace(R.id.contenido, fragmento_r).commit();
-            getSupportActionBar().setTitle("Registro");
-            cambiar_fragmentos.setText("Iniciar Sesión");
+            getSupportActionBar().setTitle(R.string.activity_login_sign_up_label);
+            cambiar_fragmentos.setText(R.string.activity_login_login_label);
         }
         else{
             getSupportFragmentManager().beginTransaction().replace(R.id.contenido, fragmento_l).commit();
-            getSupportActionBar().setTitle("Inicio De Sesión");
-            cambiar_fragmentos.setText("Crear una cuenta");
+            getSupportActionBar().setTitle(R.string.activity_login_login_label);
+            cambiar_fragmentos.setText(R.string.activity_login_sign_up_label);
         }
     }
 }

@@ -24,12 +24,12 @@ public class SearchActivity extends AppCompatActivity implements SearchView.OnQu
                 case NOTES:
                     fragmento_notas = new fragmento_notas();
                     fragmento_notas.setArguments(getIntent().getExtras());
-                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragmento_notas, "NotesFragment").commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragmento_notas, fragmento_notas.getClass().getSimpleName()).commit();
                     break;
                 case DELETED_NOTES:
                     fragmento_notas_eliminadas = new fragmento_notas_eliminadas();
                     fragmento_notas_eliminadas.setArguments(getIntent().getExtras());
-                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragmento_notas_eliminadas, "DeletedNotesFragment").commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragmento_notas_eliminadas, fragmento_notas_eliminadas.getClass().getSimpleName()).commit();
                     break;
             }
         }
@@ -43,10 +43,10 @@ public class SearchActivity extends AppCompatActivity implements SearchView.OnQu
         final MenuItem searchItem = menu.findItem(R.id.search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         //permite modificar el hint que el EditText muestra por defecto
-        searchView.setQueryHint("Buscar algo....");
+        searchView.setQueryHint(getString(R.string.search_activity_search_view_label));
         searchView.setOnQueryTextListener(this);
         /**
-         * These five lines are necessary to expand searchView by default and show the keyboard when thiss activity starts
+         * These five lines are necessary to expand searchView by default and show the keyboard when this activity starts
          */
         searchView.setIconifiedByDefault(true);
         searchView.setFocusable(true);

@@ -44,7 +44,7 @@ public class Servicio_Notificacion extends BroadcastReceiver {
         long Tiempo_programado=c.get(Calendar.HOUR_OF_DAY)*3600000+c.get(Calendar.MINUTE)*60000-
                 (opciones.getInt("Hora",12)*3600000+opciones.getInt("Minuto",0)*60000);
         //Debe ser menor a 100000 la tolerancia para que el sistema acepte la entrega de la alarma (Tolerancia= 00:03:00.000)
-        boolean Esta_En_Tolerancia=(Tiempo_programado<180000)? true : false;
+        boolean Esta_En_Tolerancia=Tiempo_programado<180000;
         /*
         *Nota: El hecho de que se establezca esta tolerancia se debe a que si activas una alarma en el pasado va a sonar, es decir,
         * si por ejemplo activaste una alarma a las 3:00 p.m y ya son las 7:00 p.m igual va a sonar
@@ -65,9 +65,9 @@ public class Servicio_Notificacion extends BroadcastReceiver {
             //Se crea la notificacion y se le define su icono
             NotificationCompat.Builder minoti = new NotificationCompat.Builder(context).setSmallIcon(R.drawable.app_logo);
             //Se define el titulo de la notifiacion
-            minoti.setContentTitle("Control de tu dinero");
+            minoti.setContentTitle(context.getString(R.string.notification_title));
             //Se define el contenido de la notificacion
-            minoti.setContentText("Es hora de escribir tus gastos diarios.");
+            minoti.setContentText(context.getString(R.string.notification_message));
             //Se le pone a la notificacion la hora actual
             minoti.setWhen(System.currentTimeMillis());
             //Se define la actividad a la cual nos llevara la notificacion cuando la toquemos

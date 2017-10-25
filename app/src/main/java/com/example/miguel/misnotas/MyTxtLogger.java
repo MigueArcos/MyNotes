@@ -9,6 +9,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Migue on 24/09/2017.
@@ -40,7 +41,7 @@ public class MyTxtLogger {
         }
     }
     private String getDate(){
-        return new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date());
+        return new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.US).format(new Date());
     }
 
 }

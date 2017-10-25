@@ -1,12 +1,132 @@
 <resources>
     <string name="app_name">MisNotas</string>
+    <string name="app_author">Miguel Ángel López Arcos</string>
+    <string name="app_author_email">migue300995@gmail.com</string>
+    <string name="about_app">Esta App fue programada por Miguel Ángel López Arcos x\'D</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
+    <!-- Activities titles -->
     <string name="title_activity_editor">Editor</string>
     <string name="title_activity_notas">Notas</string>
     <string name="title_activity_programacion_horarios">Horarios</string>
     <string name="title_activity_search">SearchActivity</string>
+
+    <!-- Main Activity Strings -->
+    <string name="main_activity_request_permission">Por favor activa el permiso, es indispensable</string>
+    <string name="main_activity_close_session_confirmation">¿Estás seguro de que quieres cerrar tu sesión?</string>
+
+    <!-- Activity Schedule Strings -->
+    <string name="activity_schedule_default_clock_text">Toca</string>
+    <string name="activity_schedule_time_picker_title">Selector de horario :D</string>
+
+    <!-- Activity editor Strings -->
+    <string name="activity_editor_note_placeholder">Título de la nota</string>
+
+    <!-- Activity search Strings -->
+    <string name="search_activity_search_view_label">Buscar algo....</string>
+
+    <!-- Activity Login Strings -->
+    <string name="activity_login_switch_fragment_button_label">Crear una cuenta</string>
+    <string name="activity_login_data_error">Hay un error con los datos</string>
+    <string name="activity_login_incorrect_password">La contraseña es incorrecta, debe tener al menos 4 caracteres</string>
+    <string name="activity_login_incorrect_email">El correo electrónico es incorrecto</string>
+    <string name="activity_login_login_label">Iniciar sesión</string>
+    <string name="activity_login_sign_up_label">Crear una cuenta</string>
+
+    <!-- Fragment week expenses Strings -->
+    <string name="fragment_week_expenses_default_value">$</string>
+    <string name="fragment_week_expenses_total_label">Total</string>
+    <string name="fragment_week_expenses_delete_all">Borrar todo</string>
+    <string name="fragment_week_expenses_default_total_label">$ 0</string>
+    <string name="fragment_week_expenses_title">Gastos Semanales</string>
+
+    <!-- Fragment my money Strings -->
+    <string name="fragment_my_money_default_value">$</string>
+    <string name="fragment_my_money_default_label">Total</string>
+    <string name="fragment_my_money_title">Mi Dinero</string>
+    <string name="fragment_my_money_dialog_title">Nueva entrada</string>
+    <string name="fragment_my_money_dialog_placeholder_resource_name">Recurso</string>
+    <string name="fragment_my_money_dialog_placeholder_resource_value">Valor</string>
+    <string name="fragment_my_money_modify_label">Modificar...</string>
+
+    <!-- Fragment notepad Strings -->
+    <string name="fragment_notes_no_content_label">No hay datos</string>
+    <string name="fragment_notepad_title">Bloc De Notas</string>
+    <string name="fragment_notes_snackbar_label">Nota eliminada</string>
+    <string name="fragment_notes_snackbar_action_label">Deshacer</string>
+
+    <!-- Fragment deleted notes Strings -->
+    <string name="fragment_deleted_notes_no_content_label">No hay datos</string>
+    <string name="fragment_deleted_notes_title">Notas Eliminadas</string>
+    <string name="fragment_deleted_notes_recover_note">¿Te gustaría recuperar esta nota?</string>
+    <!-- Fragment login Strings -->
+    <string name="fragment_login_email_label">Correo electrónico</string>
+    <string name="fragment_login_password_label">Contraseña</string>
+    <string name="fragment_login_login_label">Iniciar Sesión</string>
+    <string name="fragment_login_progress_dialog_label">Iniciando sesión....Por favor espere</string>
+
+    <!-- Fragment Sign Up Strings -->
+    <string name="fragment_sign_up_username">Nombre de usuario</string>
+    <string name="fragment_sign_up_email">Correo electrónico</string>
+    <string name="fragment_sign_up_password">Contraseña</string>
+    <string name="fragment_sign_up_confirm_password">Confirmar Contraseña</string>
+    <string name="fragment_sign_up_signup_label">Registrarme</string>
+    <string name="fragment_sign_up_mismatch_passwords">Las contraseñas no coinciden</string>
+    <string name="fragment_sign_up_progress_dialog_label">Registrando....Por favor espere</string>
+    <string name="fragment_sign_up_incorrect_username">El nombre de usuario no puede estar vacio</string>
+
+    <!-- Menu drawer Strings -->
+    <string name="menu_drawer_settings_label">Opciones</string>
+    <string name="menu_drawer_settings_sync_label">Sincronizar</string>
+    <string name="menu_drawer_settings_schedule_label">Programar horarios</string>
+    <string name="menu_drawer_settings_about_label">Acerca De...</string>
+    <string name="menu_drawer_settings_close_session">Cerrar sesión</string>
+
+    <!-- Menu editor Strings -->
+    <string name="menu_editor_delete_item">Descartar</string>
+    <string name="menu_editor_add_item">Añadir</string>
+
+    <!-- Menu my money Strings -->
+    <string name="menu_my_money_add_icon">Añadir</string>
+
+    <!-- Menu notes Strings -->
+    <string name="menu_notes_search_icon_label">Busqueda</string>
+
+
+    <!-- Days of the week -->
+    <string name="week_monday">Lunes</string>
+    <string name="week_tuesday">Martes</string>
+    <string name="week_wednesday">Miércoles</string>
+    <string name="week_thursday">Jueves</string>
+    <string name="week_friday">Viernes</string>
+    <string name="week_saturday">Sábado</string>
+    <string name="week_sunday">Domingo</string>
+
+    <!-- General Strings -->
+    <string name="pm_format">p.m</string>
+    <string name="am_format">a.m</string>
+    <string name="last_update_label">Última actualización:</string>
+    <string name="date_format">dd/MM/yyyy\' a las \'hh:mm a</string>
+    <string name="delete_note_confirmation">¿Estás seguro de que deseas eliminar esta nota?</string>
+    <string name="positive_button_label">Si</string>
+    <string name="negative_button_label">No</string>
+    <string name="positive_button_finish_action">Si</string>
+    <string name="negative_button_cancel_action">No</string>
+    <string name="no_data_to_delete">No hay datos que borrar :(</string>
+    <string name="saved_label">¡Guardado!</string>
+    <string name="delete_item_confirmation">¿Estás seguro de que deseas borrar esto?</string>
+    <string name="delete_all_confirmation">¿Estás seguro de que deseas borrar todo?</string>
+    <string name="dialog_default_title">Notas de MigueLópez :D</string>
+    <string name="syncing_label">Sincronizando...Por favor espere</string>
+    <string name="empty_list_default_text">No hay notas</string>
+    <string name="empty_list_search_text">No hay resultados</string>
+    <string name="delete_note_completely">¿Te gustaría eliminar esta nota completamente?</string>
+
+    <!-- Notification Strings -->
+    <string name="notification_title">Control de tu dinero</string>
+    <string name="notification_message_fuck_up">Ya escribe tus gastos pendejo</string>
+    <string name="notification_message">Es hora de escribir tus gastos diarios.</string>
+
 </resources>

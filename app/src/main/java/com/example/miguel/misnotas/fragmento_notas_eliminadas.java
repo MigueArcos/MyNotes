@@ -31,8 +31,6 @@ public class fragmento_notas_eliminadas extends Fragment implements DeletedNotes
     private ArrayList<Elemento_Nota> data;
     private AlertDialog.Builder dialogDeleteNote;
     private AlertDialog.Builder dialogRecoverNote;
-    private int position;
-    private Elemento_Nota selectedNote;
     private TextView emptyList;
     private boolean calledFromSearch;
     private String text = "";
@@ -65,23 +63,18 @@ public class fragmento_notas_eliminadas extends Fragment implements DeletedNotes
         //ItemAnimator del recyclerView
 
         dialogDeleteNote = new AlertDialog.Builder(getActivity());
-        dialogDeleteNote.setTitle("Notas de MigueLópez :D").setMessage("¿Te gustaría eliminar esta nota completamente?");
-        dialogDeleteNote
-                .setPositiveButton("Si", (dialog, which) -> DeleteNoteCompletely())
-                .setNegativeButton("No", (dialog, which) -> CancelDeleteNote())
-                .setOnCancelListener(dialog -> CancelDeleteNote());
+        dialogDeleteNote.setTitle(R.string.dialog_default_title).setMessage(R.string.delete_note_completely);
 
         dialogRecoverNote = new AlertDialog.Builder(getActivity());
-        dialogRecoverNote.setTitle("Notas de MigueLópez :D").setMessage("¿Te gustaría recuperar esta nota?");
-        dialogRecoverNote
-                .setPositiveButton("Si", (dialog, which) -> RecoverNote())
-                .setNegativeButton("No", (dialog, which) -> {/*Empty lambda body*/});
+        dialogRecoverNote.setTitle(R.string.dialog_default_title).setMessage(getString(R.string.fragment_deleted_notes_recover_note));
+        dialogRecoverNote.setNegativeButton(R.string.negative_button_label, (dialog, which) -> {/*Empty lambda body*/});
+
         emptyList = (TextView) rootView.findViewById(R.id.emptyList);
         if (!calledFromSearch) {
             this.setHasOptionsMenu(true);
-            emptyList.setText("No hay notas eliminadas");
+            emptyList.setText(R.string.empty_list_default_text);
         } else {
-            emptyList.setText("No hay resultados");
+            emptyList.setText(R.string.empty_list_search_text);
         }
         return rootView;
     }
@@ -115,17 +108,17 @@ public class fragmento_notas_eliminadas extends Fragment implements DeletedNotes
     }
 
 
-    private void DeleteNoteCompletely() {
-        Database.getInstance(getActivity()).eliminar_nota_completamente(selectedNote.getID_Nota());
+    private void DeleteNoteCompletely(int noteID) {
+        Database.getInstance(getActivity()).eliminar_nota_completamente(noteID);
     }
 
-    private void CancelDeleteNote() {
+    private void CancelDeleteNote(int position, Elemento_Nota selectedNote) {
         data.add(position, selectedNote);
         adapter.notifyItemInserted(position);
         list.scrollToPosition(position);
     }
 
-    private void RecoverNote() {
+    private void RecoverNote(int position, Elemento_Nota selectedNote) {
         Database.getInstance(getActivity()).recuperar_nota(selectedNote.getID_Nota());
         data.remove(position);
         adapter.notifyItemRemoved(position);
@@ -135,16 +128,16 @@ public class fragmento_notas_eliminadas extends Fragment implements DeletedNotes
 
     @Override
     public void onClick(int position) {
-        this.position = position;
-        selectedNote = data.get(position);
-        dialogRecoverNote.show();
+        dialogRecoverNote.setPositiveButton(R.string.positive_button_label, (dialog, which) -> RecoverNote(position, data.get(position))).show();
     }
 
     @Override
     public void onSwipe(int position) {
-        selectedNote = data.get(position);
-        this.position = position;
-        dialogDeleteNote.show();
+        dialogDeleteNote
+                .setPositiveButton(R.string.positive_button_label, (dialog, which) -> DeleteNoteCompletely(data.get(position).getID_Nota()))
+                .setNegativeButton(R.string.negative_button_label, (dialog, which) -> CancelDeleteNote(position, data.get(position)))
+                .setOnCancelListener(dialog -> CancelDeleteNote(position, data.get(position)))
+                .show();
         data.remove(position);
         adapter.notifyItemRemoved(position);
         //It doesn't matter if the item was or not expanded, it will remove it from expandedItems (this will avoid further problems with positions)
