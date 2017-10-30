@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.miguel.misnotas.Clases_Lista.DeletedNotesAdapter;
 import com.example.miguel.misnotas.Clases_Lista.Elemento_Nota;
@@ -112,7 +113,7 @@ public class fragmento_notas_eliminadas extends Fragment implements DeletedNotes
         Database.getInstance(getActivity()).eliminar_nota_completamente(noteID);
     }
 
-    private void CancelDeleteNote(int position, Elemento_Nota selectedNote) {
+    private void CancelDeleteNote(int position, final Elemento_Nota selectedNote) {
         data.add(position, selectedNote);
         adapter.notifyItemInserted(position);
         list.scrollToPosition(position);
@@ -133,11 +134,13 @@ public class fragmento_notas_eliminadas extends Fragment implements DeletedNotes
 
     @Override
     public void onSwipe(int position) {
+        final Elemento_Nota selectedNote = data.get(position);
         dialogDeleteNote
-                .setPositiveButton(R.string.positive_button_label, (dialog, which) -> DeleteNoteCompletely(data.get(position).getID_Nota()))
-                .setNegativeButton(R.string.negative_button_label, (dialog, which) -> CancelDeleteNote(position, data.get(position)))
-                .setOnCancelListener(dialog -> CancelDeleteNote(position, data.get(position)))
+                .setPositiveButton(R.string.positive_button_label, (dialog, which) -> DeleteNoteCompletely(selectedNote.getID_Nota()))
+                .setNegativeButton(R.string.negative_button_label, (dialog, which) -> CancelDeleteNote(position, selectedNote))
+                .setOnCancelListener(dialog -> CancelDeleteNote(position, selectedNote))
                 .show();
+        //Note: If you pass directly data.get(position) to methods like CancelDeleteNote(...) or DeleteNoteCompletely(...), it doesn't work properly, maybe because the callback pulls parameters until you are gonna call it (when the item has been already deleted)
         data.remove(position);
         adapter.notifyItemRemoved(position);
         //It doesn't matter if the item was or not expanded, it will remove it from expandedItems (this will avoid further problems with positions)

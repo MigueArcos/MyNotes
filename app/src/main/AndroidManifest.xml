@@ -62,12 +62,12 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".clases_alarma.Servicio_Notificacion" />
-        <receiver android:name=".clases_alarma.Servicio_Sincronizar_Notas"></receiver>
+        <receiver android:name=".clases_alarma.Servicio_Sincronizar_Notas" />
 
         <activity
             android:name=".Login"
             android:configChanges="orientation|screenSize"
-            android:label="Inicio De Sesión"
+            android:label="@string/activity_login_login_label"
             android:parentActivityName=".Principal"
             android:windowSoftInputMode="stateHidden">
             <meta-data

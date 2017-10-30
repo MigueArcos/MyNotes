@@ -31,7 +31,7 @@ import android.widget.Toast;
 
 import com.example.miguel.misnotas.clases_alarma.Reactivar_Sync;
 import com.example.miguel.misnotas.clases_alarma.Servicio_Sincronizar_Notas;
-
+//Funciones lambda de alto orden
 
 public class Principal extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,Volley_Singleton.NotesResponseListener {
     //boolean Actualizar_notas=false;

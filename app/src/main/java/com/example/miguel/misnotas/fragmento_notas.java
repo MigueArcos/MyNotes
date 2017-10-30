@@ -152,11 +152,10 @@ public class fragmento_notas extends Fragment implements View.OnClickListener, N
         if (!calledFromSearch) {
             data = Database.getInstance(getActivity()).leer_notas("SELECT * FROM notas WHERE eliminado='N' ORDER BY fecha_modificacion_orden DESC");
             //Método personalizado para volver a cargar los datos :D
+            adapter.setData(data);
         } else {
             filterNotes(text);
         }
-        adapter.setData(data);
-        //Toast.makeText(this.getActivity(), "Se ejecuto onResume de fragmento", Toast.LENGTH_SHORT).show();
         super.onResume();
     }
 
