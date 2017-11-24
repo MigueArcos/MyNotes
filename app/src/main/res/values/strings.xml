@@ -128,5 +128,10 @@
     <string name="notification_title">Control de tu dinero</string>
     <string name="notification_message_fuck_up">Ya escribe tus gastos pendejo</string>
     <string name="notification_message">Es hora de escribir tus gastos diarios.</string>
+    <string name="fragment_voice_notes_empty_list">No hay audios</string>
+    <string name="icon_label">Icon</string>
+    <string name="voice_notes_title">Notas de voz</string>
+    <string name="permission_record_audio">El permiso ha sido denegado, no podras grabar audio :(</string>
+    <string name="error_record_audio_permission">Debes activar el permiso de grabar audio manualmente para que funcione esta opción</string>
 
 </resources>

@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,7 +46,7 @@ public class fragmento_notas extends Fragment implements View.OnClickListener, N
         if (getArguments() != null) {
             calledFromSearch = getArguments().getBoolean("calledFromSearch", false);
         }
-        emptyList = (TextView) rootView.findViewById(R.id.emptyList);
+        emptyList = (TextView) rootView.findViewById(R.id.empty_list_text);
         //Se accede a la lista
         list = (RecyclerView) rootView.findViewById(R.id.lista);
         //Se crea el adaptador de la lista que contendra todos los datos

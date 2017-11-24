@@ -13,7 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.miguel.misnotas.Clases_Lista.DeletedNotesAdapter;
 import com.example.miguel.misnotas.Clases_Lista.Elemento_Nota;
@@ -70,7 +69,7 @@ public class fragmento_notas_eliminadas extends Fragment implements DeletedNotes
         dialogRecoverNote.setTitle(R.string.dialog_default_title).setMessage(getString(R.string.fragment_deleted_notes_recover_note));
         dialogRecoverNote.setNegativeButton(R.string.negative_button_label, (dialog, which) -> {/*Empty lambda body*/});
 
-        emptyList = (TextView) rootView.findViewById(R.id.emptyList);
+        emptyList = (TextView) rootView.findViewById(R.id.empty_list_text);
         if (!calledFromSearch) {
             this.setHasOptionsMenu(true);
             emptyList.setText(R.string.empty_list_default_text);

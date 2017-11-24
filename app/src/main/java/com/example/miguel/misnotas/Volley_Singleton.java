@@ -3,17 +3,19 @@ package com.example.miguel.misnotas;
 import android.content.Context;
 import android.util.Log;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkError;
-import com.android.volley.NoConnectionError;
-import com.android.volley.ParseError;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.ServerError;
-import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
+import com.android.volley.error.AuthFailureError;
+import com.android.volley.error.NetworkError;
+import com.android.volley.error.NoConnectionError;
+import com.android.volley.error.ParseError;
+import com.android.volley.error.ServerError;
+import com.android.volley.error.TimeoutError;
+import com.android.volley.error.VolleyError;
+import com.android.volley.request.SimpleMultiPartRequest;
+import com.android.volley.request.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
@@ -39,6 +41,10 @@ public class Volley_Singleton {
         void onLoginSuccess(int id_usuario, String username, String email, int sync_time);
         void onLoginError(String error);
         void activateAutoSync(int time);
+    }
+    public interface audioUploadListener{
+        void onFileUploadSuccess(String serverMessage);
+        void onFileUploadError(String serverMessage);
     }
     private Volley_Singleton(Context AppContext) {
         this.AppContext = AppContext;
@@ -209,6 +215,39 @@ public class Volley_Singleton {
         }
         return message;
     }
+    public SimpleMultiPartRequest uploadAudio(final String audioPath, final int userID, final audioUploadListener listener){
+        Log.e("something", audioPath);
+        SimpleMultiPartRequest smr = new SimpleMultiPartRequest(Request.Method.POST, URL+"/uploadAudio.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response", response);
+                        try {
+                            JSONObject jObj = new JSONObject(response);
+                            String message = jObj.getString("message");
+                            listener.onFileUploadSuccess(response);
+                            //Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+
+                        } catch (JSONException e) {
+                            // JSON error
+                            e.printStackTrace();
+                            //Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                listener.onFileUploadError(getVolleyError(error));
+            }
+        });
+
+        smr.addMultipartParam("userID", "text/plain", ""+userID);
+        smr.addMultipartParam("audio", "application/octet-stream", audioPath);
+        //smr.addStringParam("userID", ""+userID);
+        return smr;
+    }
+
 
 
 
