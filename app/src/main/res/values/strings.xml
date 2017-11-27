@@ -2,7 +2,7 @@
     <string name="app_name">MisNotas</string>
     <string name="app_author">Miguel Ángel López Arcos</string>
     <string name="app_author_email">migue300995@gmail.com</string>
-    <string name="about_app">Esta App fue programada por Miguel Ángel López Arcos x\'D</string>
+    <string name="about_app">Esta App fue programada por el equipo 2</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -109,6 +109,7 @@
     <string name="am_format">a.m</string>
     <string name="last_update_label">Última actualización:</string>
     <string name="date_format">dd/MM/yyyy\' a las \'hh:mm a</string>
+    <string name="date_format_voice_note">dd-MM-yyyy — hh-mm-ss</string>
     <string name="delete_note_confirmation">¿Estás seguro de que deseas eliminar esta nota?</string>
     <string name="positive_button_label">Si</string>
     <string name="negative_button_label">No</string>
@@ -118,7 +119,7 @@
     <string name="saved_label">¡Guardado!</string>
     <string name="delete_item_confirmation">¿Estás seguro de que deseas borrar esto?</string>
     <string name="delete_all_confirmation">¿Estás seguro de que deseas borrar todo?</string>
-    <string name="dialog_default_title">Notas de MigueLópez :D</string>
+    <string name="dialog_default_title">Notas :D</string>
     <string name="syncing_label">Sincronizando...Por favor espere</string>
     <string name="empty_list_default_text">No hay notas</string>
     <string name="empty_list_search_text">No hay resultados</string>
@@ -133,5 +134,11 @@
     <string name="voice_notes_title">Notas de voz</string>
     <string name="permission_record_audio">El permiso ha sido denegado, no podras grabar audio :(</string>
     <string name="error_record_audio_permission">Debes activar el permiso de grabar audio manualmente para que funcione esta opción</string>
+    <string name="voice_notes_uploading_label">Subiendo archivos...</string>
+    <string name="dialog_audio_record_start_stop_label">Empezar a grabar</string>
+    <string name="default_timer_label">00:00</string>
+    <string name="stop_recording_label">Detener grabación</string>
+    <string name="voice_note_label">Nombre de la nota</string>
+    <string name="label_question_delete_voice_note">¿Estás seguro que deseas eliminar esta nota de voz?</string>
 
 </resources>

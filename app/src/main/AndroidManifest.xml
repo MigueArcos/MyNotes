@@ -84,6 +84,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.miguel.misnotas.Principal" />
         </activity>
+
+
     </application>
 
 </manifest>

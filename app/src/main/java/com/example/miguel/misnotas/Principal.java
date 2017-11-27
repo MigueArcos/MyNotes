@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -32,14 +33,18 @@ import android.widget.Toast;
 
 import com.example.miguel.misnotas.clases_alarma.Reactivar_Sync;
 import com.example.miguel.misnotas.clases_alarma.Servicio_Sincronizar_Notas;
+
+import java.io.File;
+
+import static com.example.miguel.misnotas.DialogAudioRecord.AUDIO_RECORDER_FOLDER;
 //Funciones lambda de alto orden
 
-public class Principal extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Volley_Singleton.NotesResponseListener {
+public class Principal extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Volley_Singleton.NotesResponseListener, Volley_Singleton.audiosUploadListener, Volley_Singleton.audiosDownloadListener {
     //boolean Actualizar_notas=false;
     private NavigationView navigationView;
     public static final int Permiso_De_Escritura = 1;
     public static final int RECORD_AUDIO_PERMISSION = 2;
-    private AlertDialog mensaje;
+    private AlertDialog message;
     private AlertDialog.Builder builder;
     private int CurrentFragment;
     private SharedPreferences ShPrFragments;
@@ -75,7 +80,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         /*Este paquete sirve para que si la llamada a esta actividad es desde la notificacion, siempre inicie en el
         fragmento de gastos */
         if (getIntent().hasExtra("LlamadaDesdeNotificacion")) {
-            Editor.putInt("FragmentoSeleccionado", 1);
+            Editor.putInt("FragmentoSeleccionado", 3);
             Editor.commit();
         }
         LoadUserData();
@@ -85,8 +90,8 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
         progressDialog.setTitle(R.string.dialog_default_title);
-        mensaje = new AlertDialog.Builder(this).create();
-        mensaje.setTitle(R.string.dialog_default_title);
+        message = new AlertDialog.Builder(this).create();
+        message.setTitle(R.string.dialog_default_title);
         packageManager = getPackageManager();
         receiver = new ComponentName(this, Reactivar_Sync.class);
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -129,7 +134,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         drawer.closeDrawer(GravityCompat.START);
         LoadUserData();
         if (intent.hasExtra("LlamadaDesdeNotificacion")) {
-            Editor.putInt("FragmentoSeleccionado", 1);
+            Editor.putInt("FragmentoSeleccionado", 3);
             Editor.commit();
             Fragment fragment = SelectLastFragment();
             getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
@@ -140,7 +145,8 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
     Fragment SelectLastFragment() {
         MenuItem item;
         Fragment fr = null;
-        switch (ShPrFragments.getInt("FragmentoSeleccionado", 1)) {
+        switch (ShPrFragments.getInt("FragmentoSeleccionado", 3)) {
+            /*
             case 1:
                 item = navigationView.getMenu().findItem(R.id.it1);
                 item.setChecked(true);
@@ -155,6 +161,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
                 fr = new fragmento_finanzas();
                 getSupportActionBar().setTitle(item.getTitle());
                 break;
+                */
             case 3:
                 item = navigationView.getMenu().findItem(R.id.it3);
                 item.setChecked(true);
@@ -257,6 +264,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
             return false;
         }
         switch (item.getItemId()) {
+            /*
             case R.id.it1:
                 fragment = new fragmento_gastos();
                 Editor.putInt("FragmentoSeleccionado", 1);
@@ -267,6 +275,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
                 Editor.putInt("FragmentoSeleccionado", 2);
                 CurrentFragment = item.getItemId();
                 break;
+                */
             case R.id.it3:
                 fragment = new fragmento_notas();
                 Editor.putInt("FragmentoSeleccionado", 3);
@@ -282,16 +291,18 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
                 Editor.putInt("FragmentoSeleccionado", 5);
                 CurrentFragment = item.getItemId();
                 break;
+                /*
             case R.id.schedule:
                 Intent i = new Intent(this, Programacion_horarios.class);
                 startActivity(i);
                 return false;
+                */
             case R.id.about:
                 builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.dialog_default_title);
                 builder.setMessage(getString(R.string.about_app));
-                mensaje = builder.create();
-                mensaje.show();
+                message = builder.create();
+                message.show();
                 return false;
             case R.id.sync:
                 /***
@@ -318,8 +329,8 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
 
                             }
                         });
-                mensaje = builder.create();
-                mensaje.show();
+                message = builder.create();
+                message.show();
                 return false;
         }
         Editor.commit();
@@ -334,8 +345,10 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         //If you're not gonna use an editor object (Editor=ShPrSync.edit()) then you must use apply or commit in the same line, if you don't make it, changes will not affect the SharedPreferences. {I don't know why}
         ShPrSync.edit().clear().apply();
         Database.getInstance(this).emptySyncedNotes();
+        Database.getInstance(this).deleteAudios();
         packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         alarmManager.cancel(PendingIntent.getBroadcast(this, 0, new Intent(this, Servicio_Sincronizar_Notas.class), 0));
+        MyUtils.deleteFilesInFolder(new File(Environment.getExternalStorageDirectory().getPath() + "/"+AUDIO_RECORDER_FOLDER));
     }
 
     void StartDatabaseSync() {
@@ -350,16 +363,57 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
 
     @Override
     public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
-        progressDialog.dismiss();
+        progressDialog.setMessage(getString(R.string.voice_notes_uploading_label));
         ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
-        getSupportFragmentManager().findFragmentById(R.id.content_frame).onResume();
+        //getSupportFragmentManager().findFragmentById(R.id.content_frame).onResume();
         MyTxtLogger.getInstance().writeToSD("" + TotalNumberOfNotes);
+        Volley_Singleton.getInstance(this).uploadAudios(ShPrSync.getInt("id_usuario", 0), Database.getInstance(this).generateVoiceNotesToBeUploaded(), this);
     }
 
     @Override
     public void onSyncError(String error) {
         progressDialog.dismiss();
-        mensaje.setMessage(error);
-        mensaje.show();
+        message.setMessage(error);
+        message.show();
+    }
+
+    @Override
+    public void onFilesUploadSuccess(String serverMessage) {
+        progressDialog.dismiss();
+        Database.getInstance(this).setAudiosAsUploaded();
+        //message.setMessage(serverMessage);
+        //message.show();
+        Volley_Singleton.getInstance(this).downloadAudio(ShPrSync.getInt("id_usuario", 0), this);
+    }
+
+    @Override
+    public void onFilesUploadError(String serverMessage) {
+        progressDialog.dismiss();
+        message.setMessage(serverMessage);
+        message.show();
+    }
+
+    @Override
+    public void noFilesToUpload() {
+        Volley_Singleton.getInstance(this).downloadAudio(ShPrSync.getInt("id_usuario", 0), this);
+        Log.d("no se", "Si entro");
+    }
+
+    @Override
+    public void onFilesDownloadSuccess(File voiceNotesZip, File voiceNotesFolder) {
+        progressDialog.dismiss();
+        MyUtils.extract(voiceNotesZip, voiceNotesFolder);
+        voiceNotesZip.delete();
+        getSupportFragmentManager().findFragmentById(R.id.content_frame).onResume();
+    }
+
+    @Override
+    public void onFilesDownloadError(String serverMessage) {
+        if (!serverMessage.equals("Empty")){
+            progressDialog.dismiss();
+            message.setMessage(serverMessage);
+            message.show();
+        }
+
     }
 }

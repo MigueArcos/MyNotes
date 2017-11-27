@@ -16,6 +16,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,16 +30,17 @@ import android.widget.Toast;
 import com.example.miguel.misnotas.clases_alarma.Reactivar_Sync;
 import com.example.miguel.misnotas.clases_alarma.Servicio_Sincronizar_Notas;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.regex.Pattern;
 
-public class fragmento_login extends Fragment implements View.OnClickListener, View.OnFocusChangeListener, Volley_Singleton.LoginListener, Volley_Singleton.NotesResponseListener{
+public class fragmento_login extends Fragment implements View.OnClickListener, View.OnFocusChangeListener, Volley_Singleton.LoginListener, Volley_Singleton.NotesResponseListener, Volley_Singleton.audiosUploadListener, Volley_Singleton.audiosDownloadListener {
 
     private TextInputLayout label_email, label_password;
     private EditText email, password;
     private Button submit;
     private Pattern regex_password;
-    private AlertDialog.Builder aBuilder;
+    private AlertDialog.Builder message;
     private ProgressDialog progressDialog;
     private SharedPreferences ShPrSync;
     private AlarmManager alarmManager;
@@ -81,7 +83,7 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCancelable(false);
         progressDialog.setTitle(R.string.dialog_default_title);
-        aBuilder=new AlertDialog.Builder(getActivity()).setTitle(R.string.dialog_default_title).setCancelable(true);
+        message =new AlertDialog.Builder(getActivity()).setTitle(R.string.dialog_default_title).setCancelable(true);
         ShPrSync= getActivity().getSharedPreferences("Sync", Context.MODE_PRIVATE);
         alarmManager=(AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
         packageManager = getActivity().getPackageManager();
@@ -180,8 +182,8 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
     @Override
     public void onLoginError(String error) {
         progressDialog.dismiss();
-        aBuilder.setMessage(error);
-        aBuilder.show();
+        message.setMessage(error);
+        message.show();
     }
 
     @Override
@@ -200,15 +202,58 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
     public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
         progressDialog.dismiss();
         ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
-        Intent i=new Intent(getActivity(), Principal.class);
-        getActivity().startActivity(i);
+        Volley_Singleton.getInstance(getActivity()).uploadAudios(ShPrSync.getInt("id_usuario", 0), Database.getInstance(getActivity()).generateVoiceNotesToBeUploaded(), this);
     }
 
     @Override
     public void onSyncError(String error) {
         progressDialog.dismiss();
-        aBuilder.setMessage(error);
-        aBuilder.show();
+        message.setMessage(error);
+        message.show();
+    }
+
+    @Override
+    public void onFilesUploadSuccess(String serverMessage) {
+        progressDialog.dismiss();
+        Database.getInstance(getActivity()).setAudiosAsUploaded();
+        //message.setMessage(serverMessage);
+        //message.show();
+        Volley_Singleton.getInstance(getActivity()).downloadAudio(ShPrSync.getInt("id_usuario", 0), this);
+    }
+
+    @Override
+    public void onFilesUploadError(String serverMessage) {
+        progressDialog.dismiss();
+        message.setMessage(serverMessage);
+        message.show();
+    }
+
+    @Override
+    public void noFilesToUpload() {
+        Volley_Singleton.getInstance(getActivity()).downloadAudio(ShPrSync.getInt("id_usuario", 0), this);
+        Log.d("no se", "Si entro");
+    }
+
+    @Override
+    public void onFilesDownloadSuccess(File voiceNotesZip, File voiceNotesFolder) {
+        progressDialog.dismiss();
+        MyUtils.extract(voiceNotesZip, voiceNotesFolder);
+        voiceNotesZip.delete();
+        Intent i=new Intent(getActivity(), Principal.class);
+        getActivity().startActivity(i);
+    }
+
+    @Override
+    public void onFilesDownloadError(String serverMessage) {
+        if (serverMessage.equals("Empty")){
+            Intent i=new Intent(getActivity(), Principal.class);
+            getActivity().startActivity(i);
+        }
+        else{
+            progressDialog.dismiss();
+            message.setMessage(serverMessage);
+            message.show();
+        }
     }
 }
 

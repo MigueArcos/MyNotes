@@ -55,6 +55,7 @@ public class VoiceNotesAdapter extends RecyclerView.Adapter<VoiceNotesAdapter.It
 
     public interface AdapterActions {
         void onClick(int position);
+        void onLongClick(int position);
     }
 
     /***
@@ -62,7 +63,7 @@ public class VoiceNotesAdapter extends RecyclerView.Adapter<VoiceNotesAdapter.It
      * |                    Clase Holder que contiene la vista de cada item                        |
      * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      * */
-    public class ItemView extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ItemView extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         private TextView title, lastUpdate;
 
         ItemView(View itemView) {
@@ -70,11 +71,18 @@ public class VoiceNotesAdapter extends RecyclerView.Adapter<VoiceNotesAdapter.It
             title = itemView.findViewById(R.id.voice_note_title);
             lastUpdate = itemView.findViewById(R.id.voice_note_last_update);
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
             listener.onClick(getAdapterPosition());
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            listener.onLongClick(getAdapterPosition());
+            return true;
         }
     }
 

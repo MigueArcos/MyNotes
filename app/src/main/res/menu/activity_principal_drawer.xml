@@ -2,6 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
+        <!--
         <item
             android:id="@+id/it1"
             android:icon="@drawable/ic_payment_grey"
@@ -10,7 +11,7 @@
             android:id="@+id/it2"
             android:icon="@drawable/ic_attach_money_grey"
             android:title="@string/fragment_my_money_title" />
-
+        -->
         <item
             android:id="@+id/it3"
             android:icon="@drawable/ic_assignment_grey"
@@ -31,10 +32,12 @@
                 android:id="@+id/sync"
                 android:icon="@drawable/ic_cached_grey"
                 android:title="@string/menu_drawer_settings_sync_label" />
+            <!--
             <item
                 android:id="@+id/schedule"
                 android:icon="@drawable/ic_access_time_grey"
                 android:title="@string/menu_drawer_settings_schedule_label" />
+                -->
             <item
                 android:id="@+id/about"
                 android:icon="@drawable/ic_info_grey"
