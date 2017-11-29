@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -20,15 +19,13 @@ import android.widget.Toast;
  * Created by Miguel on 13/06/2016.
  */
 public class fragmento_gastos extends Fragment implements View.OnClickListener,TextWatcher {
-    int tot = 0;
-    TextView array[]=new TextView[8];
-    AlertDialog mensaje;
-    Button boton;
-    SharedPreferences Semana;
-    SharedPreferences.Editor Editor;
-    int cambios=0;
-    public fragmento_gastos(){
-    }
+    private int tot = 0;
+    private TextView array[]=new TextView[8];
+    private AlertDialog mensaje;
+    private Button boton;
+    private SharedPreferences Semana;
+    private SharedPreferences.Editor Editor;
+    private int cambios=0;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -37,7 +34,7 @@ public class fragmento_gastos extends Fragment implements View.OnClickListener,T
         Semana= this.getActivity().getSharedPreferences("Week",Context.MODE_PRIVATE);
         Editor=Semana.edit();
         mensaje = new AlertDialog.Builder(this.getActivity()).create();
-        mensaje.setTitle("Control de dinero");
+        mensaje.setTitle(R.string.fragment_week_expenses_title);
         array[0]=(TextView) rootView.findViewById(R.id.eddomingo);
         array[1]=(TextView) rootView.findViewById(R.id.edlunes);
         array[2]=(TextView) rootView.findViewById(R.id.edmartes);
@@ -78,8 +75,8 @@ public class fragmento_gastos extends Fragment implements View.OnClickListener,T
     public void onClick(View v) {
         if (tot > 0) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
-            builder.setMessage("¿Estás seguro de que deseas borrar todo?").setCancelable(false);
-            builder.setPositiveButton("Si", new DialogInterface.OnClickListener() {
+            builder.setMessage(R.string.delete_all_confirmation).setCancelable(false);
+            builder.setPositiveButton(R.string.positive_button_label, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     for (int i = 0; i < 7; i++) {
                         array[i].setText("");
@@ -87,7 +84,7 @@ public class fragmento_gastos extends Fragment implements View.OnClickListener,T
                     tot = 0;
                 }
             });
-            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(R.string.negative_button_label, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     dialog.cancel();
                 }
@@ -95,7 +92,7 @@ public class fragmento_gastos extends Fragment implements View.OnClickListener,T
             AlertDialog alert = builder.create();
             alert.show();
         } else {
-            mensaje.setMessage("No hay datos que borrar :(");
+            mensaje.setMessage(getString(R.string.no_data_to_delete));
             mensaje.show();
         }
     }
@@ -109,7 +106,7 @@ public class fragmento_gastos extends Fragment implements View.OnClickListener,T
         Editor.putString("Total",array[7].getText().toString());
         Editor.commit();
         if (cambios!=0){
-            Toast.makeText(getActivity(), "¡Guardado!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), R.string.saved_label, Toast.LENGTH_SHORT).show();
             cambios=0;
         }
 

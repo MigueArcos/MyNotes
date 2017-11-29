@@ -3,12 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools">
     <item android:id="@+id/eliminar"
         android:icon="@android:drawable/ic_menu_delete"
-        android:title="Descartar"
+        android:title="@string/menu_editor_delete_item"
         android:orderInCategory="1"
         app:showAsAction="ifRoom"/>
     <item android:id="@+id/guardar"
         android:icon="@android:drawable/ic_menu_save"
-        android:title="Añadir"
+        android:title="@string/menu_editor_add_item"
         android:orderInCategory="1"
         app:showAsAction="ifRoom"/>
 

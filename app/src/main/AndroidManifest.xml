@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.example.miguel.misnotas">
+    package="com.example.miguel.misnotas">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -23,9 +23,9 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
@@ -33,15 +33,10 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_editor"
             android:windowSoftInputMode="stateHidden">
-
-
             android:parentActivityName=".Notas">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Principal" />
-
-
         </activity>
         <activity
             android:name=".Programacion_horarios"
@@ -49,35 +44,44 @@
             android:parentActivityName=".Principal">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Principal"/>
+                android:value=".Principal" />
         </activity>
         <!-- Register the Alarm Receiver -->
         <receiver
             android:name=".clases_alarma.Servicio_Inicio"
             android:enabled="false">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
         <receiver
             android:name=".clases_alarma.Reactivar_Sync"
             android:enabled="false">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".clases_alarma.Servicio_Notificacion"/>
-        <receiver
-            android:name=".clases_alarma.Servicio_Sincronizar_Notas">
-        </receiver>
-        <activity android:name=".Login"
-            android:label="Inicio De Sesión"
-            android:windowSoftInputMode="stateHidden"
+        <receiver android:name=".clases_alarma.Servicio_Notificacion" />
+        <receiver android:name=".clases_alarma.Servicio_Sincronizar_Notas"></receiver>
+
+        <activity
+            android:name=".Login"
             android:configChanges="orientation|screenSize"
-            android:parentActivityName=".Principal" >
+            android:label="Inicio De Sesión"
+            android:parentActivityName=".Principal"
+            android:windowSoftInputMode="stateHidden">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Principal" />
+        </activity>
+        <activity
+            android:name=".SearchActivity"
+            android:label="Busqueda..."
+            android:configChanges="orientation|screenSize"
+            android:parentActivityName=".Principal">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.miguel.misnotas.Principal" />
         </activity>
     </application>
 

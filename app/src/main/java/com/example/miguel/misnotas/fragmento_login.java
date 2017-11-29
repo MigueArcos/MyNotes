@@ -4,33 +4,47 @@ package com.example.miguel.misnotas;
  * Created by Migue on 04/07/2017.
  */
 
-import android.support.annotation.Nullable;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.app.ProgressDialog;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.regex.Matcher;
+import com.example.miguel.misnotas.clases_alarma.Reactivar_Sync;
+import com.example.miguel.misnotas.clases_alarma.Servicio_Sincronizar_Notas;
+
+import java.util.Calendar;
 import java.util.regex.Pattern;
 
-public class fragmento_login extends Fragment implements View.OnClickListener, View.OnFocusChangeListener{
+public class fragmento_login extends Fragment implements View.OnClickListener, View.OnFocusChangeListener, Volley_Singleton.LoginListener, Volley_Singleton.NotesResponseListener{
 
     private TextInputLayout label_email, label_password;
     private EditText email, password;
     private Button submit;
     private Pattern regex_password;
-    private Bundle paquete=null;
-    private Sincronizacion sync;
-
+    private AlertDialog.Builder aBuilder;
+    private ProgressDialog progressDialog;
+    private SharedPreferences ShPrSync;
+    private AlarmManager alarmManager;
+    private PendingIntent pendingIntent;
+    private PackageManager packageManager;
+    private ComponentName receiver;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -53,7 +67,7 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
                         event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
 
                         if (!ValidarPassword()){
-                            label_password.setError("La contraseña es incorrecta, debe tener al menos 4 caracteres");
+                            label_password.setError(getString(R.string.activity_login_incorrect_password));
                         }
                         else{
                             label_password.setError(null);
@@ -64,7 +78,14 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
                 return false; // pass on to other listeners.
             }
         });
-        sync=new Sincronizacion(getActivity());
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setCancelable(false);
+        progressDialog.setTitle(R.string.dialog_default_title);
+        aBuilder=new AlertDialog.Builder(getActivity()).setTitle(R.string.dialog_default_title).setCancelable(true);
+        ShPrSync= getActivity().getSharedPreferences("Sync", Context.MODE_PRIVATE);
+        alarmManager=(AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+        packageManager = getActivity().getPackageManager();
+        receiver = new ComponentName(getActivity(), Reactivar_Sync.class);
         return rootView;
     }
 
@@ -78,10 +99,10 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
     public void onClick(View v) {
 
         if (ValidarEmail() && ValidarPassword()){
-            sync.IniciarSesion(email.getText().toString(), password.getText().toString());
+            StartLogin();
         }
         else{
-            Toast.makeText(getActivity(), "Hay un error con los datos", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), R.string.activity_login_data_error, Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -109,13 +130,25 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
         }
     }
     */
+    void StartLogin(){
+        progressDialog.setMessage(getString(R.string.fragment_login_progress_dialog_label));
+        progressDialog.show();
+        Volley_Singleton.getInstance(getActivity()).IniciarSesion(email.getText().toString(), password.getText().toString(),this);
+    }
+    void StartDatabaseSync(){
+        String NotasNoSync=Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='N'");
+        String NotasSync=Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='S'");
+        progressDialog.setMessage(getString(R.string.syncing_label));
+        progressDialog.show();
+        Volley_Singleton.getInstance(getActivity()).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("id_usuario", 1),ShPrSync.getInt("UltimoIDSync", 0), true, this);
+    }
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
         if (!hasFocus){
             switch (v.getId()){
                 case R.id.email:
                     if (!ValidarEmail()){
-                        label_email.setError("El correo electrónico es incorrecto");
+                        label_email.setError(getString(R.string.activity_login_incorrect_email));
                     }
                     else{
                         label_email.setError(null);
@@ -124,7 +157,7 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
                     break;
                 case R.id.password:
                     if (!ValidarPassword()){
-                        label_password.setError("La contraseña es incorrecta, debe tener al menos 4 caracteres");
+                        label_password.setError(getString(R.string.activity_login_incorrect_password));
                     }
                     else{
                         label_password.setError(null);
@@ -133,6 +166,49 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
                     break;
             }
         }
+    }
+
+    @Override
+    public void onLoginSuccess(int id_usuario, String username, String email, int sync_time) {
+        ShPrSync.edit().putInt("sync_time", sync_time).apply();
+        //activateAutoSync(sync_time);
+        progressDialog.dismiss();
+        ShPrSync.edit().putInt("id_usuario",id_usuario).putString("username",username).putString("email",email).apply();
+        StartDatabaseSync();
+    }
+
+    @Override
+    public void onLoginError(String error) {
+        progressDialog.dismiss();
+        aBuilder.setMessage(error);
+        aBuilder.show();
+    }
+
+    @Override
+    public void activateAutoSync(int time) {
+        //Se genera un intent para acceder a la clase del servicio
+        Intent sync_service = new Intent(getActivity(), Servicio_Sincronizar_Notas.class);
+        //Se crea el pendingintent que se necesita para el alarmmanager
+        pendingIntent = PendingIntent.getBroadcast(getActivity(), 0, sync_service, 0);
+        //Se genera una instancia del calendario a una hora determinada
+        Calendar calendar = Calendar.getInstance();
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), time, pendingIntent);
+        packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+    }
+
+    @Override
+    public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
+        progressDialog.dismiss();
+        ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
+        Intent i=new Intent(getActivity(), Principal.class);
+        getActivity().startActivity(i);
+    }
+
+    @Override
+    public void onSyncError(String error) {
+        progressDialog.dismiss();
+        aBuilder.setMessage(error);
+        aBuilder.show();
     }
 }
 

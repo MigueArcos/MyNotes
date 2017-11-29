@@ -7,6 +7,8 @@ import com.example.miguel.misnotas.R;
  */
 public class Elemento_Nota {
     //Por el momento id_nota es estático y por lo tanto no tiene sentido serializarlo para crear el objeto JSON
+    /*Check this link to see properties of serialization wit Gson (First answer)
+    https://stackoverflow.com/questions/14644860/why-static-fields-not-serialized-using-google-gson-gsonbuilder-json-parser*/
     private static int id_imagen= R.drawable.nota;
     private String  titulo;
     private String contenido;

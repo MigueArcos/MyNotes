@@ -14,7 +14,7 @@ import java.util.Calendar;
 public class Servicio_Inicio extends BroadcastReceiver {
     private AlarmManager alarmas;
     private PendingIntent alarmIntent;
-    SharedPreferences opciones;
+    private SharedPreferences opciones;
     @Override
     public void onReceive(Context context, Intent intent) {
         //Este servicio solo se ejecuta al inicio de el sistema

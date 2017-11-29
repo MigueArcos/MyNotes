@@ -29,17 +29,17 @@ import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import java.util.Calendar;
 
 public class Programacion_horarios extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener, TimePickerDialog.OnTimeSetListener, CompoundButton.OnCheckedChangeListener{
-    TextView horario, ampm;
-    NotificationManager notificaciones;
-    AlarmManager alarmas;
+    private TextView horario, ampm;
+    private NotificationManager notificaciones;
+    private AlarmManager alarmas;
     //base1 ob;
-    PendingIntent intentopendiente;
-    SharedPreferences opciones;
-    SharedPreferences.Editor editor;
-    CheckBox[] lista;
-    int HOUR, MINUTE;
-    ComponentName receiver;
-    PackageManager pm;
+    private PendingIntent intentopendiente;
+    private SharedPreferences opciones;
+    private SharedPreferences.Editor editor;
+    private CheckBox[] lista;
+    private int HOUR, MINUTE;
+    private ComponentName receiver;
+    private PackageManager pm;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,7 +78,7 @@ public class Programacion_horarios extends AppCompatActivity implements View.OnC
         //Se lee el minuto
         MINUTE=opciones.getInt("Minuto",0);
         horario.setText(((HOUR+11)%12+1)+":".concat((MINUTE<10)? "0"+MINUTE: ""+MINUTE));
-        ampm.setText((HOUR>=12)? " p.m": " a.m");
+        ampm.setText((HOUR>=12)? R.string.pm_format: R.string.am_format);
         for (int i=0; i<lista.length; i++){
             lista[i].setChecked(opciones.getBoolean("dia"+i,false));
         }
@@ -111,13 +111,6 @@ public class Programacion_horarios extends AppCompatActivity implements View.OnC
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -126,9 +119,9 @@ public class Programacion_horarios extends AppCompatActivity implements View.OnC
         //Se crea el constructor del dialog (TimePicker) con todo y su evento de cambios de fecha
         TimePickerDialog time = TimePickerDialog.newInstance(Programacion_horarios.this, HOUR, MINUTE,false);
         time.setThemeDark(true);
-        time.setTitle("Selector de horario :D");
+        time.setTitle(getString(R.string.activity_schedule_time_picker_title));
         //Se muestra el timepicker
-        time.show(getFragmentManager(), "Timepickerdialog");
+        time.show(getFragmentManager(), TimePickerDialog.class.getSimpleName());
     }
 
     @Override
@@ -140,8 +133,8 @@ public class Programacion_horarios extends AppCompatActivity implements View.OnC
         PendingIntent activitynoti = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intent, 0);
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder minoti = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.app_logo);
-        minoti.setContentTitle("Control de tu dinero");
-        minoti.setContentText("Ya escribe tus gastos pendejo");
+        minoti.setContentTitle(getString(R.string.notification_title));
+        minoti.setContentText(getString(R.string.notification_message_fuck_up));
         minoti.setWhen(System.currentTimeMillis());
         minoti.setContentIntent(activitynoti);
         minoti.setAutoCancel(true);

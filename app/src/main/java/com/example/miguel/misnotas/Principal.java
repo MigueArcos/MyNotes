@@ -1,7 +1,10 @@
 package com.example.miguel.misnotas;
 
 import android.Manifest;
-import android.annotation.TargetApi;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,16 +23,17 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Principal extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+import com.example.miguel.misnotas.clases_alarma.Reactivar_Sync;
+import com.example.miguel.misnotas.clases_alarma.Servicio_Sincronizar_Notas;
+
+
+public class Principal extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,Volley_Singleton.NotesResponseListener {
     //boolean Actualizar_notas=false;
     private NavigationView navigationView;
     private final int Permiso_De_Escritura=1;
@@ -39,9 +43,12 @@ public class Principal extends AppCompatActivity
     private SharedPreferences ShPrFragments;
     private SharedPreferences.Editor Editor;
     private SharedPreferences ShPrSync;
-    private SharedPreferences.Editor Editor_Sync;
     private DrawerLayout drawer;
     private View header;
+    private ProgressDialog progressDialog;
+    private AlarmManager alarmManager;
+    private PackageManager packageManager;
+    private ComponentName receiver;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,22 +66,29 @@ public class Principal extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         /*Este editor de SharedPrefs sirve para obtener el ultimo fragmento que se quedo seleccionado, ya que cuando la app se cierra
         con el boton de atras entonces esta se vuelve a construir y siempre volveria al primer fragmento si estos no se guardan*/
-        ShPrFragments= this.getSharedPreferences("fragmentos", Context.MODE_PRIVATE);
+        ShPrFragments= getSharedPreferences("fragmentos", Context.MODE_PRIVATE);
         Editor=ShPrFragments.edit();
         ShPrSync= getSharedPreferences("Sync", Context.MODE_PRIVATE);
-        Editor_Sync=ShPrSync.edit();
         /*Este paquete sirve para que si la llamada a esta actividad es desde la notificacion, siempre inicie en el
         fragmento de gastos */
         if (getIntent().hasExtra("LlamadaDesdeNotificacion")){
             Editor.putInt("FragmentoSeleccionado",1);
             Editor.commit();
         }
-        DatosUsuario();
-        EventoSesion();
+        LoadUserData();
         Fragment fragment=SelectLastFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+        //Initialize Progress Dialog properties
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
+        progressDialog.setTitle(R.string.dialog_default_title);
+        mensaje = new AlertDialog.Builder(this).create();
+        mensaje.setTitle(R.string.dialog_default_title);
+        packageManager = getPackageManager();
+        receiver = new ComponentName(this, Reactivar_Sync.class);
+        alarmManager=(AlarmManager) getSystemService(Context.ALARM_SERVICE);
     }
-    private void DatosUsuario(){
+    private void LoadUserData(){
         header=navigationView.getHeaderView(0);
         TextView header_username=(TextView)header.findViewById(R.id.header_username);
         TextView header_email=(TextView)header.findViewById(R.id.header_email);
@@ -84,24 +98,24 @@ public class Principal extends AppCompatActivity
             header_email.setTextSize(25);
             navigationView.getMenu().findItem(R.id.sync).setVisible(false);
             navigationView.getMenu().findItem(R.id.close_session).setVisible(false);
+            LinearLayout header_linearlayout=(LinearLayout) header.findViewById(R.id.header_linearlayout);
+            header_linearlayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //It is neccesary to repeat this if because when the Login activity redirects to this activity, this event will be fired because it was already set (This is because this activity is SingleTask)
+                    if (ShPrSync.getInt("id_usuario",0)==0){
+                        Intent login=new Intent(Principal.this, Login.class);
+                        startActivity(login);
+                    }
+                }
+            });
         }
         else{
             header_email.setTextSize(15);
             navigationView.getMenu().findItem(R.id.sync).setVisible(true);
             navigationView.getMenu().findItem(R.id.close_session).setVisible(true);
+
         }
-    }
-    private void EventoSesion(){
-        LinearLayout header_linearlayout=(LinearLayout) header.findViewById(R.id.header_linearlayout);
-        header_linearlayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ShPrSync.getInt("id_usuario",0)==0){
-                    Intent login=new Intent(Principal.this, Login.class);
-                    startActivity(login);
-                }
-            }
-        });
     }
     /*La razon de ser de este metodo es debido a que esta actividad fue definida como singleTask, eso implica que cuando llega la notificación de escribir gastos y esta actividad sigue en la pila de procesos, Android no la volvera a crear y por lo tanto los datos del paquete que envia el intent que manda la notificacion ("LlamadaDesdeNotificacion" que sirve para usar el fragmento_gastos en esta actividad) nunca seran recuperados.
      */
@@ -109,7 +123,7 @@ public class Principal extends AppCompatActivity
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         drawer.closeDrawer(GravityCompat.START);
-        DatosUsuario();
+        LoadUserData();
         if (intent.hasExtra("LlamadaDesdeNotificacion")){
             Editor.putInt("FragmentoSeleccionado",1);
             Editor.commit();
@@ -169,7 +183,7 @@ public class Principal extends AppCompatActivity
                 }
                 else {
                     // permission denied, boo!
-                    Toast.makeText(this.getBaseContext(),"Por favor activa el permiso, es indispensable", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this.getBaseContext(), R.string.main_activity_request_permission, Toast.LENGTH_SHORT).show();
                     this.finish();
 
                 }
@@ -206,6 +220,7 @@ public class Principal extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         Fragment fragment = null;
+        MyUtils.hideKeyboard(this);
         if (item.getItemId()==CurrentFragment){
             drawer.closeDrawer(GravityCompat.START);
             return false;
@@ -237,8 +252,8 @@ public class Principal extends AppCompatActivity
                 return false;
             case R.id.about:
                 builder=new AlertDialog.Builder(this);
-                builder.setTitle("Notas de MigueLopez :D");
-                builder.setMessage("Esta App fue programada por Miguel Ángel López Arcos x'D");
+                builder.setTitle(R.string.dialog_default_title);
+                builder.setMessage(getString(R.string.about_app));
                 mensaje=builder.create();
                 mensaje.show();
                 return false;
@@ -246,22 +261,23 @@ public class Principal extends AppCompatActivity
                 /***
                  * Se envia la instancia del framento que actualmente se esta mostrando a la clase Sincronizacion para que alla se ejecute el metodo onResume() de cualquier fragment y se actualicen las notas en tiempo real (se debe hacer forzosamente en el success de la clase sync ya que de no ser asi, al ser una peticion aincrona el codigo de actualizar BD se ejecutaria inmediatamente despues y no se mostrarianb los cambios
                  */
-                Fragment fragmento=getSupportFragmentManager().findFragmentById(R.id.content_frame);
-                Volley_Singleton.getInstance(this).syncDBLocal_Remota(fragmento);
+                //Fragment fragmento=getSupportFragmentManager().findFragmentById(R.id.content_frame);
+                //Volley_Singleton.getInstance(this).syncDBLocal_Remota(fragmento);
+                StartDatabaseSync();
                 drawer.closeDrawer(GravityCompat.START);
                 return false;
             case R.id.close_session:
                 builder=new AlertDialog.Builder(this);
-                builder.setMessage("¿Estás seguro de que quieres cerrar tu sesión?")
-                        .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                builder.setMessage(getString(R.string.main_activity_close_session_confirmation))
+                        .setPositiveButton(R.string.positive_button_label, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Volley_Singleton.getInstance(Principal.this).CerrarSesion();
+                                CerrarSesion();
                                 getSupportFragmentManager().findFragmentById(R.id.content_frame).onResume();
                                 drawer.closeDrawer(GravityCompat.START);
-                                DatosUsuario();
+                                LoadUserData();
                             }
                         })
-                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(R.string.negative_button_label, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
 
                             }
@@ -276,7 +292,36 @@ public class Principal extends AppCompatActivity
         getSupportActionBar().setTitle(item.getTitle());
         drawer.closeDrawer(GravityCompat.START);
         return true;
-
+    }
+    public void CerrarSesion(){
+        //If you're not gonna use an editor object (Editor=ShPrSync.edit()) then you must use apply or commit in the same line, if you don't make it, changes will not affect the SharedPreferences. {I don't know why}
+        ShPrSync.edit().clear().apply();
+        Database.getInstance(this).emptySyncedNotes();
+        packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        alarmManager.cancel(PendingIntent.getBroadcast(this, 0, new Intent(this, Servicio_Sincronizar_Notas.class), 0));
+    }
+    void StartDatabaseSync(){
+        String NotasNoSync=Database.getInstance(this).crearJSON("SELECT * FROM notas WHERE subida='N'");
+        String NotasSync=Database.getInstance(this).crearJSON("SELECT * FROM notas WHERE subida='S'");
+        Log.d("NotesSync",NotasSync);
+        Log.d("NotesUnSync",NotasNoSync);
+        progressDialog.setMessage(getString(R.string.syncing_label));
+        progressDialog.show();
+        Volley_Singleton.getInstance(this).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("id_usuario", 1),ShPrSync.getInt("UltimoIDSync", 0), false, this);
     }
 
+    @Override
+    public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
+        progressDialog.dismiss();
+        ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
+        getSupportFragmentManager().findFragmentById(R.id.content_frame).onResume();
+        MyTxtLogger.getInstance().writeToSD(""+TotalNumberOfNotes);
+    }
+
+    @Override
+    public void onSyncError(String error) {
+        progressDialog.dismiss();
+        mensaje.setMessage(error);
+        mensaje.show();
+    }
 }

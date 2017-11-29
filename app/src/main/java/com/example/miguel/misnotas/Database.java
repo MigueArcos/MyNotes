@@ -19,6 +19,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -28,15 +30,25 @@ import org.json.JSONException;
 /**
  * Created by Miguel on 01/09/2015.
  */
-public class Base_Datos extends SQLiteOpenHelper {
-    public static int DataBase_Version=15;
-    public static String Ruta= Environment.getExternalStorageDirectory().getPath()+"/Mis_Notas.db";
-    public Base_Datos(Context context){
+public class Database extends SQLiteOpenHelper {
+    private static final int DataBase_Version=15;
+    private static final String Ruta= Environment.getExternalStorageDirectory().getPath()+"/Mis_Notas.db";
+    private static Database Instance;
+    private static Context AppContext;
+    private Database(Context context){
         super(context, Ruta, null, DataBase_Version);
+        this.AppContext = context;
     }
+    public static Database getInstance(Context context) {
+        if (Instance == null) {
+            Instance = new Database(context.getApplicationContext());
+        }
+        return Instance;
+    }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
-//Crear la tabla activos
+        //Crear la tabla activos
         db.execSQL("CREATE TABLE activos(id INTEGER PRIMARY KEY AUTOINCREMENT, recurso TEXT NOT NULL, valor INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE bitacora(fecha DATETIME PRIMARY KEY, total_en_fecha INTEGER)");
         db.execSQL("CREATE TABLE notas (id_nota INTEGER PRIMARY KEY, titulo VARCHAR(100), contenido TEXT, fecha_creacion VARCHAR(25), fecha_modificacion VARCHAR(25),fecha_modificacion_orden VARCHAR(20), eliminado CHAR(1), subida CHAR(1))");
@@ -83,8 +95,8 @@ public class Base_Datos extends SQLiteOpenHelper {
 
     String Tiempo_12_Horas(String Tiempo_24_Horas, int Longitud_Hora){
         int Hora_F24=Integer.parseInt(Tiempo_24_Horas.substring(0,2));
-        return (Hora_F24>=12)? ((Hora_F24+11)%12+1)+Tiempo_24_Horas.substring(2,Longitud_Hora)+" p.m" :
-                ((Hora_F24+11)%12+1)+Tiempo_24_Horas.substring(2,Longitud_Hora)+" a.m";
+        return (Hora_F24>=12)? ((Hora_F24+11)%12+1)+Tiempo_24_Horas.substring(2,Longitud_Hora)+AppContext.getString(R.string.pm_format) :
+                ((Hora_F24+11)%12+1)+Tiempo_24_Horas.substring(2,Longitud_Hora)+AppContext.getString(R.string.am_format);
     }
 
     /***************************************
@@ -161,7 +173,7 @@ public class Base_Datos extends SQLiteOpenHelper {
     public String LastUpdate(){
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT max(fecha) from bitacora", null);
-        String fecha="Última actualización: ";
+        String fecha=AppContext.getString(R.string.last_update_label);
         while (cursor.moveToNext()){
             String d=cursor.getString(0);
             fecha+=d.substring(8,10)+"/"+d.substring(5,7)+"/"+d.substring(0,4)+" a las "+Tiempo_12_Horas(d.substring(11,16), 5);
@@ -192,8 +204,8 @@ public class Base_Datos extends SQLiteOpenHelper {
         return notas;
     }
     public int guardar_nota(String titulo, String contenido) {
-        String titu=(titulo.equals(""))? "Nota sin título": titulo;
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy' a las 'hh:mm a");
+        String titu=(titulo.equals(""))? AppContext.getString(R.string.activity_editor_note_placeholder): titulo;
+        DateFormat df = new SimpleDateFormat(AppContext.getString(R.string.date_format), Locale.US);
         Date dateobj = new Date();
         String fec=df.format(dateobj);
         titu=titu.replace("'","\'\'");
@@ -210,8 +222,8 @@ public class Base_Datos extends SQLiteOpenHelper {
         return id_nota;
     }
     public void modificar_nota(String titulo, String contenido, int id_nota) {
-        String titu=(titulo.equals(""))? "Nota sin título": titulo;
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy' a las 'hh:mm a");
+        String titu = (titulo.equals(""))? AppContext.getString(R.string.activity_editor_note_placeholder): titulo;
+        DateFormat df = new SimpleDateFormat(AppContext.getString(R.string.date_format), Locale.US);
         Date dateobj = new Date();
         String fec=df.format(dateobj);
         SQLiteDatabase db = getWritableDatabase();
@@ -224,7 +236,7 @@ public class Base_Datos extends SQLiteOpenHelper {
     public void eliminar_nota(int id_nota) {
         SQLiteDatabase db = getWritableDatabase();
         //db.execSQL("DELETE FROM notas WHERE id="+id_nota);
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy' a las 'hh:mm a");
+        DateFormat df = new SimpleDateFormat(AppContext.getString(R.string.date_format), Locale.US);
         Date dateobj = new Date();
         String fec=df.format(dateobj);
         db.execSQL("UPDATE notas SET eliminado='S', fecha_modificacion='"+fec+"',fecha_modificacion_orden='"+(dateobj.getTime()/1000)+"' WHERE id_nota="+id_nota);
@@ -234,7 +246,7 @@ public class Base_Datos extends SQLiteOpenHelper {
     public void recuperar_nota(int id_nota) {
         SQLiteDatabase db = getWritableDatabase();
         //db.execSQL("DELETE FROM notas WHERE id="+id_nota);
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy' a las 'hh:mm a");
+        DateFormat df = new SimpleDateFormat(AppContext.getString(R.string.date_format), Locale.US);
         Date dateobj = new Date();
         String fec=df.format(dateobj);
         db.execSQL("UPDATE notas SET eliminado='N', fecha_modificacion='"+fec+"',fecha_modificacion_orden='"+(dateobj.getTime()/1000)+"' WHERE id_nota="+id_nota);
@@ -249,9 +261,9 @@ public class Base_Datos extends SQLiteOpenHelper {
         db.close();
     }
     //Este método se usara cuando se cierre la sesión y las notas del usuario que la cerro seran borradas
-    public void VaciarNotas(){
+    public void emptySyncedNotes(){
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DELETE FROM notas");
+        db.execSQL("DELETE FROM notas WHERE subida='S'");
         db.close();
     }
     /***************************************
@@ -282,17 +294,20 @@ public class Base_Datos extends SQLiteOpenHelper {
         **/
         return gson.toJson(notas);
     }
-    public void NotasServidorALocalDB(JSONArray array){
+    public void NotasServidorALocalDB(JSONArray array, boolean isLogin){
         //ArrayList<Elemento_Nota> list = new ArrayList<>();
         try {
             if (array.length() > 0) {
                 Gson gson = new Gson();
                 int i = 0;
                 SQLiteDatabase db = getWritableDatabase();
-                db.execSQL("DELETE FROM notas");
+                if (isLogin){
+                    //This line is needed when is a login to guarantee that won´t have been duplicate notes
+                    db.execSQL("DELETE FROM notas");
+                }
                 while (i < array.length()-1) {
                     Elemento_Nota actual=gson.fromJson(array.getJSONObject(i).toString(), Elemento_Nota.class);
-                    String SQL = "INSERT INTO notas (id_nota, titulo, contenido, fecha_creacion, fecha_modificacion, fecha_modificacion_orden,eliminado, subida) VALUES ("+actual.getID_Nota()+",'"+actual.getTitulo().replace("'","\'\'")+"','"+actual.getContenido().replace("'","\'\'")+"','"+actual.getFecha_creacion()+"','"+actual.getFecha_modificacion()+"','"+actual.getFecha_modificacion_orden()+"','"+actual.getEliminado()+"','S')";
+                    String SQL = "REPLACE INTO notas (id_nota, titulo, contenido, fecha_creacion, fecha_modificacion, fecha_modificacion_orden,eliminado, subida) VALUES ("+actual.getID_Nota()+",'"+actual.getTitulo().replace("'","\'\'")+"','"+actual.getContenido().replace("'","\'\'")+"','"+actual.getFecha_creacion()+"','"+actual.getFecha_modificacion()+"','"+actual.getFecha_modificacion_orden()+"','"+actual.getEliminado()+"','S')";
                     db.execSQL(SQL);
                     i++;
                 }

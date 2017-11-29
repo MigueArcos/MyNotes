@@ -1,6 +1,7 @@
 #Current Directory Z:\Mis proyectos Android\MisNotas\
 $Currentlocation=Get-Location
 Remove-Item "$Currentlocation\*.iml"
+Remove-Item "$Currentlocation\app\*.apk"
 Remove-Item "$Currentlocation\.gradle" -recurse
 Remove-Item "$Currentlocation\local.properties" -recurse 
 Remove-Item "$Currentlocation\idea\workspace.xml"

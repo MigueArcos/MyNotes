@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:hint="Título de la nota"
+        android:hint="@string/activity_editor_note_placeholder"
         android:singleLine="true"
         android:textSize="25sp"
         android:maxLength="40"

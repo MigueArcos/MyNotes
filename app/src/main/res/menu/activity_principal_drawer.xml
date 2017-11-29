@@ -5,40 +5,40 @@
         <item
             android:id="@+id/it1"
             android:icon="@drawable/ic_payment_grey"
-            android:title="Gastos Semanales" />
+            android:title="@string/fragment_week_expenses_title" />
         <item
             android:id="@+id/it2"
             android:icon="@drawable/ic_attach_money_grey"
-            android:title="Mi Dinero" />
+            android:title="@string/fragment_my_money_title" />
 
         <item
             android:id="@+id/it3"
             android:icon="@drawable/ic_assignment_grey"
-            android:title="Bloc De Notas" />
+            android:title="@string/fragment_notepad_title" />
         <item
             android:id="@+id/it4"
             android:icon="@drawable/ic_delete_grey"
-            android:title="Notas Eliminadas" />
+            android:title="@string/fragment_deleted_notes_title" />
     </group>
 
-    <item android:title="Opciones">
+    <item android:title="@string/menu_drawer_settings_label">
         <menu>
             <item
                 android:id="@+id/sync"
                 android:icon="@drawable/ic_cached_grey"
-                android:title="Sincronizar" />
+                android:title="@string/menu_drawer_settings_sync_label" />
             <item
                 android:id="@+id/schedule"
                 android:icon="@drawable/ic_access_time_grey"
-                android:title="Programar horarios " />
+                android:title="@string/menu_drawer_settings_schedule_label" />
             <item
                 android:id="@+id/about"
                 android:icon="@drawable/ic_info_grey"
-                android:title="Acerca De..." />
+                android:title="@string/menu_drawer_settings_about_label" />
             <item
                 android:id="@+id/close_session"
                 android:icon="@drawable/ic_exit_to_app_grey"
-                android:title="Cerrar sesión" />
+                android:title="@string/menu_drawer_settings_close_session" />
         </menu>
     </item>
 

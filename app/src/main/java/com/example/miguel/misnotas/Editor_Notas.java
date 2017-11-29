@@ -3,6 +3,7 @@ package com.example.miguel.misnotas;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -13,16 +14,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class Editor_Notas extends AppCompatActivity implements TextWatcher{
-    Base_Datos ob;
-    TextView titulo, contenido;
-    AlertDialog mensaje;
-    Boolean NuevaNota;
-    int id_nota_mod,cambios=0;
+    private TextView titulo, contenido;
+    private AlertDialog mensaje;
+    private Boolean NuevaNota;
+    private int id_nota_mod,cambios=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor_notas);
-        ob=new Base_Datos(this);
         Bundle paquete = getIntent().getExtras();
         NuevaNota= paquete.getBoolean("NuevaNota",true);
         id_nota_mod = paquete.getInt("id_nota_mod",-1);
@@ -77,9 +76,10 @@ public class Editor_Notas extends AppCompatActivity implements TextWatcher{
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        //Toast.makeText(this, "Registre el back", Toast.LENGTH_SHORT).show();
         InsertOrUpdate();
+        //This line is to ensure that this activity will come back to Main Activity (This is useful when this activity is called from search, because in this way is not necessary to remain the query to still showing the coincidences in search activity)
+        NavUtils.navigateUpFromSameTask(this);
+        super.onBackPressed();
         //this.finish();
     }
 
@@ -87,14 +87,14 @@ public class Editor_Notas extends AppCompatActivity implements TextWatcher{
     void eliminar(){
         if (!(titulo.getText().toString().equals("") && contenido.getText().toString().equals(""))){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("¿Estás seguro de que deseas eliminar esta nota?").setCancelable(false);
-            builder.setPositiveButton("Si", new DialogInterface.OnClickListener() {
+            builder.setMessage(R.string.delete_note_confirmation).setCancelable(false);
+            builder.setPositiveButton(R.string.positive_button_label, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    ob.eliminar_nota(id_nota_mod);
+                    Database.getInstance(Editor_Notas.this).eliminar_nota(id_nota_mod);
                     Editor_Notas.this.finish();
                 }
             });
-            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(R.string.negative_button_label, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     dialog.cancel();
                 }
@@ -103,21 +103,21 @@ public class Editor_Notas extends AppCompatActivity implements TextWatcher{
             alert.show();
         }
         else{
-            mensaje.setMessage("No hay datos que borrar :(");
+            mensaje.setMessage(getString(R.string.no_data_to_delete));
             mensaje.show();
         }
 
         //Toast.makeText(this.getBaseContext(), "¡Guardado!", Toast.LENGTH_LONG).show();
     }
     void guardar(){
-        id_nota_mod=ob.guardar_nota(titulo.getText().toString(), contenido.getText().toString());
+        id_nota_mod=Database.getInstance(Editor_Notas.this).guardar_nota(titulo.getText().toString(), contenido.getText().toString());
         NuevaNota=false;
-        Toast.makeText(this.getBaseContext(), "¡Guardado!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this.getBaseContext(), R.string.saved_label, Toast.LENGTH_SHORT).show();
         cambios=0;
     }
     void modificar(){
-        ob.modificar_nota(titulo.getText().toString(), contenido.getText().toString(),id_nota_mod);
-        Toast.makeText(this.getBaseContext(), "¡Guardado!", Toast.LENGTH_SHORT).show();
+        Database.getInstance(Editor_Notas.this).modificar_nota(titulo.getText().toString(), contenido.getText().toString(),id_nota_mod);
+        Toast.makeText(this.getBaseContext(), getString(R.string.saved_label), Toast.LENGTH_SHORT).show();
         cambios=0;
     }
     void InsertOrUpdate(){
