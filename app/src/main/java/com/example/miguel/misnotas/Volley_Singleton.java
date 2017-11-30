@@ -38,7 +38,7 @@ public class Volley_Singleton {
     private RequestQueue mRequestQueue;
     private static Context AppContext;
     //private final String URL="http://miguelarcos.x10.mx/android/movil";
-    private final String HOST = "http://192.168.0.17";
+    private final String HOST = "http://192.168.43.42";
     private final String ENDPOINT = "/android";
     private final String URL = HOST + ENDPOINT + "/movil";
     private final int SYNC_TIME = 3600000;

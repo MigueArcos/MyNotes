@@ -26,11 +26,12 @@ public class DialogAudioRecord extends AlertDialog implements View.OnClickListen
     private EditText voiceNoteNameInput;
     public static final String AUDIO_RECORDER_FILE_EXT_3GP = ".3gp";
     public static final String AUDIO_RECORDER_FILE_EXT_MP4 = ".mp4";
+    public static final String AUDIO_RECORDER_FILE_EXT_AAC = ".aac";
     public static final String AUDIO_RECORDER_FOLDER = "audios";
     private MediaRecorder recorder = null;
-    private int currentFormat = 1;
-    private int output_formats[] = {MediaRecorder.OutputFormat.MPEG_4, MediaRecorder.OutputFormat.THREE_GPP};
-    private String fileExtensions[] = {AUDIO_RECORDER_FILE_EXT_MP4, AUDIO_RECORDER_FILE_EXT_3GP};
+    private int currentFormat = 2;
+    private int output_formats[] = {MediaRecorder.OutputFormat.MPEG_4, MediaRecorder.OutputFormat.THREE_GPP, MediaRecorder.OutputFormat.AAC_ADTS};
+    private String fileExtensions[] = {AUDIO_RECORDER_FILE_EXT_MP4, AUDIO_RECORDER_FILE_EXT_3GP, AUDIO_RECORDER_FILE_EXT_AAC};
     private String currentFile;
     private audioRecordCompletionListener listener;
     private Handler handler = new Handler();
@@ -110,7 +111,7 @@ public class DialogAudioRecord extends AlertDialog implements View.OnClickListen
         recorder = new MediaRecorder();
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setOutputFormat(output_formats[currentFormat]);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         currentFile = getFilename();
         recorder.setOutputFile(currentFile);
         recorder.setOnErrorListener(errorListener);
