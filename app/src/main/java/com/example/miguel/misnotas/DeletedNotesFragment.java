@@ -1,7 +1,9 @@
 package com.example.miguel.misnotas;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,7 +27,7 @@ import static com.example.miguel.misnotas.SearchActivity.DELETED_NOTES;
 /**
  * Created by Miguel on 19/07/2017.
  */
-public class fragmento_notas_eliminadas extends Fragment implements DeletedNotesAdapter.AdapterActions {
+public class DeletedNotesFragment extends Fragment implements DeletedNotesAdapter.AdapterActions {
     private RecyclerView list;
     private DeletedNotesAdapter adapter;
     private ArrayList<Elemento_Nota> data;
@@ -36,16 +38,14 @@ public class fragmento_notas_eliminadas extends Fragment implements DeletedNotes
     private String text = "";
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Se accede al layout (interfaz) de este fragmento
         View rootView = inflater.inflate(R.layout.fragmento_notas_eliminadas, container, false);
         if (this.getArguments() != null) {
             calledFromSearch = getArguments().getBoolean("calledFromSearch", false);
         }
-        //Se accede a la lista
-        list = (RecyclerView) rootView.findViewById(R.id.lista);
-        //Se crea el adaptador de la lista que contendra todos los datos
+        ViewModelProviders.of(this).get(DeletedNotesFragmentViewModel.class);
+        list = rootView.findViewById(R.id.lista);
         adapter = new DeletedNotesAdapter(data, this);
         LinearLayoutManager llm = new LinearLayoutManager(this.getActivity());
         list.setLayoutManager(llm);
@@ -56,11 +56,7 @@ public class fragmento_notas_eliminadas extends Fragment implements DeletedNotes
                 super.onChanged();
             }
         });
-        //Se vincula dicho adaptador a la lista
         list.setAdapter(adapter);
-        //Esta linea es para mejorar el desempeño de esta recyclerview (lista)
-        //lista.setHasFixedSize(true);
-        //ItemAnimator del recyclerView
 
         dialogDeleteNote = new AlertDialog.Builder(getActivity());
         dialogDeleteNote.setTitle(R.string.dialog_default_title).setMessage(R.string.delete_note_completely);
@@ -69,7 +65,7 @@ public class fragmento_notas_eliminadas extends Fragment implements DeletedNotes
         dialogRecoverNote.setTitle(R.string.dialog_default_title).setMessage(getString(R.string.fragment_deleted_notes_recover_note));
         dialogRecoverNote.setNegativeButton(R.string.negative_button_label, (dialog, which) -> {/*Empty lambda body*/});
 
-        emptyList = (TextView) rootView.findViewById(R.id.emptyList);
+        emptyList = rootView.findViewById(R.id.emptyList);
         if (!calledFromSearch) {
             this.setHasOptionsMenu(true);
             emptyList.setText(R.string.empty_list_default_text);

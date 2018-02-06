@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -125,7 +124,7 @@ public class fragmento_notas extends Fragment implements View.OnClickListener, N
 
 
     private void CreateNewNote() {
-        Intent i = new Intent(getActivity(), Editor_Notas.class);
+        Intent i = new Intent(getActivity(), NotesEditorActivity.class);
         Bundle paquete = new Bundle();
         //Add your data from getFactualResults method to bundle
         paquete.putBoolean("NuevaNota", true);
@@ -211,7 +210,7 @@ public class fragmento_notas extends Fragment implements View.OnClickListener, N
     public void onTouch(int position) {
         dismissSnackbar();
         Elemento_Nota note = data.get(position);
-        Intent i = new Intent(getActivity(), Editor_Notas.class);
+        Intent i = new Intent(getActivity(), NotesEditorActivity.class);
         Bundle pack = new Bundle();
         //Add your data from getFactualResults method to bundle
         pack.putBoolean("NuevaNota", false);

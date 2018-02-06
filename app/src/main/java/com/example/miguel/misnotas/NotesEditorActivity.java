@@ -13,7 +13,7 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Editor_Notas extends AppCompatActivity implements TextWatcher{
+public class NotesEditorActivity extends AppCompatActivity implements TextWatcher{
     private TextView titulo, contenido;
     private AlertDialog mensaje;
     private Boolean NuevaNota;
@@ -90,8 +90,8 @@ public class Editor_Notas extends AppCompatActivity implements TextWatcher{
             builder.setMessage(R.string.delete_note_confirmation).setCancelable(false);
             builder.setPositiveButton(R.string.positive_button_label, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    Database.getInstance(Editor_Notas.this).eliminar_nota(id_nota_mod);
-                    Editor_Notas.this.finish();
+                    Database.getInstance(NotesEditorActivity.this).eliminar_nota(id_nota_mod);
+                    NotesEditorActivity.this.finish();
                 }
             });
             builder.setNegativeButton(R.string.negative_button_label, new DialogInterface.OnClickListener() {
@@ -110,13 +110,13 @@ public class Editor_Notas extends AppCompatActivity implements TextWatcher{
         //Toast.makeText(this.getBaseContext(), "¡Guardado!", Toast.LENGTH_LONG).show();
     }
     void guardar(){
-        id_nota_mod=Database.getInstance(Editor_Notas.this).guardar_nota(titulo.getText().toString(), contenido.getText().toString());
+        id_nota_mod=Database.getInstance(NotesEditorActivity.this).guardar_nota(titulo.getText().toString(), contenido.getText().toString());
         NuevaNota=false;
         Toast.makeText(this.getBaseContext(), R.string.saved_label, Toast.LENGTH_SHORT).show();
         cambios=0;
     }
     void modificar(){
-        Database.getInstance(Editor_Notas.this).modificar_nota(titulo.getText().toString(), contenido.getText().toString(),id_nota_mod);
+        Database.getInstance(NotesEditorActivity.this).modificar_nota(titulo.getText().toString(), contenido.getText().toString(),id_nota_mod);
         Toast.makeText(this.getBaseContext(), getString(R.string.saved_label), Toast.LENGTH_SHORT).show();
         cambios=0;
     }

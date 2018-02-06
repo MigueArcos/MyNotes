@@ -19,12 +19,12 @@ import java.util.ArrayList;
  * Created by Miguel on 20/06/2016.
  */
 public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapter.ItemView> {
-    private ArrayList<Elemento_Nota> datos;
+    private ArrayList<Elemento_Nota> data;
     private SparseBooleanArray expandedItems;
     private AdapterActions listener;
 
-    public DeletedNotesAdapter(ArrayList<Elemento_Nota> datos, AdapterActions listener) {
-        this.datos = datos;
+    public DeletedNotesAdapter(ArrayList<Elemento_Nota> data, AdapterActions listener) {
+        this.data = data;
         this.listener = listener;
         expandedItems = new SparseBooleanArray();
     }
@@ -35,7 +35,7 @@ public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapte
 
     //Sacado de aqui -> https://stackoverflow.com/questions/17341066/android-listview-does-not-update-onresume
     public void setData(ArrayList<Elemento_Nota> data) {
-        this.datos = data;
+        this.data = data;
         notifyDataSetChanged();
     }
 
@@ -49,16 +49,15 @@ public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapte
     @Override
     public ItemView onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_nota_eliminada, parent, false);
-        ItemView holder = new ItemView(v);
-        return holder;
+        return new ItemView(v);
     }
 
     @Override
     public void onBindViewHolder(ItemView holder, int position) {
-        holder.imagen.setImageResource(datos.get(position).getID_Imagen());
-        holder.titulo.setText(datos.get(position).getTitulo());
-        holder.fecha_modificacion.setText("Última modificación: " + datos.get(position).getFecha_modificacion());
-        holder.contenido.setText(datos.get(position).getContenido());
+        holder.imagen.setImageResource(data.get(position).getID_Imagen());
+        holder.titulo.setText(data.get(position).getTitulo());
+        holder.fecha_modificacion.setText(String.format("Última modificación: %s", data.get(position).getFecha_modificacion()));
+        holder.contenido.setText(data.get(position).getContenido());
         //Estas lineas if-else son necesarias porque cuando hacemos scroll en el recyclerview el viewholder se va reciclando, esto quiere decir que si un viewholder ya estaba expandido y este es reciclado pues va a seguir expandido, por eso se tiene que checar si la posicion de ese viewholder efectivamente es una posicion con el estatus de expandido
         if (expandedItems.get(position)) {
             holder.layout_contenido.setVisibility(View.VISIBLE);
@@ -71,7 +70,7 @@ public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapte
 
     @Override
     public int getItemCount() {
-        return datos.size();
+        return data.size();
     }
 
     public interface AdapterActions {

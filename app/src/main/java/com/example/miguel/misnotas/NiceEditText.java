@@ -10,12 +10,12 @@ import android.util.AttributeSet;
 /**
  * Created by Valentine on 9/21/2015.
  */
-public class editor_lineas extends android.support.v7.widget.AppCompatEditText{
+public class NiceEditText extends android.support.v7.widget.AppCompatEditText{
 
     private Rect rect;
     private Paint paint;
 
-    public editor_lineas(Context context, AttributeSet attrs) {
+    public NiceEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         rect = new Rect();

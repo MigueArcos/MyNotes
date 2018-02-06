@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Editor_Notas">
+    tools:context=".NotesEditorActivity">
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -24,7 +24,7 @@
         android:inputType="textCapWords|textFilter"/>
 
 
-    <com.example.miguel.misnotas.editor_lineas
+    <com.example.miguel.misnotas.NiceEditText
         android:id="@+id/contenido"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

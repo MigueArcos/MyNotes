@@ -1,5 +1,6 @@
 package com.example.miguel.misnotas;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -24,9 +25,11 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
         }*/
         fragmento_l=new fragmento_login();
         fragmento_r=new fragmento_registro();
+        ViewModelProviders.of(this).get(LoginViewModel.class);
         cambiar_fragmentos=(Button)findViewById(R.id.cambiar_fragmentos);
         cambiar_fragmentos.setOnClickListener(this);
         getSupportFragmentManager().beginTransaction().replace(R.id.contenido, fragmento_l).commit();
+
     }
     @Override
     protected void onSaveInstanceState(Bundle outState) {

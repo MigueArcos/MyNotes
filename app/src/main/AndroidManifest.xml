@@ -17,7 +17,6 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".Principal"
-            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_notas"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar"
@@ -29,46 +28,42 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Editor_Notas"
+            android:name=".NotesEditorActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_editor"
             android:windowSoftInputMode="stateHidden">
-            android:parentActivityName=".Notas">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Principal" />
         </activity>
         <activity
             android:name=".Programacion_horarios"
-            android:label="@string/title_activity_programacion_horarios"
-            android:parentActivityName=".Principal">
+            android:label="@string/title_activity_programacion_horarios">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Principal" />
         </activity>
         <!-- Register the Alarm Receiver -->
         <receiver
-            android:name=".clases_alarma.Servicio_Inicio"
+            android:name=".Broadcasts.NotificationBootService"
             android:enabled="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".clases_alarma.Reactivar_Sync"
+            android:name=".Broadcasts.ReactivateDatabaseSync"
             android:enabled="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".clases_alarma.Servicio_Notificacion" />
-        <receiver android:name=".clases_alarma.Servicio_Sincronizar_Notas"></receiver>
+        <receiver android:name=".Broadcasts.NotificationService" />
+        <receiver android:name=".Broadcasts.SyncNotesService" />
 
         <activity
             android:name=".Login"
-            android:configChanges="orientation|screenSize"
             android:label="Inicio De Sesión"
-            android:parentActivityName=".Principal"
             android:windowSoftInputMode="stateHidden">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -77,8 +72,7 @@
         <activity
             android:name=".SearchActivity"
             android:label="Busqueda..."
-            android:configChanges="orientation|screenSize"
-            android:parentActivityName=".Principal">
+            android:configChanges="orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.miguel.misnotas.Principal" />

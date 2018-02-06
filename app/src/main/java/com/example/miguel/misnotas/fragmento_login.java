@@ -7,6 +7,7 @@ package com.example.miguel.misnotas;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -26,8 +27,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.miguel.misnotas.clases_alarma.Reactivar_Sync;
-import com.example.miguel.misnotas.clases_alarma.Servicio_Sincronizar_Notas;
+import com.example.miguel.misnotas.Broadcasts.ReactivateDatabaseSync;
+import com.example.miguel.misnotas.Broadcasts.SyncNotesService;
 
 import java.util.Calendar;
 import java.util.regex.Pattern;
@@ -45,6 +46,7 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
     private PendingIntent pendingIntent;
     private PackageManager packageManager;
     private ComponentName receiver;
+    private LoginViewModel loginViewModel;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -85,7 +87,10 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
         ShPrSync= getActivity().getSharedPreferences("Sync", Context.MODE_PRIVATE);
         alarmManager=(AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
         packageManager = getActivity().getPackageManager();
-        receiver = new ComponentName(getActivity(), Reactivar_Sync.class);
+        receiver = new ComponentName(getActivity(), ReactivateDatabaseSync.class);
+        loginViewModel = ViewModelProviders.of(getActivity()).get(LoginViewModel.class);
+        password.setText(loginViewModel.getLoginFragmentViewModel().getPassword());
+        email.setText(loginViewModel.getLoginFragmentViewModel().getUserName());
         return rootView;
     }
 
@@ -140,7 +145,7 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
         String NotasSync=Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='S'");
         progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
-        Volley_Singleton.getInstance(getActivity()).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("id_usuario", 1),ShPrSync.getInt("UltimoIDSync", 0), true, this);
+        Volley_Singleton.getInstance(getActivity()).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("userID", 1),ShPrSync.getInt("UltimoIDSync", 0), true, this);
     }
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
@@ -173,7 +178,7 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
         ShPrSync.edit().putInt("sync_time", sync_time).apply();
         //activateAutoSync(sync_time);
         progressDialog.dismiss();
-        ShPrSync.edit().putInt("id_usuario",id_usuario).putString("username",username).putString("email",email).apply();
+        ShPrSync.edit().putInt("userID",id_usuario).putString("username",username).putString("email",email).apply();
         StartDatabaseSync();
     }
 
@@ -187,7 +192,7 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
     @Override
     public void activateAutoSync(int time) {
         //Se genera un intent para acceder a la clase del servicio
-        Intent sync_service = new Intent(getActivity(), Servicio_Sincronizar_Notas.class);
+        Intent sync_service = new Intent(getActivity(), SyncNotesService.class);
         //Se crea el pendingintent que se necesita para el alarmmanager
         pendingIntent = PendingIntent.getBroadcast(getActivity(), 0, sync_service, 0);
         //Se genera una instancia del calendario a una hora determinada
@@ -209,6 +214,13 @@ public class fragmento_login extends Fragment implements View.OnClickListener, V
         progressDialog.dismiss();
         aBuilder.setMessage(error);
         aBuilder.show();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        loginViewModel.getLoginFragmentViewModel().setPassword(password.getText().toString());
+        loginViewModel.getLoginFragmentViewModel().setUserName(email.getText().toString());
     }
 }
 

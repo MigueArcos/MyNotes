@@ -13,7 +13,7 @@ public class SearchActivity extends AppCompatActivity implements SearchView.OnQu
     public static final int DELETED_NOTES = 2;
     private int type;
     private fragmento_notas fragmento_notas;
-    private fragmento_notas_eliminadas fragmento_notas_eliminadas;
+    private DeletedNotesFragment DeletedNotesFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,9 +27,9 @@ public class SearchActivity extends AppCompatActivity implements SearchView.OnQu
                     getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragmento_notas, fragmento_notas.getClass().getSimpleName()).commit();
                     break;
                 case DELETED_NOTES:
-                    fragmento_notas_eliminadas = new fragmento_notas_eliminadas();
-                    fragmento_notas_eliminadas.setArguments(getIntent().getExtras());
-                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragmento_notas_eliminadas, fragmento_notas_eliminadas.getClass().getSimpleName()).commit();
+                    DeletedNotesFragment = new DeletedNotesFragment();
+                    DeletedNotesFragment.setArguments(getIntent().getExtras());
+                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, DeletedNotesFragment, DeletedNotesFragment.getClass().getSimpleName()).commit();
                     break;
             }
         }
@@ -68,7 +68,7 @@ public class SearchActivity extends AppCompatActivity implements SearchView.OnQu
                 fragmento_notas.filterNotes(newText);
                 break;
             case DELETED_NOTES:
-                fragmento_notas_eliminadas.filterNotes(newText);
+                DeletedNotesFragment.filterNotes(newText);
                 break;
         }
         return false;

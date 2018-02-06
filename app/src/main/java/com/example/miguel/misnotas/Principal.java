@@ -29,8 +29,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.miguel.misnotas.clases_alarma.Reactivar_Sync;
-import com.example.miguel.misnotas.clases_alarma.Servicio_Sincronizar_Notas;
+import com.example.miguel.misnotas.Broadcasts.ReactivateDatabaseSync;
+import com.example.miguel.misnotas.Broadcasts.SyncNotesService;
 
 
 public class Principal extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,Volley_Singleton.NotesResponseListener {
@@ -71,7 +71,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         ShPrSync= getSharedPreferences("Sync", Context.MODE_PRIVATE);
         /*Este paquete sirve para que si la llamada a esta actividad es desde la notificacion, siempre inicie en el
         fragmento de gastos */
-        if (getIntent().hasExtra("LlamadaDesdeNotificacion")){
+        if (getIntent().hasExtra("CalledFromNotification")){
             Editor.putInt("FragmentoSeleccionado",1);
             Editor.commit();
         }
@@ -85,7 +85,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         mensaje = new AlertDialog.Builder(this).create();
         mensaje.setTitle(R.string.dialog_default_title);
         packageManager = getPackageManager();
-        receiver = new ComponentName(this, Reactivar_Sync.class);
+        receiver = new ComponentName(this, ReactivateDatabaseSync.class);
         alarmManager=(AlarmManager) getSystemService(Context.ALARM_SERVICE);
     }
     private void LoadUserData(){
@@ -94,7 +94,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         TextView header_email=(TextView)header.findViewById(R.id.header_email);
         header_username.setText(ShPrSync.getString("username",""));
         header_email.setText(ShPrSync.getString("email", "Iniciar sesión"));
-        if (ShPrSync.getInt("id_usuario",0)==0){
+        if (ShPrSync.getInt("userID",0)==0){
             header_email.setTextSize(25);
             navigationView.getMenu().findItem(R.id.sync).setVisible(false);
             navigationView.getMenu().findItem(R.id.close_session).setVisible(false);
@@ -103,7 +103,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
                 @Override
                 public void onClick(View v) {
                     //It is neccesary to repeat this if because when the Login activity redirects to this activity, this event will be fired because it was already set (This is because this activity is SingleTask)
-                    if (ShPrSync.getInt("id_usuario",0)==0){
+                    if (ShPrSync.getInt("userID",0)==0){
                         Intent login=new Intent(Principal.this, Login.class);
                         startActivity(login);
                     }
@@ -117,14 +117,14 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
 
         }
     }
-    /*La razon de ser de este metodo es debido a que esta actividad fue definida como singleTask, eso implica que cuando llega la notificación de escribir gastos y esta actividad sigue en la pila de procesos, Android no la volvera a crear y por lo tanto los datos del paquete que envia el intent que manda la notificacion ("LlamadaDesdeNotificacion" que sirve para usar el fragmento_gastos en esta actividad) nunca seran recuperados.
+    /*La razon de ser de este metodo es debido a que esta actividad fue definida como singleTask, eso implica que cuando llega la notificación de escribir gastos y esta actividad sigue en la pila de procesos, Android no la volvera a crear y por lo tanto los datos del paquete que envia el intent que manda la notificacion ("CalledFromNotification" que sirve para usar el fragmento_gastos en esta actividad) nunca seran recuperados.
      */
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         drawer.closeDrawer(GravityCompat.START);
         LoadUserData();
-        if (intent.hasExtra("LlamadaDesdeNotificacion")){
+        if (intent.hasExtra("CalledFromNotification")){
             Editor.putInt("FragmentoSeleccionado",1);
             Editor.commit();
             Fragment fragment=SelectLastFragment();
@@ -161,7 +161,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
                 item = navigationView.getMenu().findItem(R.id.it4);
                 item.setChecked(true);
                 CurrentFragment=item.getItemId();
-                fr=new fragmento_notas_eliminadas();
+                fr=new DeletedNotesFragment();
                 getSupportActionBar().setTitle(item.getTitle());
         }
        return fr;
@@ -242,7 +242,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
                 CurrentFragment=item.getItemId();
                 break;
             case R.id.it4:
-                fragment = new fragmento_notas_eliminadas();
+                fragment = new DeletedNotesFragment();
                 Editor.putInt("FragmentoSeleccionado",4);
                 CurrentFragment=item.getItemId();
                 break;
@@ -298,7 +298,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         ShPrSync.edit().clear().apply();
         Database.getInstance(this).emptySyncedNotes();
         packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-        alarmManager.cancel(PendingIntent.getBroadcast(this, 0, new Intent(this, Servicio_Sincronizar_Notas.class), 0));
+        alarmManager.cancel(PendingIntent.getBroadcast(this, 0, new Intent(this, SyncNotesService.class), 0));
     }
     void StartDatabaseSync(){
         String NotasNoSync=Database.getInstance(this).crearJSON("SELECT * FROM notas WHERE subida='N'");
@@ -307,7 +307,7 @@ public class Principal extends AppCompatActivity implements NavigationView.OnNav
         Log.d("NotesUnSync",NotasNoSync);
         progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
-        Volley_Singleton.getInstance(this).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("id_usuario", 1),ShPrSync.getInt("UltimoIDSync", 0), false, this);
+        Volley_Singleton.getInstance(this).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("userID", 1),ShPrSync.getInt("UltimoIDSync", 0), false, this);
     }
 
     @Override

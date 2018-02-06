@@ -20,8 +20,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
-import com.example.miguel.misnotas.clases_alarma.Servicio_Inicio;
-import com.example.miguel.misnotas.clases_alarma.Servicio_Notificacion;
+import com.example.miguel.misnotas.Broadcasts.NotificationBootService;
+import com.example.miguel.misnotas.Broadcasts.NotificationService;
 import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
@@ -45,9 +45,9 @@ public class Programacion_horarios extends AppCompatActivity implements View.OnC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_programacion_horarios);
         // ob = new base1(this);
-        opciones= getSharedPreferences("Opciones", Context.MODE_PRIVATE);
+        opciones= getSharedPreferences("Settings", Context.MODE_PRIVATE);
         editor=opciones.edit();
-        receiver = new ComponentName(this, Servicio_Inicio.class);
+        receiver = new ComponentName(this, NotificationBootService.class);
         pm = this.getPackageManager();
         lista=new CheckBox[7];
         lista[0]=(CheckBox)findViewById(R.id.domingo);
@@ -74,13 +74,13 @@ public class Programacion_horarios extends AppCompatActivity implements View.OnC
 
     void leer(){
         //Se lee la hora y se le aplica la operacion de conversion de 24 horas a 12 horas
-        HOUR=opciones.getInt("Hora", 12);
+        HOUR=opciones.getInt("Hour", 12);
         //Se lee el minuto
-        MINUTE=opciones.getInt("Minuto",0);
+        MINUTE=opciones.getInt("Minute",0);
         horario.setText(((HOUR+11)%12+1)+":".concat((MINUTE<10)? "0"+MINUTE: ""+MINUTE));
         ampm.setText((HOUR>=12)? R.string.pm_format: R.string.am_format);
         for (int i=0; i<lista.length; i++){
-            lista[i].setChecked(opciones.getBoolean("dia"+i,false));
+            lista[i].setChecked(opciones.getBoolean("Day"+i,false));
         }
     }
 
@@ -90,7 +90,7 @@ public class Programacion_horarios extends AppCompatActivity implements View.OnC
             if (lista[i].isChecked()){
                 activar_alarmas=true;
             }
-            editor.putBoolean("dia"+i, lista[i].isChecked());
+            editor.putBoolean("Day"+i, lista[i].isChecked());
         }
         editor.commit();
         if (activar_alarmas){
@@ -128,7 +128,7 @@ public class Programacion_horarios extends AppCompatActivity implements View.OnC
     public boolean onLongClick(View v) {
         Intent intent = new Intent(this, Principal.class);
         Bundle paquete=new Bundle();
-        paquete.putBoolean("LlamadaDesdeNotificacion", true);
+        paquete.putBoolean("CalledFromNotification", true);
         intent.putExtras(paquete);
         PendingIntent activitynoti = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intent, 0);
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -145,8 +145,8 @@ public class Programacion_horarios extends AppCompatActivity implements View.OnC
 
     @Override
     public void onTimeSet(RadialPickerLayout radialPickerLayout, int hora, int minuto, int segundo) {
-        editor.putInt("Hora", hora);
-        editor.putInt("Minuto", minuto);
+        editor.putInt("Hour", hora);
+        editor.putInt("Minute", minuto);
         HOUR=hora;
         MINUTE=minuto;
         editor.commit();
@@ -158,7 +158,7 @@ public class Programacion_horarios extends AppCompatActivity implements View.OnC
     }
     void definir_alarmas(){
         //Se genera un intent para acceder a la clase del servicio
-        Intent intent = new Intent(Programacion_horarios.this, Servicio_Notificacion.class);
+        Intent intent = new Intent(Programacion_horarios.this, NotificationService.class);
         //Se crea el pendingintent que se necesita para el alarmmanager
         intentopendiente = PendingIntent.getBroadcast(Programacion_horarios.this, 0,intent,0);
         //Se genera una instancia del calendario a una hora determinada

@@ -40,8 +40,8 @@ public class Volley_Singleton {
         void onLoginError(String error);
         void activateAutoSync(int time);
     }
-    private Volley_Singleton(Context AppContext) {
-        this.AppContext = AppContext;
+    private Volley_Singleton(Context context) {
+        AppContext = context;
         mRequestQueue = getRequestQueue();
     }
 
@@ -100,7 +100,7 @@ public class Volley_Singleton {
                 if (!NotasSync.equals("")){
                     params.put("NotasSyncJSON", NotasSync);
                 }
-                params.put("id_usuario",String.valueOf(id_usuario));
+                params.put("userID",String.valueOf(id_usuario));
                 params.put("UltimoIDSync", String.valueOf(UltimoIDSync));
                 return params;
             }
@@ -115,7 +115,7 @@ public class Volley_Singleton {
                         if (!response.equals("No encontrado")){
                             try {
                                 JSONObject respuesta=new JSONObject(response);
-                                loginListener.onLoginSuccess(respuesta.getInt("id_usuario"),respuesta.getString("username"),respuesta.getString("email"),SYNC_TIME);
+                                loginListener.onLoginSuccess(respuesta.getInt("userID"),respuesta.getString("username"),respuesta.getString("email"),SYNC_TIME);
                                 Log.d("Pruebas", response);
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -152,7 +152,7 @@ public class Volley_Singleton {
                         if (!response.equals("Email repetido")){
                             try {
                                 JSONObject respuesta=new JSONObject(response);
-                                loginListener.onLoginSuccess(respuesta.getInt("id_usuario"),respuesta.getString("username"),respuesta.getString("email"),SYNC_TIME);
+                                loginListener.onLoginSuccess(respuesta.getInt("userID"),respuesta.getString("username"),respuesta.getString("email"),SYNC_TIME);
                                 //return ;
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -193,8 +193,6 @@ public class Volley_Singleton {
             message = "Cannot connect to Internet...Please check your connection!";
         } else if (error instanceof ParseError) {
             message = "Parsing error! Please try again after some time!!";
-        } else if (error instanceof NoConnectionError) {
-            message = "Cannot connect to Internet...Please check your connection!";
         } else if (error instanceof TimeoutError) {
             message = "Connection TimeOut! Please check your internet connection.";
         } else{
