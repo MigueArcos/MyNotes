@@ -61,7 +61,7 @@ public class Sincronizacion {
         mensaje.setTitle("Notas de MigueLopez :D");
         alarmas=(AlarmManager)ActivityContext.getSystemService(Context.ALARM_SERVICE);
         packageManager = ActivityContext.getPackageManager();
-        receiver = new ComponentName(ActivityContext, ReactivateDatabaseSync.class);
+        receiver = new ComponentName(ActivityContext, TurnOnDatabaseSync.class);
         //mensaje.setMessage("Esta App fue programada por Miguel Ángel López Arcos x'D");
         //Se retorna la vista del fragmento que se creo
     }
@@ -427,7 +427,7 @@ public class Sincronizacion {
                         Editor.putString("username", respuesta.getString("username"));
                         Editor.putString("email", respuesta.getString("email"));
                         Editor.commit();
-                        Intent i =new Intent(ActivityContext,Principal.class);
+                        Intent i =new Intent(ActivityContext,MainActivity.class);
                         syncDBLocal_Remota(i);
                         //return ;
                     } catch (JSONException e) {
@@ -485,7 +485,7 @@ public class Sincronizacion {
                         Editor.putString("username", respuesta.getString("username"));
                         Editor.putString("email", respuesta.getString("email"));
                         Editor.commit();
-                        Intent i =new Intent(ActivityContext,Principal.class);
+                        Intent i =new Intent(ActivityContext,MainActivity.class);
                         syncDBLocal_Remota(i);
                         //return ;
                     } catch (JSONException e) {
