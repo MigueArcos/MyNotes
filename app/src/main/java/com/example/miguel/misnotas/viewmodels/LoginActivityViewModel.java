@@ -9,36 +9,36 @@ import android.arch.lifecycle.ViewModel;
 
 public class LoginActivityViewModel extends ViewModel {
 
-    private LoginFragmentViewModel loginFragmentViewModel;
+    private signInFragmentViewModel signInFragmentViewModel;
     private SignUpFragmentViewModel signUpFragmentViewModel;
 
     public LoginActivityViewModel(){
-        loginFragmentViewModel = new LoginFragmentViewModel();
+        signInFragmentViewModel = new signInFragmentViewModel();
         signUpFragmentViewModel = new SignUpFragmentViewModel();
     }
 
-    public LoginFragmentViewModel getLoginFragmentViewModel() {
-        return loginFragmentViewModel;
+    public signInFragmentViewModel getSignInFragmentViewModel() {
+        return signInFragmentViewModel;
     }
 
     public SignUpFragmentViewModel getSignUpFragmentViewModel() {
         return signUpFragmentViewModel;
     }
 
-    public class LoginFragmentViewModel {
-        private String userName;
+    public class signInFragmentViewModel {
+        private String email;
         private String password;
 
-        public String getUserName() {
-            return userName;
+        public String getEmail() {
+            return email;
         }
 
         public String getPassword() {
             return password;
         }
 
-        public void setUserName(String userName) {
-            this.userName = userName;
+        public void setEmail(String email) {
+            this.email = email;
         }
 
         public void setPassword(String password) {
@@ -46,6 +46,41 @@ public class LoginActivityViewModel extends ViewModel {
         }
     }
     public class SignUpFragmentViewModel{
+        private String email;
+        private String password;
+        private String confirmedPassword;
+        private String userName;
 
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getConfirmedPassword() {
+            return confirmedPassword;
+        }
+
+        public void setConfirmedPassword(String confirmedPassword) {
+            this.confirmedPassword = confirmedPassword;
+        }
+
+        public String getUserName() {
+            return userName;
+        }
+
+        public void setUserName(String userName) {
+            this.userName = userName;
+        }
     }
 }

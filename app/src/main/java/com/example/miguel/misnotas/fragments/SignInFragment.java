@@ -13,9 +13,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -29,18 +29,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.miguel.misnotas.Database;
-import com.example.miguel.misnotas.VolleySingleton;
-import com.example.miguel.misnotas.viewmodels.LoginActivityViewModel;
-import com.example.miguel.misnotas.activities.MainActivity;
 import com.example.miguel.misnotas.R;
-import com.example.miguel.misnotas.broadcasts.bootservices.TurnOnDatabaseSync;
+import com.example.miguel.misnotas.VolleySingleton;
+import com.example.miguel.misnotas.activities.MainActivity;
 import com.example.miguel.misnotas.broadcasts.SyncNotesService;
+import com.example.miguel.misnotas.broadcasts.bootservices.TurnOnDatabaseSync;
+import com.example.miguel.misnotas.viewmodels.LoginActivityViewModel;
 
 import java.util.Calendar;
-import java.util.logging.LogManager;
 import java.util.regex.Pattern;
 
-public class SignInFragment extends Fragment implements View.OnClickListener, View.OnFocusChangeListener, VolleySingleton.LoginListener, VolleySingleton.NotesResponseListener{
+public class SignInFragment extends Fragment implements View.OnClickListener, View.OnFocusChangeListener, VolleySingleton.LoginListener, VolleySingleton.NotesResponseListener {
 
     private TextInputLayout label_email, label_password;
     private EditText email, password;
@@ -54,19 +53,20 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vi
     private PackageManager packageManager;
     private ComponentName receiver;
     private LoginActivityViewModel loginActivityViewModel;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_sign_in, container, false);
-        label_email=(TextInputLayout)rootView.findViewById(R.id.label_email);
-        label_password=(TextInputLayout) rootView.findViewById(R.id.label_password);
-        email=(EditText) rootView.findViewById(R.id.email);
-        password=(EditText) rootView.findViewById(R.id.password);
-        submit=(Button) rootView.findViewById(R.id.submit);
+        label_email = (TextInputLayout) rootView.findViewById(R.id.label_email);
+        label_password = (TextInputLayout) rootView.findViewById(R.id.label_password);
+        email = (EditText) rootView.findViewById(R.id.email);
+        password = (EditText) rootView.findViewById(R.id.password);
+        submit = (Button) rootView.findViewById(R.id.submit);
         submit.setOnClickListener(this);
-        regex_password= Pattern.compile("^.{4,}$");
+        regex_password = Pattern.compile("^.{4,}$");
         email.setOnFocusChangeListener(this);
         password.setOnFocusChangeListener(this);
         password.setOnEditorActionListener(new EditText.OnEditorActionListener() {
@@ -75,13 +75,12 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vi
                 if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE ||
                         event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
 
-                        if (!ValidarPassword()){
-                            label_password.setError(getString(R.string.activity_login_incorrect_password));
-                        }
-                        else{
-                            label_password.setError(null);
-                            label_password.setErrorEnabled(false);
-                        }
+                    if (!ValidarPassword()) {
+                        label_password.setError(getString(R.string.activity_login_incorrect_password));
+                    } else {
+                        label_password.setError(null);
+                        label_password.setErrorEnabled(false);
+                    }
 
                 }
                 return false; // pass on to other listeners.
@@ -90,34 +89,36 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vi
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCancelable(false);
         progressDialog.setTitle(R.string.dialog_default_title);
-        aBuilder=new AlertDialog.Builder(getActivity()).setTitle(R.string.dialog_default_title).setCancelable(true);
-        ShPrSync= getActivity().getSharedPreferences("Sync", Context.MODE_PRIVATE);
-        alarmManager=(AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+        aBuilder = new AlertDialog.Builder(getActivity()).setTitle(R.string.dialog_default_title).setCancelable(true);
+        ShPrSync = getActivity().getSharedPreferences("Sync", Context.MODE_PRIVATE);
+        alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
         packageManager = getActivity().getPackageManager();
         receiver = new ComponentName(getActivity(), TurnOnDatabaseSync.class);
         loginActivityViewModel = ViewModelProviders.of(getActivity()).get(LoginActivityViewModel.class);
-        password.setText(loginActivityViewModel.getLoginFragmentViewModel().getPassword());
-        email.setText(loginActivityViewModel.getLoginFragmentViewModel().getUserName());
+        password.setText(loginActivityViewModel.getSignInFragmentViewModel().getPassword());
+        email.setText(loginActivityViewModel.getSignInFragmentViewModel().getEmail());
         return rootView;
     }
 
-    boolean ValidarEmail(){
+    boolean ValidarEmail() {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email.getText()).matches();
     }
-    boolean ValidarPassword(){
+
+    boolean ValidarPassword() {
         return regex_password.matcher(password.getText()).matches();
     }
+
     @Override
     public void onClick(View v) {
 
-        if (ValidarEmail() && ValidarPassword()){
+        if (ValidarEmail() && ValidarPassword()) {
             StartLogin();
-        }
-        else{
+        } else {
             Toast.makeText(getActivity(), R.string.activity_login_data_error, Toast.LENGTH_SHORT).show();
         }
 
     }
+
     /*
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -142,38 +143,38 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vi
         }
     }
     */
-    void StartLogin(){
+    void StartLogin() {
         progressDialog.setMessage(getString(R.string.fragment_login_progress_dialog_label));
         progressDialog.show();
-        VolleySingleton.getInstance(getActivity()).IniciarSesion(email.getText().toString(), password.getText().toString(),this);
+        VolleySingleton.getInstance(getActivity()).IniciarSesion(email.getText().toString(), password.getText().toString(), this);
         Log.d("test", "Starting session");
     }
-    void StartDatabaseSync(){
+
+    void StartDatabaseSync() {
         Log.d("test", "starting sync");
-        String NotasNoSync= Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String NotasSync=Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='S'");
+        String NotasNoSync = Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='N'");
+        String NotasSync = Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='S'");
         progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
-        VolleySingleton.getInstance(getActivity()).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("userID", 1),ShPrSync.getInt("UltimoIDSync", 0), true, this);
+        VolleySingleton.getInstance(getActivity()).syncDBLocal_Remota(NotasSync, NotasNoSync, ShPrSync.getInt("userID", 1), ShPrSync.getInt("UltimoIDSync", 0), true, this);
     }
+
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
-        if (!hasFocus){
-            switch (v.getId()){
+        if (!hasFocus) {
+            switch (v.getId()) {
                 case R.id.email:
-                    if (!ValidarEmail()){
+                    if (!ValidarEmail()) {
                         label_email.setError(getString(R.string.activity_login_incorrect_email));
-                    }
-                    else{
+                    } else {
                         label_email.setError(null);
                         label_email.setErrorEnabled(false);
                     }
                     break;
                 case R.id.password:
-                    if (!ValidarPassword()){
+                    if (!ValidarPassword()) {
                         label_password.setError(getString(R.string.activity_login_incorrect_password));
-                    }
-                    else{
+                    } else {
                         label_password.setError(null);
                         label_password.setErrorEnabled(false);
                     }
@@ -188,7 +189,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vi
         ShPrSync.edit().putInt("sync_time", sync_time).apply();
         //activateAutoSync(sync_time);
         progressDialog.dismiss();
-        ShPrSync.edit().putInt("userID",id_usuario).putString("username",username).putString("email",email).apply();
+        ShPrSync.edit().putInt("userID", id_usuario).putString("username", username).putString("email", email).apply();
         StartDatabaseSync();
     }
 
@@ -215,7 +216,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vi
     public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
         progressDialog.dismiss();
         ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
-        Intent i=new Intent(getActivity(), MainActivity.class);
+        Intent i = new Intent(getActivity(), MainActivity.class);
         getActivity().startActivity(i);
     }
 
@@ -229,8 +230,8 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vi
     @Override
     public void onStop() {
         super.onStop();
-        loginActivityViewModel.getLoginFragmentViewModel().setPassword(password.getText().toString());
-        loginActivityViewModel.getLoginFragmentViewModel().setUserName(email.getText().toString());
+        loginActivityViewModel.getSignInFragmentViewModel().setPassword(password.getText().toString());
+        loginActivityViewModel.getSignInFragmentViewModel().setEmail(email.getText().toString());
     }
 }
 
