@@ -61,7 +61,7 @@ public class Sincronizacion {
         mensaje.setTitle("Notas de MigueLopez :D");
         alarmas=(AlarmManager)ActivityContext.getSystemService(Context.ALARM_SERVICE);
         packageManager = ActivityContext.getPackageManager();
-        receiver = new ComponentName(ActivityContext, Reactivar_Sync.class);
+        receiver = new ComponentName(ActivityContext, TurnOnDatabaseSync.class);
         //mensaje.setMessage("Esta App fue programada por Miguel Ángel López Arcos x'D");
         //Se retorna la vista del fragmento que se creo
     }
@@ -81,7 +81,7 @@ public class Sincronizacion {
             params.put("NotasSyncJSON", NotasSync);
             Log.d("json",NotasSync);
         }
-        params.put("id_usuario",ShPrSync.getInt("id_usuario", 1));
+        params.put("userID",ShPrSync.getInt("userID", 1));
         params.put("UltimoIDSync", ShPrSync.getInt("UltimoIDSync", 0));
         client.setConnectTimeout(10000);
         client.post(URL+"/CrearJSON.php",params ,new AsyncHttpResponseHandler() {
@@ -144,7 +144,7 @@ public class Sincronizacion {
             params.put("NotasSyncJSON", NotasSync);
             Log.d("json",NotasSync);
         }
-        params.put("id_usuario",ShPrSync.getInt("id_usuario", 1));
+        params.put("userID",ShPrSync.getInt("userID", 1));
         params.put("UltimoIDSync", ShPrSync.getInt("UltimoIDSync", 0));
         client.setConnectTimeout(10000);
         client.post(URL+"/CrearJSON.php",params ,new AsyncHttpResponseHandler() {
@@ -185,7 +185,7 @@ public class Sincronizacion {
         progreso.setMessage("Sincronizando...Por favor espere");
         progreso.show();
         client.setConnectTimeout(10000);
-        params.put("id_usuario",ShPrSync.getInt("id_usuario", 0));
+        params.put("userID",ShPrSync.getInt("userID", 0));
         params.put("JSONCompleto",JSONCompleto);
         client.post(URL+"/SincronizarBDs.php",params ,new AsyncHttpResponseHandler() {
             @Override
@@ -228,7 +228,7 @@ public class Sincronizacion {
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
         client.setConnectTimeout(10000);
-        params.put("id_usuario",ShPrSync.getInt("id_usuario", 0));
+        params.put("userID",ShPrSync.getInt("userID", 0));
         params.put("JSONCompleto",JSONCompleto);
         client.post(URL+"/SincronizarBDs.php",params ,new AsyncHttpResponseHandler() {
             @Override
@@ -271,7 +271,7 @@ public class Sincronizacion {
         if (!NotasSync.equals("")){
             params.put("NotasSyncJSON", NotasSync);
         }
-        params.put("id_usuario",ShPrSync.getInt("id_usuario", 1));
+        params.put("userID",ShPrSync.getInt("userID", 1));
         params.put("UltimoIDSync", ShPrSync.getInt("UltimoIDSync", 0));
         client.post(URL+"/OperacionesBD.php",params ,new AsyncHttpResponseHandler() {
             @Override
@@ -342,7 +342,7 @@ public class Sincronizacion {
         if (!NotasSync.equals("")){
             params.put("NotasSyncJSON", NotasSync);
         }
-        params.put("id_usuario",ShPrSync.getInt("id_usuario", 1));
+        params.put("userID",ShPrSync.getInt("userID", 1));
         params.put("UltimoIDSync", ShPrSync.getInt("UltimoIDSync", 0));
         client.post(URL+"/OperacionesBD.php",params ,new AsyncHttpResponseHandler() {
             @Override
@@ -421,13 +421,13 @@ public class Sincronizacion {
                     try {
                         JSONObject respuesta=new JSONObject(response);
                         //Toast.makeText(ActivityContext,, Toast.LENGTH_SHORT).show();
-                        //mensaje.setMessage(""+respuesta.getInt("id_usuario"));
+                        //mensaje.setMessage(""+respuesta.getInt("userID"));
                         //mensaje.show();
-                        Editor.putInt("id_usuario",respuesta.getInt("id_usuario"));
+                        Editor.putInt("userID",respuesta.getInt("userID"));
                         Editor.putString("username", respuesta.getString("username"));
                         Editor.putString("email", respuesta.getString("email"));
                         Editor.commit();
-                        Intent i =new Intent(ActivityContext,Principal.class);
+                        Intent i =new Intent(ActivityContext,MainActivity.class);
                         syncDBLocal_Remota(i);
                         //return ;
                     } catch (JSONException e) {
@@ -479,13 +479,13 @@ public class Sincronizacion {
                     try {
                         JSONObject respuesta=new JSONObject(response);
                         //Toast.makeText(ActivityContext,, Toast.LENGTH_SHORT).show();
-                        //mensaje.setMessage(""+respuesta.getInt("id_usuario"));
+                        //mensaje.setMessage(""+respuesta.getInt("userID"));
                         //mensaje.show();
-                        Editor.putInt("id_usuario",respuesta.getInt("id_usuario"));
+                        Editor.putInt("userID",respuesta.getInt("userID"));
                         Editor.putString("username", respuesta.getString("username"));
                         Editor.putString("email", respuesta.getString("email"));
                         Editor.commit();
-                        Intent i =new Intent(ActivityContext,Principal.class);
+                        Intent i =new Intent(ActivityContext,MainActivity.class);
                         syncDBLocal_Remota(i);
                         //return ;
                     } catch (JSONException e) {
@@ -522,7 +522,7 @@ public class Sincronizacion {
     }
     public void Activar_Sincronizacion_Programada(){
         //Se genera un intent para acceder a la clase del servicio
-        Intent sync_service = new Intent(ActivityContext, Servicio_Sincronizar_Notas.class);
+        Intent sync_service = new Intent(ActivityContext, SyncNotesService.class);
         //Se crea el pendingintent que se necesita para el alarmmanager
         PendingIntent= PendingIntent.getBroadcast(ActivityContext, 0,sync_service,0);
         //Se genera una instancia del calendario a una hora determinada

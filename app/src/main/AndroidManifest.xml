@@ -16,9 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".Principal"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_notas"
+            android:name=".activities.MainActivity"
+            android:label="@string/title_activity_notes"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden">
@@ -29,59 +28,54 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Editor_Notas"
+            android:name=".activities.NotesEditorActivity"
             android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_editor"
+            android:label="@string/title_activity_notes_editor"
             android:windowSoftInputMode="stateHidden">
-            android:parentActivityName=".Notas">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Principal" />
+                android:value=".activities.MainActivity" />
         </activity>
         <activity
-            android:name=".Programacion_horarios"
-            android:label="@string/title_activity_programacion_horarios"
-            android:parentActivityName=".Principal">
+            android:name=".activities.SchedulerActivity"
+            android:label="@string/title_activity_scheduler">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Principal" />
+                android:value=".activities.MainActivity" />
         </activity>
         <!-- Register the Alarm Receiver -->
         <receiver
-            android:name=".clases_alarma.Servicio_Inicio"
+            android:name=".broadcasts.bootservices.TurnOnWeeklyExpensesNotification"
             android:enabled="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".clases_alarma.Reactivar_Sync"
+            android:name=".broadcasts.bootservices.TurnOnDatabaseSync"
             android:enabled="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".clases_alarma.Servicio_Notificacion" />
-        <receiver android:name=".clases_alarma.Servicio_Sincronizar_Notas"></receiver>
+        <receiver android:name=".broadcasts.WeeklyExpensesNotification" />
+        <receiver android:name=".broadcasts.SyncNotesService" />
 
         <activity
-            android:name=".Login"
-            android:configChanges="orientation|screenSize"
-            android:label="Inicio De Sesión"
-            android:parentActivityName=".Principal"
+            android:name=".activities.LoginActivity"
+            android:label="@string/activity_login_sign_in_label"
             android:windowSoftInputMode="stateHidden">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Principal" />
+                android:value=".activities.MainActivity" />
         </activity>
         <activity
-            android:name=".SearchActivity"
-            android:label="Busqueda..."
-            android:configChanges="orientation|screenSize"
-            android:parentActivityName=".Principal">
+            android:name=".activities.SearchNotesActivity"
+            android:label="@string/title_activity_search"
+            android:configChanges="orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.miguel.misnotas.Principal" />
+                android:value="com.example.miguel.misnotas.activities.MainActivity" />
         </activity>
     </application>
 

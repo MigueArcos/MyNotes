@@ -11,9 +11,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 
-import com.example.miguel.misnotas.Clases_Lista.Adaptador_Elementos;
-import com.example.miguel.misnotas.Clases_Lista.Elemento_Lista;
-import com.example.miguel.misnotas.Clases_Lista.Elemento_Nota;
+import com.example.miguel.misnotas.adapters.FinancesAdapter;
+import com.example.miguel.misnotas.models.Finance;
+import com.example.miguel.misnotas.models.Note;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -80,7 +80,7 @@ public class Database extends SQLiteOpenHelper {
         //db.execSQL("ALTER TABLE notas ADD COLUMN fecha_modificacion_orden VARCHAR(20)");
         //db.execSQL("UPDATE notas SET fecha_modificacion_orden=STRFTIME('%d/%m/%Y %H:%M:%S','now','localtime')");
 		/*for (int i=0; i<20; i++){
-		db.execSQL("INSERT INTO notas VALUES (null, 'Nota de prueba "+i+"','Este es el contenido de la nota de prueba "+i+":D'," +
+		db.execSQL("INSERT INTO notas VALUES (null, 'Nota de prueba "+i+"','Este es el contenido de la note de prueba "+i+":D'," +
 		"datetime('now','localtime'),datetime('now','localtime'),STRFTIME('%d/%m/%Y %H:%M:%S','now','localtime'))");
 		}*/
         //db.execSQL("ALTER TABLE notas ADD COLUMN eliminado CHAR(1)");
@@ -106,7 +106,7 @@ public class Database extends SQLiteOpenHelper {
      +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
      **************************************/
-    public Adaptador_Elementos leer(Adaptador_Elementos result) {
+    public FinancesAdapter leer(FinancesAdapter result) {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT id, recurso, valor FROM activos", null);
 //result.add("hijueputa");
@@ -117,7 +117,7 @@ public class Database extends SQLiteOpenHelper {
             id=cursor.getInt(0);
             recurso=cursor.getString(1);
             valor=cursor.getInt(2);
-            result.add(new Elemento_Lista(recurso, valor, R.drawable.mb, id));
+            result.add(new Finance(recurso, valor, R.drawable.mercedes_benz_logo, id));
         }
 
         cursor.close();
@@ -191,12 +191,12 @@ public class Database extends SQLiteOpenHelper {
      **************************************/
 
 
-    public ArrayList<Elemento_Nota> leer_notas(String SQL) {
-        ArrayList<Elemento_Nota> notas=new ArrayList<>();
+    public ArrayList<Note> leer_notas(String SQL) {
+        ArrayList<Note> notas=new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(SQL, null);
         while (cursor.moveToNext()){
-            notas.add(new Elemento_Nota(cursor.getInt(0),cursor.getString(1), cursor.getString(2),
+            notas.add(new Note(cursor.getInt(0),cursor.getString(1), cursor.getString(2),
                     cursor.getString(3), cursor.getString(4)));
         }
         cursor.close();
@@ -275,27 +275,27 @@ public class Database extends SQLiteOpenHelper {
      **************************************/
 
     public String crearJSON(String SQL){
-        ArrayList<Elemento_Nota> notas=new ArrayList<>();
+        ArrayList<Note> notas=new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(SQL, null);
         if (cursor.getCount()==0){
             return "";
         }
         while (cursor.moveToNext()){
-            Elemento_Nota nota_actual=new Elemento_Nota(cursor.getInt(0),cursor.getString(1), cursor.getString(2),cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6).charAt(0), cursor.getString(7).charAt(0));
+            Note nota_actual=new Note(cursor.getInt(0),cursor.getString(1), cursor.getString(2),cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6).charAt(0), cursor.getString(7).charAt(0));
             notas.add(nota_actual);
         }
         db.close();
         Gson gson = new GsonBuilder().create();
         /**Use GSON to serialize Array List to JSON
-         * Por defecto GSON serializara el ArrayList con los nombres de los campos que esta en la clase seleccionada (Elemento_Nota)
+         * Por defecto GSON serializara el ArrayList con los nombres de los campos que esta en la clase seleccionada (Note)
          * Si se quieren utilizar otros nombre se ha de añadir la anotación @SerializedName("Nombre") antes de cada campo
          * Si se quieren omitir algunos campos se han de usar la anotación @Expose y luego se usara el método .excludeFieldsWithoutExposeAnnotation() de GsonBuilder()  [Esto es solo una estrategia de exclusión] o añadir la palabra transient o static antes del tipo de variable
         **/
         return gson.toJson(notas);
     }
     public void NotasServidorALocalDB(JSONArray array, boolean isLogin){
-        //ArrayList<Elemento_Nota> list = new ArrayList<>();
+        //ArrayList<Note> list = new ArrayList<>();
         try {
             if (array.length() > 0) {
                 Gson gson = new Gson();
@@ -306,7 +306,7 @@ public class Database extends SQLiteOpenHelper {
                     db.execSQL("DELETE FROM notas");
                 }
                 while (i < array.length()-1) {
-                    Elemento_Nota actual=gson.fromJson(array.getJSONObject(i).toString(), Elemento_Nota.class);
+                    Note actual=gson.fromJson(array.getJSONObject(i).toString(), Note.class);
                     String SQL = "REPLACE INTO notas (id_nota, titulo, contenido, fecha_creacion, fecha_modificacion, fecha_modificacion_orden,eliminado, subida) VALUES ("+actual.getID_Nota()+",'"+actual.getTitulo().replace("'","\'\'")+"','"+actual.getContenido().replace("'","\'\'")+"','"+actual.getFecha_creacion()+"','"+actual.getFecha_modificacion()+"','"+actual.getFecha_modificacion_orden()+"','"+actual.getEliminado()+"','S')";
                     db.execSQL(SQL);
                     i++;

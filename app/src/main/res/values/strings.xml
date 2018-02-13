@@ -8,31 +8,31 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <!-- Activities titles -->
-    <string name="title_activity_editor">Editor</string>
-    <string name="title_activity_notas">Notas</string>
-    <string name="title_activity_programacion_horarios">Horarios</string>
-    <string name="title_activity_search">SearchActivity</string>
+    <string name="title_activity_notes_editor">Editor</string>
+    <string name="title_activity_notes">Notas</string>
+    <string name="title_activity_scheduler">Horarios</string>
+    <string name="title_activity_search">Busqueda…</string>
 
     <!-- Main Activity Strings -->
     <string name="main_activity_request_permission">Por favor activa el permiso, es indispensable</string>
     <string name="main_activity_close_session_confirmation">¿Estás seguro de que quieres cerrar tu sesión?</string>
 
-    <!-- Activity Schedule Strings -->
+    <!--Activity Schedule Strings -->
     <string name="activity_schedule_default_clock_text">Toca</string>
     <string name="activity_schedule_time_picker_title">Selector de horario :D</string>
 
-    <!-- Activity editor Strings -->
+    <!-- Notes Editor Activity Strings -->
     <string name="activity_editor_note_placeholder">Título de la nota</string>
 
-    <!-- Activity search Strings -->
+    <!-- Search Activity Strings -->
     <string name="search_activity_search_view_label">Buscar algo....</string>
 
-    <!-- Activity Login Strings -->
+    <!-- LoginActivity Login Strings -->
     <string name="activity_login_switch_fragment_button_label">Crear una cuenta</string>
     <string name="activity_login_data_error">Hay un error con los datos</string>
     <string name="activity_login_incorrect_password">La contraseña es incorrecta, debe tener al menos 4 caracteres</string>
     <string name="activity_login_incorrect_email">El correo electrónico es incorrecto</string>
-    <string name="activity_login_login_label">Iniciar sesión</string>
+    <string name="activity_login_sign_in_label">Iniciar sesión</string>
     <string name="activity_login_sign_up_label">Crear una cuenta</string>
 
     <!-- Fragment week expenses Strings -->
@@ -49,7 +49,7 @@
     <string name="fragment_my_money_dialog_title">Nueva entrada</string>
     <string name="fragment_my_money_dialog_placeholder_resource_name">Recurso</string>
     <string name="fragment_my_money_dialog_placeholder_resource_value">Valor</string>
-    <string name="fragment_my_money_modify_label">Modificar...</string>
+    <string name="fragment_my_money_modify_label">Modificar…</string>
 
     <!-- Fragment notepad Strings -->
     <string name="fragment_notes_no_content_label">No hay datos</string>
@@ -64,7 +64,6 @@
     <!-- Fragment login Strings -->
     <string name="fragment_login_email_label">Correo electrónico</string>
     <string name="fragment_login_password_label">Contraseña</string>
-    <string name="fragment_login_login_label">Iniciar Sesión</string>
     <string name="fragment_login_progress_dialog_label">Iniciando sesión....Por favor espere</string>
 
     <!-- Fragment Sign Up Strings -->
@@ -72,7 +71,7 @@
     <string name="fragment_sign_up_email">Correo electrónico</string>
     <string name="fragment_sign_up_password">Contraseña</string>
     <string name="fragment_sign_up_confirm_password">Confirmar Contraseña</string>
-    <string name="fragment_sign_up_signup_label">Registrarme</string>
+    <string name="fragment_sign_up_sign_up_label">Registrarme</string>
     <string name="fragment_sign_up_mismatch_passwords">Las contraseñas no coinciden</string>
     <string name="fragment_sign_up_progress_dialog_label">Registrando....Por favor espere</string>
     <string name="fragment_sign_up_incorrect_username">El nombre de usuario no puede estar vacio</string>
@@ -81,7 +80,7 @@
     <string name="menu_drawer_settings_label">Opciones</string>
     <string name="menu_drawer_settings_sync_label">Sincronizar</string>
     <string name="menu_drawer_settings_schedule_label">Programar horarios</string>
-    <string name="menu_drawer_settings_about_label">Acerca De...</string>
+    <string name="menu_drawer_settings_about_label">Acerca De…</string>
     <string name="menu_drawer_settings_close_session">Cerrar sesión</string>
 
     <!-- Menu editor Strings -->
@@ -119,7 +118,7 @@
     <string name="delete_item_confirmation">¿Estás seguro de que deseas borrar esto?</string>
     <string name="delete_all_confirmation">¿Estás seguro de que deseas borrar todo?</string>
     <string name="dialog_default_title">Notas de MigueLópez :D</string>
-    <string name="syncing_label">Sincronizando...Por favor espere</string>
+    <string name="syncing_label">Sincronizando…Por favor espere</string>
     <string name="empty_list_default_text">No hay notas</string>
     <string name="empty_list_search_text">No hay resultados</string>
     <string name="delete_note_completely">¿Te gustaría eliminar esta nota completamente?</string>
