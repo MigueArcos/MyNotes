@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/layout_contenido">
         <com.example.miguel.misnotas.NiceEditText
-            android:id="@+id/contenido"
+            android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fadingEdge="vertical"

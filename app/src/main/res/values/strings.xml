@@ -61,10 +61,10 @@
     <string name="fragment_deleted_notes_no_content_label">No hay datos</string>
     <string name="fragment_deleted_notes_title">Notas Eliminadas</string>
     <string name="fragment_deleted_notes_recover_note">¿Te gustaría recuperar esta nota?</string>
-    <!-- Fragment login Strings -->
-    <string name="fragment_login_email_label">Correo electrónico</string>
-    <string name="fragment_login_password_label">Contraseña</string>
-    <string name="fragment_login_progress_dialog_label">Iniciando sesión....Por favor espere</string>
+    <!-- Fragment Sign In Strings -->
+    <string name="fragment_sign_in_email_label">Correo electrónico</string>
+    <string name="fragment_sign_in_password_label">Contraseña</string>
+    <string name="fragment_sign_in_progress_dialog_label">Iniciando sesión....Por favor espere</string>
 
     <!-- Fragment Sign Up Strings -->
     <string name="fragment_sign_up_username">Nombre de usuario</string>

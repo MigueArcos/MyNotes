@@ -97,7 +97,7 @@ public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapte
             flechita = (ImageView) itemView.findViewById(R.id.expand);
             titulo = (TextView) itemView.findViewById(R.id.titulo);
             fecha_modificacion = (TextView) itemView.findViewById(R.id.fecha_modificacion);
-            contenido = (TextView) itemView.findViewById(R.id.contenido);
+            contenido = (TextView) itemView.findViewById(R.id.content);
             //This is to make EditText not editable
             contenido.setKeyListener(null);
             layout_contenido = (LinearLayout) itemView.findViewById(R.id.layout_contenido);

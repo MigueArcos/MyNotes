@@ -1,54 +1,40 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:gravity="center_horizontal"
-              android:orientation="vertical"
-              android:paddingBottom="@dimen/activity_vertical_margin"
-              android:paddingLeft="@dimen/activity_horizontal_margin"
-              android:paddingRight="@dimen/activity_horizontal_margin"
-              android:paddingTop="@dimen/activity_vertical_margin"
-              tools:context="com.example.miguel.misnotas.activities.LoginActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context="com.example.miguel.misnotas.activities.LoginActivity">
 
-    <!-- Login progress -->
-    <!--
-    <ProgressBar
-        android:id="@+id/login_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-        android:layout_marginBottom="8dp"
-        android:visibility="gone"/>
-    -->
     <ScrollView
-        android:id="@+id/Scroll"
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/HolderContenedores"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <ImageView
+                android:id="@+id/app_logo"
                 android:layout_width="90dp"
                 android:layout_height="90dp"
-                android:id="@+id/imageView"
-                android:src="@drawable/app_logo"
-                android:layout_gravity="center_horizontal"/>
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/app_logo" />
 
             <Button
+                android:id="@+id/switch_fragments_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="right"
                 android:background="@android:color/transparent"
                 android:text="@string/activity_login_switch_fragment_button_label"
-                android:textColor="#00897B"
-                android:id="@+id/cambiar_fragmentos"
-                android:layout_gravity="right"/>
+                android:textColor="#00897B" />
 
             <FrameLayout
-                android:id="@+id/contenido"
+                android:id="@+id/content"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 

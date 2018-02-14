@@ -11,8 +11,18 @@ public class LoginActivityViewModel extends ViewModel {
 
     private signInFragmentViewModel signInFragmentViewModel;
     private SignUpFragmentViewModel signUpFragmentViewModel;
+    private boolean isSignInFragment;
+
+    public boolean isSignInFragment() {
+        return isSignInFragment;
+    }
+
+    public void toggleFragments(){
+        isSignInFragment = !isSignInFragment;
+    }
 
     public LoginActivityViewModel(){
+        isSignInFragment = true;
         signInFragmentViewModel = new signInFragmentViewModel();
         signUpFragmentViewModel = new SignUpFragmentViewModel();
     }

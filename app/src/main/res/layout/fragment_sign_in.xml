@@ -1,44 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="16dp">
+
     <android.support.design.widget.TextInputLayout
         android:id="@+id/label_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <EditText
             android:id="@+id/email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/fragment_login_email_label"
+            android:hint="@string/fragment_sign_in_email_label"
             android:inputType="textEmailAddress"
             android:maxLines="1"
-            android:singleLine="true"/>
+            android:singleLine="true" />
     </android.support.design.widget.TextInputLayout>
+
     <android.support.design.widget.TextInputLayout
         android:id="@+id/label_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <EditText
             android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/fragment_login_password_label"
+            android:hint="@string/fragment_sign_in_password_label"
             android:inputType="textPassword"
             android:maxLines="1"
-            android:singleLine="true"
-            android:nextFocusDown="@+id/submit"/>
+            android:nextFocusDown="@+id/submit_button"
+            android:singleLine="true" />
     </android.support.design.widget.TextInputLayout>
+
     <Button
-        android:id="@+id/submit"
+        android:id="@+id/submit_button"
         style="?android:textAppearanceSmall"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="@string/activity_login_sign_in_label"
-        android:textStyle="bold"
         android:focusable="true"
-        />
+        android:text="@string/activity_login_sign_in_label"
+        android:textStyle="bold" />
+
 </LinearLayout>

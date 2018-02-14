@@ -29,7 +29,7 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
         NuevaNota= paquete.getBoolean("NuevaNota",true);
         id_nota_mod = paquete.getInt("id_nota_mod",-1);
         titulo=(TextView)findViewById(R.id.titulo);
-        contenido=(TextView)findViewById(R.id.contenido);
+        contenido=(TextView)findViewById(R.id.content);
         titulo.setText(paquete.getString("titulo",""));
         contenido.setText(paquete.getString("contenido",""));
         if (Linkify.addLinks(contenido, Linkify.ALL)){

@@ -64,7 +64,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vi
         label_password = (TextInputLayout) rootView.findViewById(R.id.label_password);
         email = (EditText) rootView.findViewById(R.id.email);
         password = (EditText) rootView.findViewById(R.id.password);
-        submit = (Button) rootView.findViewById(R.id.submit);
+        submit = (Button) rootView.findViewById(R.id.submit_button);
         submit.setOnClickListener(this);
         regex_password = Pattern.compile("^.{4,}$");
         email.setOnFocusChangeListener(this);
@@ -132,7 +132,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vi
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState!=null){
             email.setText(savedInstanceState.getString("email"));
-            if (!ValidarEmail()){
+            if (!validateEmail()){
                 label_email.setError("El correo electrónico es incorrecto");
             }
             else{
@@ -144,7 +144,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vi
     }
     */
     void StartLogin() {
-        progressDialog.setMessage(getString(R.string.fragment_login_progress_dialog_label));
+        progressDialog.setMessage(getString(R.string.fragment_sign_in_progress_dialog_label));
         progressDialog.show();
         VolleySingleton.getInstance(getActivity()).IniciarSesion(email.getText().toString(), password.getText().toString(), this);
         Log.d("test", "Starting session");

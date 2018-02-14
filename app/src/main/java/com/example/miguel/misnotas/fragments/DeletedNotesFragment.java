@@ -132,11 +132,12 @@ public class DeletedNotesFragment extends Fragment implements DeletedNotesAdapte
     }
 
     @Override
-    public void onSwipe(int position) {
+    public void onSwipe(final int position) {
+        final Note noteToDelete = data.get(position);
         dialogDeleteNote
-                .setPositiveButton(R.string.positive_button_label, (dialog, which) -> DeleteNoteCompletely(data.get(position).getID_Nota()))
-                .setNegativeButton(R.string.negative_button_label, (dialog, which) -> CancelDeleteNote(position, data.get(position)))
-                .setOnCancelListener(dialog -> CancelDeleteNote(position, data.get(position)))
+                .setPositiveButton(R.string.positive_button_label, (dialog, which) -> DeleteNoteCompletely(noteToDelete.getID_Nota()))
+                .setNegativeButton(R.string.negative_button_label, (dialog, which) -> CancelDeleteNote(position, noteToDelete))
+                .setOnCancelListener(dialog -> CancelDeleteNote(position, noteToDelete))
                 .show();
         data.remove(position);
         adapter.notifyItemRemoved(position);
