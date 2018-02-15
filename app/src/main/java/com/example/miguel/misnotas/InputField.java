@@ -18,20 +18,17 @@ import java.util.regex.Pattern;
  * Created by Miguel Ángel López Arcos on 14/02/2018.
  */
 
-public class InputField extends LinearLayout implements View.OnFocusChangeListener {
-    private TextInputLayout label;
+public class InputField extends TextInputLayout {
     private EditText editText;
     private Pattern regex;
     private String errorLabel;
 
+    public InputField(Context context) {
+        super(context);
+    }
+
     public InputField(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setOrientation(LinearLayout.VERTICAL);
-        setGravity(Gravity.CENTER_VERTICAL);
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        assert inflater != null;
-        inflater.inflate(R.layout.input_field, this, true);
     }
 
     public void setRegex(Pattern regex) {
@@ -42,13 +39,6 @@ public class InputField extends LinearLayout implements View.OnFocusChangeListen
         this.errorLabel = errorLabel;
     }
 
-    public void setHint(String hint){
-        editText.setHint(hint);
-    }
-
-    public EditText getEditText(){
-       return editText;
-    }
 
     @Override
     protected void onFinishInflate() {
@@ -57,22 +47,31 @@ public class InputField extends LinearLayout implements View.OnFocusChangeListen
     }
 
     private void initializeComponents() {
-        label = this.findViewById(R.id.label);
-        editText = this.findViewById(R.id.edit_text);
-        editText.setOnFocusChangeListener(this);
+        editText = this.getEditText();
+        editText.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                //EditText has gotten Focus
+                if (hasFocus) {
+                    //setError(null);
+                    setErrorEnabled(false);
+                }
+                //EditText has lost the focus
+                else {
+                    checkField();
+                }
+            }
+        });
+
+    }
+    //The last field also implements this listener
+    public void setAsLastField(){
         editText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (event == null) return false;
                 if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE ||
                         event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                    if (!validateField()) {
-                        label.setError(errorLabel);
-                    } else {
-                        label.setError(null);
-                        label.setErrorEnabled(false);
-                    }
-
+                    checkField();
                 }
                 return false; // pass on to other listeners.
             }
@@ -85,22 +84,16 @@ public class InputField extends LinearLayout implements View.OnFocusChangeListen
         return true;
     }
 
+    public void checkField(){
+        if (!validateField()) {
+            setError(errorLabel);
+        } else {
+            //setError(null);
+            setErrorEnabled(false);
+        }
+    }
     public String getText(){
         return editText.getText().toString();
     }
 
-    @Override
-    public void onFocusChange(View view, boolean hasFocus) {
-        //EditText has gotten Focus
-        if (hasFocus) {
-            label.setError(null);
-            label.setErrorEnabled(false);
-        }
-        //EditText has lost the focus
-        else {
-            if (!validateField()) {
-                label.setError(errorLabel);
-            }
-        }
-    }
 }

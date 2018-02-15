@@ -54,36 +54,32 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Vo
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_sign_up, container, false);
 
-        Button submit = rootView.findViewById(R.id.submit_button);
-        submit.setOnClickListener(this);
-
         Pattern regexPassword = Pattern.compile("^.{4,}$");
 
         username = rootView.findViewById(R.id.username);
         username.setRegex(regexPassword);
         username.setErrorLabel(getString(R.string.fragment_sign_up_incorrect_username));
-        username.setHint(getString(R.string.fragment_sign_up_username));
 
         email = rootView.findViewById(R.id.email);
         email.setRegex(Patterns.EMAIL_ADDRESS);
-        email.setHint(getString(R.string.fragment_sign_in_email_label));
         email.setErrorLabel(getString(R.string.activity_login_incorrect_email));
 
         password = rootView.findViewById(R.id.password);
         password.setRegex(regexPassword);
-        password.setHint(getString(R.string.fragment_sign_in_password_label));
         password.setErrorLabel(getString(R.string.activity_login_incorrect_password));
 
         confirmPassword = rootView.findViewById(R.id.confirm_password);
         confirmPassword.setRegex(regexPassword);
-        confirmPassword.setHint(getString(R.string.fragment_sign_up_confirm_password));
-        password.setErrorLabel(getString(R.string.activity_login_incorrect_password));
+        confirmPassword.setErrorLabel(getString(R.string.activity_login_incorrect_password));
+        confirmPassword.setAsLastField();
 
 
-
+        Button submit = rootView.findViewById(R.id.submit_button);
+        submit.setOnClickListener(this);
 
         message = new AlertDialog.Builder(getActivity()).create();
         message.setTitle(R.string.dialog_default_title);
+
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCancelable(false);
         progressDialog.setTitle(R.string.dialog_default_title);

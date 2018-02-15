@@ -5,28 +5,26 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/label_email"
+    <com.example.miguel.misnotas.InputField
+        android:id="@+id/email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <EditText
-            android:id="@+id/email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/fragment_sign_in_email_label"
             android:inputType="textEmailAddress"
             android:maxLines="1"
             android:singleLine="true" />
-    </android.support.design.widget.TextInputLayout>
+    </com.example.miguel.misnotas.InputField>
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/label_password"
+    <com.example.miguel.misnotas.InputField
+        android:id="@+id/password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <EditText
-            android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/fragment_sign_in_password_label"
@@ -34,7 +32,7 @@
             android:maxLines="1"
             android:nextFocusDown="@+id/submit_button"
             android:singleLine="true" />
-    </android.support.design.widget.TextInputLayout>
+    </com.example.miguel.misnotas.InputField>
 
     <Button
         android:id="@+id/submit_button"
