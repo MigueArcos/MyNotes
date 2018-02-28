@@ -64,9 +64,9 @@ public class WeeklyExpensesNotification extends BroadcastReceiver {
             Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             //Se crea la notificacion y se le define su icono
             NotificationCompat.Builder notification = new NotificationCompat.Builder(context).setSmallIcon(R.drawable.app_logo);
-            //Se define el titulo de la notifiacion
+            //Se define el title de la notifiacion
             notification.setContentTitle(context.getString(R.string.notification_title));
-            //Se define el contenido de la notificacion
+            //Se define el content de la notificacion
             notification.setContentText(context.getString(R.string.notification_message));
             //Se le pone a la notificacion la hora actual
             notification.setWhen(System.currentTimeMillis());

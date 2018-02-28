@@ -69,8 +69,8 @@ public class Sincronizacion {
         //Create AsycHttpClient object
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        String NotasNoSync=ob.crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String NotasSync=ob.crearJSON("SELECT * FROM notas WHERE subida='S'");
+        String NotasNoSync=ob.crearJSON("SELECT * FROM Notes WHERE uploaded='N'");
+        String NotasSync=ob.crearJSON("SELECT * FROM Notes WHERE uploaded='S'");
         //Toast.makeText(getActivity(), NotasSync, Toast.LENGTH_LONG).show();
         progreso.setMessage("Sincronizando...Por favor espere");
         progreso.show();
@@ -135,8 +135,8 @@ public class Sincronizacion {
         mensaje.show();
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        String NotasNoSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String NotasSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='S'");
+        String NotasNoSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM Notes WHERE uploaded='N'");
+        String NotasSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM Notes WHERE uploaded='S'");
         if (!NotasNoSync.equals("")){
             params.put("NotasNoSyncJSON", NotasNoSync);
         }
@@ -260,8 +260,8 @@ public class Sincronizacion {
         //Create AsycHttpClient object
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        String NotasNoSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String NotasSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='S'");
+        String NotasNoSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM Notes WHERE uploaded='N'");
+        String NotasSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM Notes WHERE uploaded='S'");
         //Toast.makeText(getActivity(), NotasSync, Toast.LENGTH_LONG).show();
         progreso.setMessage("Sincronizando...Por favor espere");
         progreso.show();
@@ -331,8 +331,8 @@ public class Sincronizacion {
         //Create AsycHttpClient object
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        String NotasNoSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String NotasSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='S'");
+        String NotasNoSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM Notes WHERE uploaded='N'");
+        String NotasSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM Notes WHERE uploaded='S'");
         //Toast.makeText(getActivity(), NotasSync, Toast.LENGTH_LONG).show();
         progreso.setMessage("Sincronizando...Por favor espere");
         progreso.show();

@@ -1,56 +1,82 @@
 package com.example.miguel.misnotas.models;
 
 import com.example.miguel.misnotas.R;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by Miguel on 20/06/2016.
  */
 public class Note {
-    //Por el momento id_nota es estático y por lo tanto no tiene sentido serializarlo para crear el objeto JSON
+    //Por el momento noteId es estático y por lo tanto no tiene sentido serializarlo para crear el objeto JSON
     /*Check this link to see properties of serialization wit Gson (First answer)
     https://stackoverflow.com/questions/14644860/why-static-fields-not-serialized-using-google-gson-gsonbuilder-json-parser*/
-    private static int id_imagen= R.drawable.note;
-    private String  titulo;
-    private String contenido;
-    private String fecha_creacion;
-    private String fecha_modificacion;
-    private int id_nota;
-    private String fecha_modificacion_orden;
-    private char eliminado;
-    private char subida;
-    public Note(int id_nota, String titulo, String contenido, String fecha_creacion, String fecha_modificacion) {
-        this.contenido=contenido;
-        this.titulo=titulo;
-        this.fecha_creacion=fecha_creacion;
-        this.fecha_modificacion=fecha_modificacion;
-        this.id_nota=id_nota;
+    public static final int imageId = R.drawable.note;
+    @SerializedName("id_nota")
+    private int noteId;
+    @SerializedName("titulo")
+    private String title;
+    @SerializedName("contenido")
+    private String content;
+    @SerializedName("fecha_creacion")
+    private String creationDate;
+    @SerializedName("fecha_modificacion")
+    private String modificationDate;
+    @SerializedName("fecha_modificacion_orden")
+    private String orderModificationDate;
+    @SerializedName("eliminado")
+    private char deleted;
+    @SerializedName("subida")
+    private char uploaded;
+
+    public Note(int noteId, String title, String content, String creationDate, String modificationDate) {
+        this.noteId = noteId;
+        this.title = title;
+        this.content = content;
+        this.creationDate = creationDate;
+        this.modificationDate = modificationDate;
     }
-    public Note(int id_nota, String titulo, String contenido, String fecha_creacion, String fecha_modificacion, String fecha_modificacion_orden, char eliminado, char subida) {
-        this.contenido=contenido;
-        this.titulo=titulo;
-        this.fecha_creacion=fecha_creacion;
-        this.fecha_modificacion=fecha_modificacion;
-        this.id_nota=id_nota;
-        this.fecha_modificacion_orden=fecha_modificacion_orden;
-        this.eliminado=eliminado;
-        this.subida=subida;
+
+    public Note(int noteId, String title, String content, String creationDate, String modificationDate, String orderModificationDate, char deleted, char uploaded) {
+        this.noteId = noteId;
+        this.title = title;
+        this.content = content;
+        this.creationDate = creationDate;
+        this.modificationDate = modificationDate;
+        this.orderModificationDate = orderModificationDate;
+        this.deleted = deleted;
+        this.uploaded = uploaded;
     }
-    public int getID_Imagen(){
-        return id_imagen;
+
+    public static int getImageId() {
+        return imageId;
     }
-    public String getContenido(){return contenido;}
-    public int getID_Nota(){
-        return id_nota;
+
+    public int getNoteId() {
+        return noteId;
     }
-    public String getTitulo() {
-        return titulo;
+
+    public String getTitle() {
+        return title;
     }
-    public String getFecha_modificacion() {
-        return fecha_modificacion;
+
+    public String getContent() {
+        return content;
     }
-    public String getFecha_modificacion_orden(){return fecha_modificacion_orden;}
-    public String getFecha_creacion(){return fecha_creacion;}
-    public char getEliminado(){return eliminado;}
-    public char getSubida(){return subida;}
+
+    public String getCreationDate() {
+        return creationDate;
+    }
+
+    public String getModificationDate() {
+        return modificationDate;
+    }
+
+    public String getOrderModificationDate() {
+        return orderModificationDate;
+    }
+
+    public char getDeleted() {
+        return deleted;
+    }
 
 }

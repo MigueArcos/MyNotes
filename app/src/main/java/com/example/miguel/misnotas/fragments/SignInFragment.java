@@ -107,8 +107,8 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vo
     }
 
     void StartDatabaseSync() {
-        String noSyncedNotes = Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String syncedNotes = Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='S'");
+        String noSyncedNotes = Database.getInstance(getActivity()).crearJSON("SELECT * FROM Notes WHERE uploaded='N'");
+        String syncedNotes = Database.getInstance(getActivity()).crearJSON("SELECT * FROM Notes WHERE uploaded='S'");
         progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
         VolleySingleton.getInstance(getActivity()).syncDBLocal_Remota(syncedNotes, noSyncedNotes, ShPrSync.getInt("userID", 1), ShPrSync.getInt("UltimoIDSync", 0), true, this);

@@ -310,8 +310,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         alarmManager.cancel(PendingIntent.getBroadcast(this, 0, new Intent(this, SyncNotesService.class), 0));
     }
     void StartDatabaseSync(){
-        String NotasNoSync=Database.getInstance(this).crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String NotasSync=Database.getInstance(this).crearJSON("SELECT * FROM notas WHERE subida='S'");
+        String NotasNoSync=Database.getInstance(this).crearJSON("SELECT * FROM Notes WHERE uploaded='N'");
+        String NotasSync=Database.getInstance(this).crearJSON("SELECT * FROM Notes WHERE uploaded='S'");
         Log.d("NotesSync",NotasSync);
         Log.d("NotesUnSync",NotasNoSync);
         progressDialog.setMessage(getString(R.string.syncing_label));

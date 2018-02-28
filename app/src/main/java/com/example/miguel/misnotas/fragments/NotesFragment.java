@@ -17,13 +17,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.miguel.misnotas.Database;
-import com.example.miguel.misnotas.activities.NotesEditorActivity;
 import com.example.miguel.misnotas.R;
+import com.example.miguel.misnotas.activities.NotesEditorActivity;
 import com.example.miguel.misnotas.activities.SearchNotesActivity;
-import com.example.miguel.misnotas.models.Note;
 import com.example.miguel.misnotas.adapters.NotesAdapter;
+import com.example.miguel.misnotas.models.Note;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.example.miguel.misnotas.activities.SearchNotesActivity.NOTES;
 
@@ -34,7 +35,7 @@ import static com.example.miguel.misnotas.activities.SearchNotesActivity.NOTES;
 public class NotesFragment extends Fragment implements View.OnClickListener, NotesAdapter.MyRecyclerViewActions {
     private RecyclerView list;
     private NotesAdapter adapter;
-    private ArrayList<Note> data;
+    private List<Note> data;
     private FloatingActionButton create;
     //private GestureDetectorCompat mDetector;
     private Snackbar snackbar;
@@ -42,6 +43,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
     private boolean calledFromSearch;
     private String text = "";
     private AlertDialog.Builder dialogDeleteNoteCompletely;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -54,6 +56,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
         //Se accede a la lista
         list = (RecyclerView) rootView.findViewById(R.id.lista);
         //Se crea el adaptador de la lista que contendra todos los datos
+        data = data = Database.getInstance(getActivity()).getNotes(false);
         adapter = new NotesAdapter(data, this);
         LinearLayoutManager llm = new LinearLayoutManager(this.getActivity());
         list.setLayoutManager(llm);
@@ -93,7 +96,8 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
         }
         dialogDeleteNoteCompletely = new AlertDialog.Builder(getActivity());
         dialogDeleteNoteCompletely.setTitle(R.string.dialog_default_title).setMessage(getString(R.string.delete_note_completely));
-        dialogDeleteNoteCompletely.setNegativeButton(R.string.negative_button_label, (dialog, which) -> {});
+        dialogDeleteNoteCompletely.setNegativeButton(R.string.negative_button_label, (dialog, which) -> {
+        });
         return rootView;
     }
 
@@ -152,13 +156,8 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
      */
     @Override
     public void onResume() {
-        if (!calledFromSearch) {
-            data = Database.getInstance(getActivity()).leer_notas("SELECT * FROM notas WHERE eliminado='N' ORDER BY fecha_modificacion_orden DESC");
-            //Método personalizado para volver a cargar los datos :D
-        } else {
-            filterNotes(text);
-        }
-        adapter.setData(data);
+
+        adapter.filterResults(text);
         //Toast.makeText(this.getActivity(), "Se ejecuto onResume de fragmento", Toast.LENGTH_SHORT).show();
         super.onResume();
     }
@@ -172,7 +171,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
     @Override
     public void onSwipe(final int position) {
         final Note selectedNote = data.get(position);
-        final int selectedNoteID = data.get(position).getID_Nota();
+        final int selectedNoteID = data.get(position).getNoteId();
 
         snackbar = Snackbar.make(list, R.string.fragment_notes_snackbar_label, 10000).
                 setAction(R.string.fragment_notes_snackbar_action_label, new View.OnClickListener() {
@@ -218,9 +217,9 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
         Bundle pack = new Bundle();
         //Add your data from getFactualResults method to bundle
         pack.putBoolean("NuevaNota", false);
-        pack.putString("contenido", note.getContenido());
-        pack.putString("titulo", note.getTitulo());
-        pack.putInt("id_nota_mod", note.getID_Nota());
+        pack.putString("content", note.getContent());
+        pack.putString("title", note.getTitle());
+        pack.putInt("noteToModifyId", note.getNoteId());
         //Add the bundle to the intent
         i.putExtras(pack);
         getActivity().startActivity(i);
@@ -232,20 +231,14 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
         dialogDeleteNoteCompletely.setPositiveButton(R.string.positive_button_label, (dialog, which) -> DeleteNoteCompletely(position)).show();
     }
 
-    private void DeleteNoteCompletely(int position){
-        Database.getInstance(getActivity()).eliminar_nota_completamente(data.get(position).getID_Nota());
+    private void DeleteNoteCompletely(int position) {
+        Database.getInstance(getActivity()).eliminar_nota_completamente(data.get(position).getNoteId());
         data.remove(position);
         adapter.notifyItemRemoved(position);
     }
 
     public void filterNotes(String text) {
-        this.text = text;
-        if (text.isEmpty()) {
-            data = new ArrayList<>();
-        } else {
-            data = Database.getInstance(getActivity()).leer_notas("SELECT * FROM notas WHERE eliminado='N' AND (titulo || contenido) LIKE '%" + text + "%' ORDER BY fecha_modificacion_orden DESC");
-        }
-        adapter.setData(data);
+        adapter.filterResults(text);
     }
 
 }

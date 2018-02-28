@@ -13,22 +13,43 @@ import android.widget.TextView;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.models.Note;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Miguel on 20/06/2016.
  */
-public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ItemView> {
+public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapter.ItemView> {
     private List<Note> data;
+    private List<Note> originalList;
     private MyRecyclerViewActions listener;
+
+    @Override
+    public void filterResults(String filter) {
+        filter = filter.toLowerCase();
+        List<Note> filteredNotes = new ArrayList<>();
+        if (filter.isEmpty()){
+            setData(originalList);
+        }
+        for (Note note : originalList){
+            String comparator = note.getTitle().concat(note.getContent()).toLowerCase();
+            if (comparator.contains(filter)){
+                filteredNotes.add(note);
+            }
+        }
+        setData(filteredNotes);
+    }
+
     public interface MyRecyclerViewActions{
         void onSwipe(int position);
         void onTouch(int position);
         void onLongTouch(int position);
     }
 
-    public NotesAdapter(List<Note> data, MyRecyclerViewActions listener) {
-        this.data = data;
+    public NotesAdapter(List<Note> originalList, MyRecyclerViewActions listener) {
+        super(originalList);
+        this.data = originalList;
+        this.originalList = originalList;
         this.listener=listener;
     }
     /***
@@ -44,8 +65,8 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ItemView> {
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
             noteImage = (ImageView) itemView.findViewById(R.id.foto);
-            title = (TextView)itemView.findViewById(R.id.titulo);
-            modificationDate = (TextView)itemView.findViewById(R.id.fecha_modificacion);
+            title = (TextView)itemView.findViewById(R.id.title);
+            modificationDate = (TextView)itemView.findViewById(R.id.modificationDate);
         }
 
         @Override
@@ -83,9 +104,9 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ItemView> {
 
     @Override
     public void onBindViewHolder(ItemView holder, int position) {
-        holder.noteImage.setImageResource(data.get(position).getID_Imagen());
-        holder.title.setText(data.get(position).getTitulo());
-        holder.modificationDate.setText("Última modificación: "+data.get(position).getFecha_modificacion());
+        holder.noteImage.setImageResource(data.get(position).getImageId());
+        holder.title.setText(data.get(position).getTitle());
+        holder.modificationDate.setText("Última modificación: "+data.get(position).getModificationDate());
     }
 
     @Override

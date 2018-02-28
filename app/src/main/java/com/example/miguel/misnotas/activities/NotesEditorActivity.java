@@ -17,26 +17,26 @@ import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.R;
 
 public class NotesEditorActivity extends AppCompatActivity implements TextWatcher{
-    private TextView titulo, contenido;
+    private TextView title, content;
     private AlertDialog mensaje;
     private Boolean NuevaNota;
-    private int id_nota_mod,cambios=0;
+    private int noteToModifyId,cambios=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notes_editor);
         Bundle paquete = getIntent().getExtras();
         NuevaNota= paquete.getBoolean("NuevaNota",true);
-        id_nota_mod = paquete.getInt("id_nota_mod",-1);
-        titulo=(TextView)findViewById(R.id.titulo);
-        contenido=(TextView)findViewById(R.id.content);
-        titulo.setText(paquete.getString("titulo",""));
-        contenido.setText(paquete.getString("contenido",""));
-        if (Linkify.addLinks(contenido, Linkify.ALL)){
-            contenido.append("\n");
+        noteToModifyId = paquete.getInt("noteToModifyId",-1);
+        title=(TextView)findViewById(R.id.title);
+        content=(TextView)findViewById(R.id.content);
+        title.setText(paquete.getString("title",""));
+        content.setText(paquete.getString("content",""));
+        if (Linkify.addLinks(content, Linkify.ALL)){
+            content.append("\n");
         }
-        titulo.addTextChangedListener(this);
-        contenido.addTextChangedListener(this);
+        title.addTextChangedListener(this);
+        content.addTextChangedListener(this);
         mensaje = new AlertDialog.Builder(this).create();
         //Toast.makeText(getBaseContext(),"hola minmdo", Toast.LENGTH_SHORT).show();
         //getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -46,7 +46,7 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
         super.onStop();
         InsertOrUpdate();
         //Toast.makeText(this, "Se ejecuto onStop de actividad", Toast.LENGTH_SHORT).show();
-        //Se va a guardar la note si la bandera_guardar esta activa y ademas el campo de contenio o el de titulo ya tienen algo
+        //Se va a guardar la note si la bandera_guardar esta activa y ademas el campo de contenio o el de title ya tienen algo
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -88,12 +88,12 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
 
 
     void eliminar(){
-        if (!(titulo.getText().toString().equals("") && contenido.getText().toString().equals(""))){
+        if (!(title.getText().toString().equals("") && content.getText().toString().equals(""))){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(R.string.delete_note_confirmation).setCancelable(false);
             builder.setPositiveButton(R.string.positive_button_label, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    Database.getInstance(NotesEditorActivity.this).eliminar_nota(id_nota_mod);
+                    Database.getInstance(NotesEditorActivity.this).eliminar_nota(noteToModifyId);
                     NotesEditorActivity.this.finish();
                 }
             });
@@ -113,13 +113,13 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
         //Toast.makeText(this.getBaseContext(), "¡Guardado!", Toast.LENGTH_LONG).show();
     }
     void guardar(){
-        id_nota_mod=Database.getInstance(NotesEditorActivity.this).guardar_nota(titulo.getText().toString(), contenido.getText().toString());
+        noteToModifyId=Database.getInstance(NotesEditorActivity.this).guardar_nota(title.getText().toString(), content.getText().toString());
         NuevaNota=false;
         Toast.makeText(this.getBaseContext(), R.string.saved_label, Toast.LENGTH_SHORT).show();
         cambios=0;
     }
     void modificar(){
-        Database.getInstance(NotesEditorActivity.this).modificar_nota(titulo.getText().toString(), contenido.getText().toString(),id_nota_mod);
+        Database.getInstance(NotesEditorActivity.this).modificar_nota(title.getText().toString(), content.getText().toString(),noteToModifyId);
         Toast.makeText(this.getBaseContext(), getString(R.string.saved_label), Toast.LENGTH_SHORT).show();
         cambios=0;
     }

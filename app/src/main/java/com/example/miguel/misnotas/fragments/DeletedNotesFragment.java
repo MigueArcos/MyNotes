@@ -24,6 +24,7 @@ import com.example.miguel.misnotas.models.Note;
 import com.example.miguel.misnotas.viewmodels.DeletedNotesFragmentViewModel;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.example.miguel.misnotas.activities.SearchNotesActivity.DELETED_NOTES;
 
@@ -34,7 +35,7 @@ import static com.example.miguel.misnotas.activities.SearchNotesActivity.DELETED
 public class DeletedNotesFragment extends Fragment implements DeletedNotesAdapter.AdapterActions {
     private RecyclerView list;
     private DeletedNotesAdapter adapter;
-    private ArrayList<Note> data;
+    private List<Note> data;
     private AlertDialog.Builder dialogDeleteNote;
     private AlertDialog.Builder dialogRecoverNote;
     private TextView emptyList;
@@ -50,6 +51,7 @@ public class DeletedNotesFragment extends Fragment implements DeletedNotesAdapte
         }
         ViewModelProviders.of(this).get(DeletedNotesFragmentViewModel.class);
         list = rootView.findViewById(R.id.lista);
+        data = Database.getInstance(getActivity()).getNotes(true);
         adapter = new DeletedNotesAdapter(data, this);
         LinearLayoutManager llm = new LinearLayoutManager(this.getActivity());
         list.setLayoutManager(llm);
@@ -96,13 +98,7 @@ public class DeletedNotesFragment extends Fragment implements DeletedNotesAdapte
 
     @Override
     public void onResume() {
-        if (!calledFromSearch) {
-            data = Database.getInstance(getActivity()).leer_notas("SELECT * FROM notas WHERE eliminado='S' ORDER BY fecha_modificacion_orden DESC");
-            //Método personalizado para volver a cargar los datos :D
-        } else {
-            filterNotes(text);
-        }
-        adapter.setData(data);
+        filterNotes(text);
         super.onResume();
         //Toast.makeText(this.getActivity(), "Se ejecuto onResume de fragmento", Toast.LENGTH_SHORT).show();
     }
@@ -119,7 +115,7 @@ public class DeletedNotesFragment extends Fragment implements DeletedNotesAdapte
     }
 
     private void RecoverNote(int position, Note selectedNote) {
-        Database.getInstance(getActivity()).recuperar_nota(selectedNote.getID_Nota());
+        Database.getInstance(getActivity()).recuperar_nota(selectedNote.getNoteId());
         data.remove(position);
         adapter.notifyItemRemoved(position);
         //It doesn't matter if the item was or not expanded, it will remove it from expandedItems (this will avoid further problems with positions)
@@ -135,7 +131,7 @@ public class DeletedNotesFragment extends Fragment implements DeletedNotesAdapte
     public void onSwipe(final int position) {
         final Note noteToDelete = data.get(position);
         dialogDeleteNote
-                .setPositiveButton(R.string.positive_button_label, (dialog, which) -> DeleteNoteCompletely(noteToDelete.getID_Nota()))
+                .setPositiveButton(R.string.positive_button_label, (dialog, which) -> DeleteNoteCompletely(noteToDelete.getNoteId()))
                 .setNegativeButton(R.string.negative_button_label, (dialog, which) -> CancelDeleteNote(position, noteToDelete))
                 .setOnCancelListener(dialog -> CancelDeleteNote(position, noteToDelete))
                 .show();
@@ -146,13 +142,7 @@ public class DeletedNotesFragment extends Fragment implements DeletedNotesAdapte
     }
 
     public void filterNotes(String text) {
-        this.text = text;
-        if (text.isEmpty()) {
-            data = new ArrayList<>();
-        } else {
-            data = Database.getInstance(getActivity()).leer_notas("SELECT * FROM notas WHERE eliminado='S' AND (titulo || contenido) LIKE '%" + text + "%' ORDER BY fecha_modificacion_orden DESC");
-        }
-        adapter.setData(data);
+        adapter.filterResults(text);
     }
 
 
