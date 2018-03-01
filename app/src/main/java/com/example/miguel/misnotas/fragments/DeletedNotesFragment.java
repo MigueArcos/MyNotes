@@ -20,6 +20,7 @@ import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.activities.SearchNotesActivity;
 import com.example.miguel.misnotas.adapters.DeletedNotesAdapter;
+import com.example.miguel.misnotas.adapters.FilterableRecyclerViewAdapter;
 import com.example.miguel.misnotas.models.Note;
 import com.example.miguel.misnotas.viewmodels.DeletedNotesFragmentViewModel;
 
@@ -32,7 +33,7 @@ import static com.example.miguel.misnotas.activities.SearchNotesActivity.DELETED
 /**
  * Created by Miguel on 19/07/2017.
  */
-public class DeletedNotesFragment extends Fragment implements DeletedNotesAdapter.AdapterActions {
+public class DeletedNotesFragment extends Fragment implements FilterableRecyclerViewAdapter.DeletedNotesAdapterActions {
     private RecyclerView list;
     private DeletedNotesAdapter adapter;
     private List<Note> data;
@@ -105,19 +106,17 @@ public class DeletedNotesFragment extends Fragment implements DeletedNotesAdapte
 
 
     private void DeleteNoteCompletely(int noteID) {
-        Database.getInstance(getActivity()).eliminar_nota_completamente(noteID);
+        Database.getInstance(getActivity()).deleteNoteCompletely(noteID);
     }
 
     private void CancelDeleteNote(int position, Note selectedNote) {
-        data.add(position, selectedNote);
-        adapter.notifyItemInserted(position);
+        adapter.insertItem(position, selectedNote);
         list.scrollToPosition(position);
     }
 
     private void RecoverNote(int position, Note selectedNote) {
-        Database.getInstance(getActivity()).recuperar_nota(selectedNote.getNoteId());
-        data.remove(position);
-        adapter.notifyItemRemoved(position);
+        Database.getInstance(getActivity()).recoverNote(selectedNote.getNoteId());
+        adapter.deleteItem(position);
         //It doesn't matter if the item was or not expanded, it will remove it from expandedItems (this will avoid further problems with positions)
         adapter.notifyExpandedItemDeleted(position);
     }
@@ -135,8 +134,7 @@ public class DeletedNotesFragment extends Fragment implements DeletedNotesAdapte
                 .setNegativeButton(R.string.negative_button_label, (dialog, which) -> CancelDeleteNote(position, noteToDelete))
                 .setOnCancelListener(dialog -> CancelDeleteNote(position, noteToDelete))
                 .show();
-        data.remove(position);
-        adapter.notifyItemRemoved(position);
+        adapter.deleteItem(position);
         //It doesn't matter if the item was or not expanded, it will remove it from expandedItems (this will avoid further problems with positions)
         adapter.notifyExpandedItemDeleted(position);
     }

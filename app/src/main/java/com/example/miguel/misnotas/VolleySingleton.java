@@ -28,17 +28,23 @@ public class VolleySingleton {
     private static VolleySingleton mInstance;
     private RequestQueue mRequestQueue;
     private static Context AppContext;
-    private final String URL="http://miguelarcos.x10.mx/android/movil";
-    private final int SYNC_TIME=3600000;
-    public interface NotesResponseListener{
+    private final String URL = "http://miguelarcos.x10.mx/android/movil";
+    private final int SYNC_TIME = 3600000;
+
+    public interface NotesResponseListener {
         void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes);
+
         void onSyncError(String error);
     }
-    public interface LoginListener{
+
+    public interface LoginListener {
         void onLoginSuccess(int id_usuario, String username, String email, int sync_time);
+
         void onLoginError(String error);
+
         void activateAutoSync(int time);
     }
+
     private VolleySingleton(Context context) {
         AppContext = context;
         mRequestQueue = getRequestQueue();
@@ -64,125 +70,125 @@ public class VolleySingleton {
         getRequestQueue().add(req);
     }
 
-    public void syncDBLocal_Remota(final String NotasSync, final String NotasNoSync, final int id_usuario, final int UltimoIDSync, final boolean isLogin, final NotesResponseListener listener){
-        StringRequest MyRequest = new StringRequest(Request.Method.POST, URL+"/OperacionesBD.php",
-                new Response.Listener<String>(){
+    public void syncDBLocal_Remota(final String NotasSync, final String NotasNoSync, final int id_usuario, final int UltimoIDSync, final boolean isLogin, final NotesResponseListener listener) {
+        StringRequest MyRequest = new StringRequest(Request.Method.POST, URL + "/OperacionesBD.php",
+                new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        JSONArray array= null;
-                        JSONObject SyncData= null;
+                        JSONArray array = null;
+                        JSONObject SyncData = null;
                         try {
-                            array=new JSONArray(response);
-                            SyncData = array.getJSONObject(array.length()-1);
-                            Database.getInstance(AppContext).NotasServidorALocalDB(array,isLogin);
+                            array = new JSONArray(response);
+                            SyncData = array.getJSONObject(array.length() - 1);
+                            Database.getInstance(AppContext).updateLocalDatabase(array.remove(array.length() - 1).toString(), isLogin);
                             listener.onSyncSuccess(SyncData.getInt("UltimoIDSync"), SyncData.getInt("TotalNumberOfNotes"));
-                            Log.d("JSON",response);
+                            Log.d("JSON", response);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
                 },
-                new Response.ErrorListener(){
+                new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // TODO Auto-generated method stub
                         listener.onSyncError(getVolleyError(error));
                     }
                 }
-        ){
+        ) {
             @Override
-            protected Map<String, String> getParams(){
+            protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                if (!NotasNoSync.equals("")){
+                if (!NotasNoSync.equals("")) {
                     params.put("NotasNoSyncJSON", NotasNoSync);
                 }
-                if (!NotasSync.equals("")){
+                if (!NotasSync.equals("")) {
                     params.put("NotasSyncJSON", NotasSync);
                 }
-                params.put("id_usuario",String.valueOf(id_usuario));
+                params.put("id_usuario", String.valueOf(id_usuario));
                 params.put("UltimoIDSync", String.valueOf(UltimoIDSync));
                 return params;
             }
         };
         addToRequestQueue(MyRequest);
     }
-    public void IniciarSesion(final String email, final String password, final LoginListener loginListener){
-        StringRequest MyRequest = new StringRequest(Request.Method.POST, URL+"/IniciarSesion.php",
-                new Response.Listener<String>(){
+
+    public void IniciarSesion(final String email, final String password, final LoginListener loginListener) {
+        StringRequest MyRequest = new StringRequest(Request.Method.POST, URL + "/IniciarSesion.php",
+                new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        if (!response.equals("No encontrado")){
+                        if (!response.equals("No encontrado")) {
                             try {
-                                JSONObject respuesta=new JSONObject(response);
-                                loginListener.onLoginSuccess(respuesta.getInt("id_usuario"),respuesta.getString("username"),respuesta.getString("email"),SYNC_TIME);
+                                JSONObject respuesta = new JSONObject(response);
+                                loginListener.onLoginSuccess(respuesta.getInt("id_usuario"), respuesta.getString("username"), respuesta.getString("email"), SYNC_TIME);
                                 Log.d("Pruebas", response);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-                        }
-                        else{
+                        } else {
                             loginListener.onLoginError("Datos de usuario no encontrados");
                         }
                     }
                 },
-                new Response.ErrorListener(){
+                new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // TODO Auto-generated method stub
                         loginListener.onLoginError(getVolleyError(error));
                     }
                 }
-        ){
+        ) {
             @Override
-            protected Map<String, String> getParams(){
+            protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("email",email);
-                params.put("password",password);
-                return params;
-            }
-        };
-        addToRequestQueue(MyRequest);
-    }
-    public void Registrar(final String username, final String email, final String password, final LoginListener loginListener){
-        StringRequest MyRequest = new StringRequest(Request.Method.POST, URL+"/Registrar.php",
-                new Response.Listener<String>(){
-                    @Override
-                    public void onResponse(String response) {
-                        if (!response.equals("Email repetido")){
-                            try {
-                                JSONObject respuesta=new JSONObject(response);
-                                loginListener.onLoginSuccess(respuesta.getInt("id_usuario"),respuesta.getString("username"),respuesta.getString("email"),SYNC_TIME);
-                                //return ;
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        else{
-                            loginListener.onLoginError("Este correo electrónico ya ha sido registrado");
-                        }
-                    }
-                },
-                new Response.ErrorListener(){
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // TODO Auto-generated method stub
-                        loginListener.onLoginError(getVolleyError(error));
-                    }
-                }
-        ){
-            @Override
-            protected Map<String, String> getParams(){
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("email",email);
-                params.put("password",password);
-                params.put("username",username);
+                params.put("email", email);
+                params.put("password", password);
                 return params;
             }
         };
         addToRequestQueue(MyRequest);
     }
 
-    private String getVolleyError(VolleyError error){
+    public void Registrar(final String username, final String email, final String password, final LoginListener loginListener) {
+        StringRequest MyRequest = new StringRequest(Request.Method.POST, URL + "/Registrar.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if (!response.equals("Email repetido")) {
+                            try {
+                                JSONObject respuesta = new JSONObject(response);
+                                loginListener.onLoginSuccess(respuesta.getInt("id_usuario"), respuesta.getString("username"), respuesta.getString("email"), SYNC_TIME);
+                                //return ;
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            loginListener.onLoginError("Este correo electrónico ya ha sido registrado");
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO Auto-generated method stub
+                        loginListener.onLoginError(getVolleyError(error));
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("email", email);
+                params.put("password", password);
+                params.put("username", username);
+                return params;
+            }
+        };
+        addToRequestQueue(MyRequest);
+    }
+
+    private String getVolleyError(VolleyError error) {
         String message = "Unknown error";
         if (error instanceof NetworkError) {
             message = "Cannot connect to Internet...Please check your connection!";
@@ -194,19 +200,18 @@ public class VolleySingleton {
             message = "Parsing error! Please try again after some time!!";
         } else if (error instanceof TimeoutError) {
             message = "Connection TimeOut! Please check your internet connection.";
-        } else{
-            message="Error desconocido";
+        } else {
+            message = "Error desconocido";
         }
-        if (error.networkResponse!=null){
+        if (error.networkResponse != null) {
             try {
-                message+="\n"+new String(error.networkResponse.data,"utf-8");
+                message += "\n" + new String(error.networkResponse.data, "utf-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
         return message;
     }
-
 
 
 }

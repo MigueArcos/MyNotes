@@ -12,9 +12,9 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -34,18 +34,18 @@ import com.example.miguel.misnotas.MyTxtLogger;
 import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.VolleySingleton;
-import com.example.miguel.misnotas.broadcasts.bootservices.TurnOnDatabaseSync;
 import com.example.miguel.misnotas.broadcasts.SyncNotesService;
+import com.example.miguel.misnotas.broadcasts.bootservices.TurnOnDatabaseSync;
 import com.example.miguel.misnotas.fragments.DeletedNotesFragment;
 import com.example.miguel.misnotas.fragments.FinancesFragment;
-import com.example.miguel.misnotas.fragments.WeeklyExpensesFragment;
 import com.example.miguel.misnotas.fragments.NotesFragment;
+import com.example.miguel.misnotas.fragments.WeeklyExpensesFragment;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,VolleySingleton.NotesResponseListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, VolleySingleton.NotesResponseListener {
     //boolean Actualizar_notas=false;
     private NavigationView navigationView;
-    private final int Permiso_De_Escritura=1;
+    private final int Permiso_De_Escritura = 1;
     private AlertDialog mensaje;
     private AlertDialog.Builder builder;
     private int CurrentFragment;
@@ -58,10 +58,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AlarmManager alarmManager;
     private PackageManager packageManager;
     private ComponentName receiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if  (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checarPermisos();
         }
         setContentView(R.layout.activity_main);
@@ -75,17 +76,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
         /*Este editor de SharedPrefs sirve para obtener el ultimo fragmento que se quedo seleccionado, ya que cuando la app se cierra
         con el boton de atras entonces esta se vuelve a construir y siempre volveria al primer fragmento si estos no se guardan*/
-        ShPrFragments= getSharedPreferences("fragmentos", Context.MODE_PRIVATE);
-        Editor=ShPrFragments.edit();
-        ShPrSync= getSharedPreferences("Sync", Context.MODE_PRIVATE);
+        ShPrFragments = getSharedPreferences("fragmentos", Context.MODE_PRIVATE);
+        Editor = ShPrFragments.edit();
+        ShPrSync = getSharedPreferences("Sync", Context.MODE_PRIVATE);
         /*Este paquete sirve para que si la llamada a esta actividad es desde la notificacion, siempre inicie en el
         fragmento de gastos */
-        if (getIntent().hasExtra("CalledFromNotification")){
-            Editor.putInt("FragmentoSeleccionado",1);
+        if (getIntent().hasExtra("CalledFromNotification")) {
+            Editor.putInt("FragmentoSeleccionado", 1);
             Editor.commit();
         }
         LoadUserData();
-        Fragment fragment=SelectLastFragment();
+        Fragment fragment = SelectLastFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
         //Initialize Progress Dialog properties
         progressDialog = new ProgressDialog(this);
@@ -95,37 +96,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mensaje.setTitle(R.string.dialog_default_title);
         packageManager = getPackageManager();
         receiver = new ComponentName(this, TurnOnDatabaseSync.class);
-        alarmManager=(AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
     }
-    private void LoadUserData(){
-        header=navigationView.getHeaderView(0);
-        TextView header_username=(TextView)header.findViewById(R.id.header_username);
-        TextView header_email=(TextView)header.findViewById(R.id.header_email);
-        header_username.setText(ShPrSync.getString("username",""));
+
+    private void LoadUserData() {
+        header = navigationView.getHeaderView(0);
+        TextView header_username = (TextView) header.findViewById(R.id.header_username);
+        TextView header_email = (TextView) header.findViewById(R.id.header_email);
+        header_username.setText(ShPrSync.getString("username", ""));
         header_email.setText(ShPrSync.getString("email", getString(R.string.activity_login_sign_in_label)));
-        if (ShPrSync.getInt("userID",0)==0){
+        if (ShPrSync.getInt("userID", 0) == 0) {
             header_email.setTextSize(25);
             navigationView.getMenu().findItem(R.id.sync).setVisible(false);
             navigationView.getMenu().findItem(R.id.close_session).setVisible(false);
-            LinearLayout header_linearlayout=(LinearLayout) header.findViewById(R.id.header_linearlayout);
+            LinearLayout header_linearlayout = (LinearLayout) header.findViewById(R.id.header_linearlayout);
             header_linearlayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     //It is neccesary to repeat this if because when the LoginActivity activity redirects to this activity, this event will be fired because it was already set (This is because this activity is SingleTask)
-                    if (ShPrSync.getInt("userID",0)==0){
-                        Intent login=new Intent(MainActivity.this, LoginActivity.class);
+                    if (ShPrSync.getInt("userID", 0) == 0) {
+                        Intent login = new Intent(MainActivity.this, LoginActivity.class);
                         startActivity(login);
                     }
                 }
             });
-        }
-        else{
+        } else {
             header_email.setTextSize(15);
             navigationView.getMenu().findItem(R.id.sync).setVisible(true);
             navigationView.getMenu().findItem(R.id.close_session).setVisible(true);
 
         }
     }
+
     /*La razon de ser de este metodo es debido a que esta actividad fue definida como singleTask, eso implica que cuando llega la notificación de escribir gastos y esta actividad sigue en la pila de procesos, Android no la volvera a crear y por lo tanto los datos del paquete que envia el intent que manda la notificacion ("CalledFromNotification" que sirve para usar el WeeklyExpensesFragment en esta actividad) nunca seran recuperados.
      */
     @Override
@@ -133,53 +135,56 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onNewIntent(intent);
         drawer.closeDrawer(GravityCompat.START);
         LoadUserData();
-        if (intent.hasExtra("CalledFromNotification")){
-            Editor.putInt("FragmentoSeleccionado",1);
+        if (intent.hasExtra("CalledFromNotification")) {
+            Editor.putInt("FragmentoSeleccionado", 1);
             Editor.commit();
-            Fragment fragment=SelectLastFragment();
+            Fragment fragment = SelectLastFragment();
             getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
         }
         //now getIntent() should always return the last received intent
     }
-   Fragment SelectLastFragment(){
-       MenuItem item;
-       Fragment fr=null;
-        switch (ShPrFragments.getInt("FragmentoSeleccionado",1)){
+
+    Fragment SelectLastFragment() {
+        MenuItem item;
+        Fragment fr = null;
+        switch (ShPrFragments.getInt("FragmentoSeleccionado", 1)) {
             case 1:
                 item = navigationView.getMenu().findItem(R.id.it1);
                 item.setChecked(true);
-                CurrentFragment=item.getItemId();
-                fr=new WeeklyExpensesFragment();
+                CurrentFragment = item.getItemId();
+                fr = new WeeklyExpensesFragment();
                 getSupportActionBar().setTitle(item.getTitle());
                 break;
             case 2:
                 item = navigationView.getMenu().findItem(R.id.it2);
                 item.setChecked(true);
-                CurrentFragment=item.getItemId();
-                fr=new FinancesFragment();
+                CurrentFragment = item.getItemId();
+                fr = new FinancesFragment();
                 getSupportActionBar().setTitle(item.getTitle());
                 break;
             case 3:
                 item = navigationView.getMenu().findItem(R.id.it3);
                 item.setChecked(true);
-                CurrentFragment=item.getItemId();
-                fr=new NotesFragment();
+                CurrentFragment = item.getItemId();
+                fr = new NotesFragment();
                 getSupportActionBar().setTitle(item.getTitle());
                 break;
             case 4:
                 item = navigationView.getMenu().findItem(R.id.it4);
                 item.setChecked(true);
-                CurrentFragment=item.getItemId();
-                fr=new DeletedNotesFragment();
+                CurrentFragment = item.getItemId();
+                fr = new DeletedNotesFragment();
                 getSupportActionBar().setTitle(item.getTitle());
         }
-       return fr;
+        return fr;
     }
-    void checarPermisos(){
-        if (ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},Permiso_De_Escritura);
+
+    void checarPermisos() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Permiso_De_Escritura);
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -189,20 +194,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     // El permiso ha sido otorgado :D
 
-                }
-                else {
+                } else {
                     // permission denied, boo!
                     Toast.makeText(this.getBaseContext(), R.string.main_activity_request_permission, Toast.LENGTH_SHORT).show();
                     this.finish();
 
                 }
                 return;
-            }
+        }
 
-            // other 'case' lines to check for other
-            // permissions this app might request
+        // other 'case' lines to check for other
+        // permissions this app might request
 
     }
+
     @Override
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -211,59 +216,60 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onBackPressed();
         }
     }
-/*
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        if (Actualizar_notas){
-            Fragment fragment=new NotesFragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
-            Log.d("Hi","aqui ando");
-        }
-        //Fragment fragment=new NotesFragment();
-        //getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
-    }
 
-*/
+    /*
+        @Override
+        protected void onPostResume() {
+            super.onPostResume();
+            if (Actualizar_notas){
+                Fragment fragment=new NotesFragment();
+                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+                Log.d("Hi","aqui ando");
+            }
+            //Fragment fragment=new NotesFragment();
+            //getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+        }
+
+    */
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         Fragment fragment = null;
         MyUtils.hideKeyboard(this);
-        if (item.getItemId()==CurrentFragment){
+        if (item.getItemId() == CurrentFragment) {
             drawer.closeDrawer(GravityCompat.START);
             return false;
         }
         switch (item.getItemId()) {
             case R.id.it1:
                 fragment = new WeeklyExpensesFragment();
-                Editor.putInt("FragmentoSeleccionado",1);
-                CurrentFragment=item.getItemId();
+                Editor.putInt("FragmentoSeleccionado", 1);
+                CurrentFragment = item.getItemId();
                 break;
             case R.id.it2:
                 fragment = new FinancesFragment();
-                Editor.putInt("FragmentoSeleccionado",2);
-                CurrentFragment=item.getItemId();
+                Editor.putInt("FragmentoSeleccionado", 2);
+                CurrentFragment = item.getItemId();
                 break;
             case R.id.it3:
                 fragment = new NotesFragment();
-                Editor.putInt("FragmentoSeleccionado",3);
-                CurrentFragment=item.getItemId();
+                Editor.putInt("FragmentoSeleccionado", 3);
+                CurrentFragment = item.getItemId();
                 break;
             case R.id.it4:
                 fragment = new DeletedNotesFragment();
-                Editor.putInt("FragmentoSeleccionado",4);
-                CurrentFragment=item.getItemId();
+                Editor.putInt("FragmentoSeleccionado", 4);
+                CurrentFragment = item.getItemId();
                 break;
             case R.id.schedule:
                 Intent i = new Intent(this, SchedulerActivity.class);
                 startActivity(i);
                 return false;
             case R.id.about:
-                builder=new AlertDialog.Builder(this);
+                builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.dialog_default_title);
                 builder.setMessage(getString(R.string.about_app));
-                mensaje=builder.create();
+                mensaje = builder.create();
                 mensaje.show();
                 return false;
             case R.id.sync:
@@ -276,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 drawer.closeDrawer(GravityCompat.START);
                 return false;
             case R.id.close_session:
-                builder=new AlertDialog.Builder(this);
+                builder = new AlertDialog.Builder(this);
                 builder.setMessage(getString(R.string.main_activity_close_session_confirmation))
                         .setPositiveButton(R.string.positive_button_label, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
@@ -291,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                             }
                         });
-                mensaje=builder.create();
+                mensaje = builder.create();
                 mensaje.show();
                 return false;
         }
@@ -302,21 +308,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    public void CerrarSesion(){
+
+    public void CerrarSesion() {
         //If you're not gonna use an editor object (Editor=ShPrSync.edit()) then you must use apply or commit in the same line, if you don't make it, changes will not affect the SharedPreferences. {I don't know why}
         ShPrSync.edit().clear().apply();
         Database.getInstance(this).emptySyncedNotes();
         packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         alarmManager.cancel(PendingIntent.getBroadcast(this, 0, new Intent(this, SyncNotesService.class), 0));
     }
-    void StartDatabaseSync(){
-        String NotasNoSync=Database.getInstance(this).crearJSON("SELECT * FROM Notes WHERE uploaded='N'");
-        String NotasSync=Database.getInstance(this).crearJSON("SELECT * FROM Notes WHERE uploaded='S'");
-        Log.d("NotesSync",NotasSync);
-        Log.d("NotesUnSync",NotasNoSync);
+
+    void StartDatabaseSync() {
+        String NotasNoSync = Database.getInstance(this).createJSON(false);
+        String NotasSync = Database.getInstance(this).createJSON(true);
+        Log.d("NotesSync", NotasSync);
+        Log.d("NotesUnSync", NotasNoSync);
         progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
-        VolleySingleton.getInstance(this).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("userID", 1),ShPrSync.getInt("UltimoIDSync", 0), false, this);
+        VolleySingleton.getInstance(this).syncDBLocal_Remota(NotasSync, NotasNoSync, ShPrSync.getInt("userID", 1), ShPrSync.getInt("UltimoIDSync", 0), false, this);
     }
 
     @Override
@@ -324,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         progressDialog.dismiss();
         ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
         getSupportFragmentManager().findFragmentById(R.id.content_frame).onResume();
-        MyTxtLogger.getInstance().writeToSD(""+TotalNumberOfNotes);
+        MyTxtLogger.getInstance().writeToSD("" + TotalNumberOfNotes);
     }
 
     @Override

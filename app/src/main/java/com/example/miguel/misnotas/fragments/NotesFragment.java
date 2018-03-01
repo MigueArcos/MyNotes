@@ -1,5 +1,6 @@
 package com.example.miguel.misnotas.fragments;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -8,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,9 +19,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.miguel.misnotas.Database;
+import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.activities.NotesEditorActivity;
 import com.example.miguel.misnotas.activities.SearchNotesActivity;
+import com.example.miguel.misnotas.adapters.FilterableRecyclerViewAdapter;
 import com.example.miguel.misnotas.adapters.NotesAdapter;
 import com.example.miguel.misnotas.models.Note;
 
@@ -32,7 +36,7 @@ import static com.example.miguel.misnotas.activities.SearchNotesActivity.NOTES;
 /**
  * Created by Miguel on 20/06/2016.
  */
-public class NotesFragment extends Fragment implements View.OnClickListener, NotesAdapter.MyRecyclerViewActions {
+public class NotesFragment extends Fragment implements View.OnClickListener, FilterableRecyclerViewAdapter.NotesAdapterActions {
     private RecyclerView list;
     private NotesAdapter adapter;
     private List<Note> data;
@@ -43,6 +47,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
     private boolean calledFromSearch;
     private String text = "";
     private AlertDialog.Builder dialogDeleteNoteCompletely;
+    public static final int CALL_EDITOR_ACTIVITY = 1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,7 +61,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
         //Se accede a la lista
         list = (RecyclerView) rootView.findViewById(R.id.lista);
         //Se crea el adaptador de la lista que contendra todos los datos
-        data = data = Database.getInstance(getActivity()).getNotes(false);
+        data = Database.getInstance(getActivity()).getNotes(false);
         adapter = new NotesAdapter(data, this);
         LinearLayoutManager llm = new LinearLayoutManager(this.getActivity());
         list.setLayoutManager(llm);
@@ -133,12 +138,12 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
 
     private void CreateNewNote() {
         Intent i = new Intent(getActivity(), NotesEditorActivity.class);
-        Bundle paquete = new Bundle();
+        Bundle packageData = new Bundle();
         //Add your data from getFactualResults method to bundle
-        paquete.putBoolean("NuevaNota", true);
+        packageData.putBoolean("isNewNote", true);
         //Add the bundle to the intent
-        i.putExtras(paquete);
-        startActivity(i);
+        i.putExtras(packageData);
+        startActivityForResult(i, CALL_EDITOR_ACTIVITY);
     }
 
     @Override
@@ -157,7 +162,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
     @Override
     public void onResume() {
 
-        adapter.filterResults(text);
+        //adapter.filterResults(text);
         //Toast.makeText(this.getActivity(), "Se ejecuto onResume de fragmento", Toast.LENGTH_SHORT).show();
         super.onResume();
     }
@@ -178,8 +183,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
                     @Override
                     public void onClick(View view) {
                         // Toast.makeText(recyclerView.getContext(),""+adapterPosition, Toast.LENGTH_SHORT).show();
-                        data.add(position, selectedNote);
-                        adapter.notifyItemInserted(position);
+                        adapter.insertItem(position, selectedNote);
                         list.scrollToPosition(position);
 
                     }
@@ -191,7 +195,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
                     Database.getInstance(getActivity()).eliminar_nota(selectedNoteID);
                 }*/
                 if (event != DISMISS_EVENT_ACTION) {
-                    Database.getInstance(getActivity()).eliminar_nota(selectedNoteID);
+                    Database.getInstance(getActivity()).deleteNote(selectedNoteID);
                 }
                 //Si hubiera sido por DISMISS_EVENT_ACTION significa que el usuario presiono deshacer y por lo tanto no quiere que se
                 //elimine de la base de datos
@@ -204,37 +208,58 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
 
         });
 
-        data.remove(position);
-        adapter.notifyItemRemoved(position);
+        adapter.deleteItem(position);
         snackbar.show();
     }
 
     @Override
-    public void onTouch(int position) {
+    public void onClick(int position) {
         dismissSnackbar();
         Note note = data.get(position);
         Intent i = new Intent(getActivity(), NotesEditorActivity.class);
-        Bundle pack = new Bundle();
+        Bundle packageData = new Bundle();
         //Add your data from getFactualResults method to bundle
-        pack.putBoolean("NuevaNota", false);
-        pack.putString("content", note.getContent());
-        pack.putString("title", note.getTitle());
-        pack.putInt("noteToModifyId", note.getNoteId());
+        packageData.putBoolean("isNewNote", false);
+        packageData.putString("content", note.getContent());
+        packageData.putString("title", note.getTitle());
+        packageData.putInt("noteToModifyId", note.getNoteId());
+        packageData.putInt("position", position);
         //Add the bundle to the intent
-        i.putExtras(pack);
-        getActivity().startActivity(i);
+        i.putExtras(packageData);
+        startActivityForResult(i, CALL_EDITOR_ACTIVITY);
     }
 
     @Override
-    public void onLongTouch(int position) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == CALL_EDITOR_ACTIVITY) {
+            if(resultCode == Activity.RESULT_OK){
+                Note resultNote = data.getParcelableExtra("resultNote");
+                if (data.getBooleanExtra("isNewNote", true)){
+                    adapter.insertItem(resultNote);
+                    list.scrollToPosition(0);
+                }
+                else{
+                    adapter.modifyItem(data.getIntExtra("position", -1), resultNote);
+                    list.scrollToPosition(0);
+                }
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
+        }
+    }
+
+    @Override
+    public void onLongClick(int position) {
         dismissSnackbar();
         dialogDeleteNoteCompletely.setPositiveButton(R.string.positive_button_label, (dialog, which) -> DeleteNoteCompletely(position)).show();
     }
 
     private void DeleteNoteCompletely(int position) {
-        Database.getInstance(getActivity()).eliminar_nota_completamente(data.get(position).getNoteId());
-        data.remove(position);
-        adapter.notifyItemRemoved(position);
+        Database.getInstance(getActivity()).deleteNoteCompletely(data.get(position).getNoteId());
+        adapter.deleteItem(position);
     }
 
     public void filterNotes(String text) {

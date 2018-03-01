@@ -20,9 +20,8 @@ import java.util.List;
  * Created by Miguel on 20/06/2016.
  */
 public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapter.ItemView> {
-    private List<Note> data;
-    private List<Note> originalList;
-    private MyRecyclerViewActions listener;
+
+    private NotesAdapterActions listener;
 
     @Override
     public void filterResults(String filter) {
@@ -40,17 +39,11 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
         setData(filteredNotes);
     }
 
-    public interface MyRecyclerViewActions{
-        void onSwipe(int position);
-        void onTouch(int position);
-        void onLongTouch(int position);
-    }
 
-    public NotesAdapter(List<Note> originalList, MyRecyclerViewActions listener) {
+
+    public NotesAdapter(List<Note> originalList, NotesAdapterActions listener) {
         super(originalList);
-        this.data = originalList;
-        this.originalList = originalList;
-        this.listener=listener;
+        this.listener = listener;
     }
     /***
      * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -72,22 +65,17 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
         @Override
         public void onClick(View v) {
             //Create intent to access the other activity with note data
-            listener.onTouch(getAdapterPosition());
+            listener.onClick(getAdapterPosition());
         }
 
         @Override
         public boolean onLongClick(View v) {
-            listener.onLongTouch(getAdapterPosition());
+            listener.onLongClick(getAdapterPosition());
             //Return true to indicate that this event has been consumed, if we don't do this then both events will be called
             return true;
         }
     }
 
-    //Gotten here -> https://stackoverflow.com/questions/17341066/android-listview-does-not-update-onresume
-    public void setData(List<Note> data){
-        this.data= data;
-        notifyDataSetChanged();
-    }
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new TripItemTouchHelperCallback(this, recyclerView));
@@ -104,16 +92,10 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
 
     @Override
     public void onBindViewHolder(ItemView holder, int position) {
-        holder.noteImage.setImageResource(data.get(position).getImageId());
+        holder.noteImage.setImageResource(Note.imageId);
         holder.title.setText(data.get(position).getTitle());
-        holder.modificationDate.setText("Última modificación: "+data.get(position).getModificationDate());
+        holder.modificationDate.setText(String.format("Última modificación: %s", data.get(position).getModificationDate()));
     }
-
-    @Override
-    public int getItemCount() {
-        return data.size();
-    }
-
 
 
     /***
