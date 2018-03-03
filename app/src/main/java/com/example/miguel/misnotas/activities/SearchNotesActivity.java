@@ -16,8 +16,8 @@ public class SearchNotesActivity extends AppCompatActivity implements SearchView
     public static final int NOTES = 1;
     public static final int DELETED_NOTES = 2;
     private int type;
-    private NotesFragment NotesFragment;
-    private com.example.miguel.misnotas.fragments.DeletedNotesFragment DeletedNotesFragment;
+    private NotesFragment notesFragment;
+    private com.example.miguel.misnotas.fragments.DeletedNotesFragment deletedNotesFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,14 +26,14 @@ public class SearchNotesActivity extends AppCompatActivity implements SearchView
             type = getIntent().getExtras().getInt("type");
             switch (type) {
                 case NOTES:
-                    NotesFragment = new NotesFragment();
-                    NotesFragment.setArguments(getIntent().getExtras());
-                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, NotesFragment, NotesFragment.getClass().getSimpleName()).commit();
+                    notesFragment = new NotesFragment();
+                    notesFragment.setArguments(getIntent().getExtras());
+                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, notesFragment, notesFragment.getClass().getSimpleName()).commit();
                     break;
                 case DELETED_NOTES:
-                    DeletedNotesFragment = new DeletedNotesFragment();
-                    DeletedNotesFragment.setArguments(getIntent().getExtras());
-                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, DeletedNotesFragment, DeletedNotesFragment.getClass().getSimpleName()).commit();
+                    deletedNotesFragment = new DeletedNotesFragment();
+                    deletedNotesFragment.setArguments(getIntent().getExtras());
+                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, deletedNotesFragment, deletedNotesFragment.getClass().getSimpleName()).commit();
                     break;
             }
         }
@@ -69,10 +69,10 @@ public class SearchNotesActivity extends AppCompatActivity implements SearchView
     public boolean onQueryTextChange(String newText) {
         switch (type) {
             case NOTES:
-                NotesFragment.filterNotes(newText);
+                notesFragment.filterNotes(newText);
                 break;
             case DELETED_NOTES:
-                DeletedNotesFragment.filterNotes(newText);
+                deletedNotesFragment.filterNotes(newText);
                 break;
         }
         return false;

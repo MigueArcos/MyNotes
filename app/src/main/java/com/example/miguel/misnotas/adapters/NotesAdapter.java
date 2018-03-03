@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.models.Note;
 
@@ -27,12 +28,13 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
     public void filterResults(String filter) {
         filter = filter.toLowerCase();
         List<Note> filteredNotes = new ArrayList<>();
-        if (filter.isEmpty()){
+        if (filter.isEmpty()) {
             setData(originalList);
+            return;
         }
-        for (Note note : originalList){
+        for (Note note : originalList) {
             String comparator = note.getTitle().concat(note.getContent()).toLowerCase();
-            if (comparator.contains(filter)){
+            if (comparator.contains(filter)) {
                 filteredNotes.add(note);
             }
         }
@@ -40,26 +42,27 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
     }
 
 
-
     public NotesAdapter(List<Note> originalList, NotesAdapterActions listener) {
         super(originalList);
         this.listener = listener;
     }
+
     /***
      * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      * |                    Clase Holder que contiene la vista de cada item                        |
      * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      * */
-    public class ItemView extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
-        public ImageView noteImage;
-        public TextView title, modificationDate;
+    public class ItemView extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+        private ImageView noteImage;
+        private TextView title, modificationDate;
+
         ItemView(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
-            noteImage = (ImageView) itemView.findViewById(R.id.foto);
-            title = (TextView)itemView.findViewById(R.id.title);
-            modificationDate = (TextView)itemView.findViewById(R.id.modificationDate);
+            noteImage = itemView.findViewById(R.id.foto);
+            title = itemView.findViewById(R.id.title);
+            modificationDate = itemView.findViewById(R.id.modificationDate);
         }
 
         @Override
@@ -86,8 +89,7 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
     @Override
     public ItemView onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_note, parent, false);
-        ItemView holder = new ItemView(v);
-        return holder;
+        return new ItemView(v);
     }
 
     @Override
@@ -104,30 +106,29 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
      * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      */
     public class TripItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback {
-        NotesAdapter MyAdapter;
-        RecyclerView MyRecyclerView;
-        public  TripItemTouchHelperCallback (NotesAdapter mAdapter, RecyclerView mRecyclerView){
+
+        public TripItemTouchHelperCallback(NotesAdapter mAdapter, RecyclerView mRecyclerView) {
             super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT);
-            this.MyAdapter=mAdapter;
-            this.MyRecyclerView=mRecyclerView;
         }
 
         @Override
-        public boolean onMove(RecyclerView recyclerView,RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
             //some "move" implementation
             return false;
         }
+
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
             listener.onSwipe(viewHolder.getAdapterPosition());
         }
+
         @Override
         public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
             if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
                 // Get RecyclerView item from the ViewHolder
                 View itemView = viewHolder.itemView;
                 Paint p = new Paint();
-                p.setColor(Color.rgb(96,125,139));
+                p.setColor(Color.rgb(96, 125, 139));
                 if (dX > 0) {
             /* Set your color for positive displacement */
 

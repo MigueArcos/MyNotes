@@ -95,9 +95,11 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
             Intent returnIntent = getIntent();
             returnIntent.putExtra("resultNote", new Note(noteToModifyId, noteTitle, noteContent, MyUtils.formatDate(getString(R.string.date_format))));
             setResult(Activity.RESULT_OK, returnIntent);
+            finish();
         }
         else{
             setResult(Activity.RESULT_CANCELED);
+            finish();
         }
         NavUtils.navigateUpFromSameTask(this);
         super.onBackPressed();

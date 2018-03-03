@@ -93,13 +93,13 @@ public class DeletedNotesFragment extends Fragment implements FilterableRecycler
         Intent intent = new Intent(getActivity(), SearchNotesActivity.class);
         intent.putExtra("calledFromSearch", true);
         intent.putExtra("type", DELETED_NOTES);
-        getActivity().startActivity(intent);
+        startActivity(intent);
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onResume() {
-        filterNotes(text);
+        //filterNotes(text);
         super.onResume();
         //Toast.makeText(this.getActivity(), "Se ejecuto onResume de fragmento", Toast.LENGTH_SHORT).show();
     }
@@ -123,12 +123,12 @@ public class DeletedNotesFragment extends Fragment implements FilterableRecycler
 
     @Override
     public void onClick(int position) {
-        dialogRecoverNote.setPositiveButton(R.string.positive_button_label, (dialog, which) -> RecoverNote(position, data.get(position))).show();
+        dialogRecoverNote.setPositiveButton(R.string.positive_button_label, (dialog, which) -> RecoverNote(position, adapter.getCurrentData().get(position))).show();
     }
 
     @Override
     public void onSwipe(final int position) {
-        final Note noteToDelete = data.get(position);
+        final Note noteToDelete = adapter.getCurrentData().get(position);
         dialogDeleteNote
                 .setPositiveButton(R.string.positive_button_label, (dialog, which) -> DeleteNoteCompletely(noteToDelete.getNoteId()))
                 .setNegativeButton(R.string.negative_button_label, (dialog, which) -> CancelDeleteNote(position, noteToDelete))
@@ -140,6 +140,7 @@ public class DeletedNotesFragment extends Fragment implements FilterableRecycler
     }
 
     public void filterNotes(String text) {
+        this.text = text;
         adapter.filterResults(text);
     }
 

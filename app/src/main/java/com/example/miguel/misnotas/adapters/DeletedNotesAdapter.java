@@ -69,13 +69,14 @@ public class DeletedNotesAdapter extends FilterableRecyclerViewAdapter<Note, Del
 
     @Override
     public void filterResults(String filter) {
-        filter = filter.toLowerCase();
         List<Note> filteredNotes = new ArrayList<>();
         if (filter.isEmpty()){
             setData(originalList);
+            return;
         }
         for (Note note : originalList){
             String comparator = note.getTitle().concat(note.getContent()).toLowerCase();
+            filter = filter.toLowerCase();
             if (comparator.contains(filter)){
                 filteredNotes.add(note);
             }
@@ -97,14 +98,14 @@ public class DeletedNotesAdapter extends FilterableRecyclerViewAdapter<Note, Del
         ItemView(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
-            icon = (ImageView) itemView.findViewById(R.id.foto);
-            arrow = (ImageView) itemView.findViewById(R.id.expand);
-            title = (TextView) itemView.findViewById(R.id.title);
-            modificationDate = (TextView) itemView.findViewById(R.id.modificationDate);
-            content = (TextView) itemView.findViewById(R.id.content);
+            icon = itemView.findViewById(R.id.foto);
+            arrow = itemView.findViewById(R.id.expand);
+            title = itemView.findViewById(R.id.title);
+            modificationDate = itemView.findViewById(R.id.modificationDate);
+            content = itemView.findViewById(R.id.content);
             //This is to make EditText not editable
             content.setKeyListener(null);
-            contentLayout = (LinearLayout) itemView.findViewById(R.id.contentLayout);
+            contentLayout = itemView.findViewById(R.id.contentLayout);
             contentLayout.setVisibility(View.GONE);
             arrow.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -27,7 +27,6 @@ import com.example.miguel.misnotas.adapters.FilterableRecyclerViewAdapter;
 import com.example.miguel.misnotas.adapters.NotesAdapter;
 import com.example.miguel.misnotas.models.Note;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.miguel.misnotas.activities.SearchNotesActivity.NOTES;
@@ -77,19 +76,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
         //Esta linea es para mejorar el desempeño de esta recyclerview (lista)
         list.setHasFixedSize(true);
         create = (FloatingActionButton) rootView.findViewById(R.id.crear);
-        //Toast.makeText(this.getActivity().getBaseContext(), fec, Toast.LENGTH_SHORT).show();
-        /*lista.addOnScrollListener(new RecyclerView.OnScrollListener(){
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy){
 
-            }
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState){
-                //Toast.makeText(NotesFragment.this.getActivity(),"holis tronco", Toast.LENGTH_SHORT).show();
-                adaptador.quitar_snack();
-            }
-        });
-        */
         if (!calledFromSearch) {
             //Se añade el evento para cuando se presiona el boton de crear
             create.setOnClickListener(this);
@@ -107,7 +94,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
     }
 
 
-    public void dismissSnackbar() {
+    public void dismissSnackBar() {
         if (snackbar != null) {
             snackbar.dismiss();
         }
@@ -121,15 +108,13 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.search:
                 Intent intent = new Intent(getActivity(), SearchNotesActivity.class);
                 intent.putExtra("calledFromSearch", true);
                 intent.putExtra("type", NOTES);
-                getActivity().startActivity(intent);
+                intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+                startActivityForResult(intent, -1);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -169,14 +154,14 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
 
     @Override
     public void onStop() {
-        dismissSnackbar();
+        dismissSnackBar();
         super.onStop();
     }
 
     @Override
     public void onSwipe(final int position) {
-        final Note selectedNote = data.get(position);
-        final int selectedNoteID = data.get(position).getNoteId();
+        final Note selectedNote = adapter.getCurrentData().get(position);
+        final int selectedNoteID = adapter.getCurrentData().get(position).getNoteId();
 
         snackbar = Snackbar.make(list, R.string.fragment_notes_snackbar_label, 10000).
                 setAction(R.string.fragment_notes_snackbar_action_label, new View.OnClickListener() {
@@ -187,26 +172,23 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
                         list.scrollToPosition(position);
 
                     }
-                }).setCallback(new Snackbar.Callback() {
+                }).
+                setCallback(new Snackbar.Callback() {
 
-            @Override
-            public void onDismissed(Snackbar snackbar, int event) {
-                /*if (event!=DISMISS_EVENT_ACTION) {
-                    Database.getInstance(getActivity()).eliminar_nota(selectedNoteID);
-                }*/
-                if (event != DISMISS_EVENT_ACTION) {
-                    Database.getInstance(getActivity()).deleteNote(selectedNoteID);
-                }
-                //Si hubiera sido por DISMISS_EVENT_ACTION significa que el usuario presiono deshacer y por lo tanto no quiere que se
-                //elimine de la base de datos
-            }
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        if (event != DISMISS_EVENT_ACTION) {
+                            Database.getInstance(getActivity()).deleteNote(selectedNoteID);
+                        }
+                        //Si hubiera sido por DISMISS_EVENT_ACTION significa que el usuario presiono deshacer y por lo tanto no quiere que se
+                        //elimine de la base de datos
+                    }
 
-            @Override
-            public void onShown(Snackbar snackbar) {
+                    @Override
+                    public void onShown(Snackbar snackbar) {
+                    }
 
-            }
-
-        });
+                });
 
         adapter.deleteItem(position);
         snackbar.show();
@@ -214,8 +196,8 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
 
     @Override
     public void onClick(int position) {
-        dismissSnackbar();
-        Note note = data.get(position);
+        dismissSnackBar();
+        Note note = adapter.getCurrentData().get(position);
         Intent i = new Intent(getActivity(), NotesEditorActivity.class);
         Bundle packageData = new Bundle();
         //Add your data from getFactualResults method to bundle
@@ -226,21 +208,21 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
         packageData.putInt("position", position);
         //Add the bundle to the intent
         i.putExtras(packageData);
+
         startActivityForResult(i, CALL_EDITOR_ACTIVITY);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        Log.d(MyUtils.GLOBAL_LOG_TAG, "Returnig to this framet");
         if (requestCode == CALL_EDITOR_ACTIVITY) {
-            if(resultCode == Activity.RESULT_OK){
+            if (resultCode == Activity.RESULT_OK) {
                 Note resultNote = data.getParcelableExtra("resultNote");
-                if (data.getBooleanExtra("isNewNote", true)){
+                if (data.getBooleanExtra("isNewNote", true)) {
                     adapter.insertItem(resultNote);
                     list.scrollToPosition(0);
-                }
-                else{
+                } else {
                     adapter.modifyItem(data.getIntExtra("position", -1), resultNote);
                     list.scrollToPosition(0);
                 }
@@ -253,16 +235,17 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
 
     @Override
     public void onLongClick(int position) {
-        dismissSnackbar();
+        dismissSnackBar();
         dialogDeleteNoteCompletely.setPositiveButton(R.string.positive_button_label, (dialog, which) -> DeleteNoteCompletely(position)).show();
     }
 
     private void DeleteNoteCompletely(int position) {
-        Database.getInstance(getActivity()).deleteNoteCompletely(data.get(position).getNoteId());
+        Database.getInstance(getActivity()).deleteNoteCompletely(adapter.getCurrentData().get(position).getNoteId());
         adapter.deleteItem(position);
     }
 
     public void filterNotes(String text) {
+        this.text = text;
         adapter.filterResults(text);
     }
 

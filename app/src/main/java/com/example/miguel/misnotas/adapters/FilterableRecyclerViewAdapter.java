@@ -5,6 +5,7 @@ import android.view.View;
 
 import com.example.miguel.misnotas.models.Note;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public abstract class FilterableRecyclerViewAdapter<DataModel, ViewHolder extend
 
     public FilterableRecyclerViewAdapter(List<DataModel> data) {
         this.originalList = data;
-        this.data = data;
+        this.data = new ArrayList<>(data);
     }
 
     public abstract void filterResults(String filter);
@@ -68,10 +69,11 @@ public abstract class FilterableRecyclerViewAdapter<DataModel, ViewHolder extend
     }
 
     public void modifyItem(int position, DataModel dataModel){
-        data.set(position, dataModel);
-        originalList.set(position, dataModel);
-        notifyItemChanged(position);
-        Collections.swap(data, position, 0);
-        Collections.swap(originalList, position, 0);
+        deleteItem(position);
+        insertItem(dataModel);
+    }
+
+    public List<DataModel> getCurrentData(){
+        return data;
     }
 }
