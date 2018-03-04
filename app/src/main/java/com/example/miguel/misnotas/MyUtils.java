@@ -17,7 +17,7 @@ import java.util.Locale;
 public class MyUtils {
     public static final String GLOBAL_LOG_TAG = "Notes By Migue :D";
 
-    public static void hideKeyboard(Activity activity){
+    public static void hideKeyboard(Activity activity) {
         View view = activity.getCurrentFocus();
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -26,15 +26,19 @@ public class MyUtils {
         }
     }
 
-    public static String formatDate(String dateFormatId){
+    public static String formatDate(String dateFormatId) {
         DateFormat formatter = new SimpleDateFormat(dateFormatId, Locale.US);
         return formatter.format(new Date());
     }
 
     public static String getTime12HoursFormat(String time24Hrs) {
-
         int hour = Integer.parseInt(time24Hrs.substring(0, 2));
         boolean isPm = hour > 11;
         return (isPm ? String.valueOf((hour + 11) % 12 + 1) : time24Hrs).concat(isPm ? "p.m" : "a.m");
+    }
+
+    public static String getTime12HoursFormat(long timeMillis, String format) {
+        Date date = new Date(timeMillis);
+        return new SimpleDateFormat(format, Locale.US).format(date);
     }
 }

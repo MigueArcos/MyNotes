@@ -133,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        Log.d(MyUtils.GLOBAL_LOG_TAG, "Executing newIntent");
         drawer.closeDrawer(GravityCompat.START);
         LoadUserData();
         if (intent.hasExtra("CalledFromNotification")) {

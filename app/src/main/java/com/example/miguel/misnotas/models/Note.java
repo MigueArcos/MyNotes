@@ -23,17 +23,15 @@ public class Note implements Parcelable{
     @SerializedName("contenido")
     private String content;
     @SerializedName("fecha_creacion")
-    private String creationDate;
+    private long creationDate;
     @SerializedName("fecha_modificacion")
-    private String modificationDate;
-    @SerializedName("fecha_modificacion_orden")
-    private String orderModificationDate;
+    private long modificationDate;
     @SerializedName("eliminado")
-    private char deleted;
+    private int deleted;
     @SerializedName("subida")
-    private char uploaded;
+    private int uploaded;
 
-    public Note(int noteId, String title, String content, String creationDate, String modificationDate) {
+    public Note(int noteId, String title, String content, long creationDate, long modificationDate) {
         this.noteId = noteId;
         this.title = title;
         this.content = content;
@@ -41,33 +39,32 @@ public class Note implements Parcelable{
         this.modificationDate = modificationDate;
     }
 
-    public Note(int noteId, String title, String content, String creationDate, String modificationDate, String orderModificationDate, char deleted, char uploaded) {
+    public Note(int noteId, String title, String content, long creationDate, long modificationDate, int deleted, int uploaded) {
         this.noteId = noteId;
         this.title = title;
         this.content = content;
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
-        this.orderModificationDate = orderModificationDate;
         this.deleted = deleted;
         this.uploaded = uploaded;
     }
 
-    public Note(int noteId, String title, String content, String modificationDate) {
+    public Note(int noteId, String title, String content, long modificationDate) {
         this.noteId = noteId;
         this.title = title;
         this.content = content;
         this.modificationDate = modificationDate;
     }
+
 
     protected Note(Parcel in) {
         noteId = in.readInt();
         title = in.readString();
         content = in.readString();
-        creationDate = in.readString();
-        modificationDate = in.readString();
-        orderModificationDate = in.readString();
-        deleted = (char) in.readInt();
-        uploaded = (char) in.readInt();
+        creationDate = in.readLong();
+        modificationDate = in.readLong();
+        deleted = in.readInt();
+        uploaded = in.readInt();
     }
 
     public static final Creator<Note> CREATOR = new Creator<Note>() {
@@ -98,25 +95,22 @@ public class Note implements Parcelable{
         return content;
     }
 
-    public String getCreationDate() {
+    public long getCreationDate() {
         return creationDate;
     }
 
-    public String getModificationDate() {
+    public long getModificationDate() {
         return modificationDate;
     }
 
-    public String getOrderModificationDate() {
-        return orderModificationDate;
-    }
-
-    public char getDeleted() {
+    public int getDeleted() {
         return deleted;
     }
 
-    public char getUploaded() {
+    public int getUploaded() {
         return uploaded;
     }
+
 
     @Override
     public int describeContents() {
@@ -128,10 +122,9 @@ public class Note implements Parcelable{
         dest.writeInt(noteId);
         dest.writeString(title);
         dest.writeString(content);
-        dest.writeString(creationDate);
-        dest.writeString(modificationDate);
-        dest.writeString(orderModificationDate);
-        dest.writeInt((int) deleted);
-        dest.writeInt((int) uploaded);
+        dest.writeLong(creationDate);
+        dest.writeLong(modificationDate);
+        dest.writeInt(deleted);
+        dest.writeInt(uploaded);
     }
 }

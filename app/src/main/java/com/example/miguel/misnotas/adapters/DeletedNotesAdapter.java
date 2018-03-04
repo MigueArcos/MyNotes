@@ -1,6 +1,7 @@
 package com.example.miguel.misnotas.adapters;
 
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.SparseBooleanArray;
@@ -11,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.models.Note;
 
@@ -23,9 +25,10 @@ import java.util.List;
 public class DeletedNotesAdapter extends FilterableRecyclerViewAdapter<Note, DeletedNotesAdapter.ItemView> {
     private SparseBooleanArray expandedItems;
     private DeletedNotesAdapterActions listener;
-
-    public DeletedNotesAdapter(List<Note> originalList, DeletedNotesAdapterActions listener) {
+    private Context context;
+    public DeletedNotesAdapter(List<Note> originalList, DeletedNotesAdapterActions listener, Context context) {
         super(originalList);
+        this.context = context;
         this.listener = listener;
         expandedItems = new SparseBooleanArray();
     }
@@ -53,7 +56,7 @@ public class DeletedNotesAdapter extends FilterableRecyclerViewAdapter<Note, Del
     public void onBindViewHolder(ItemView holder, int position) {
         holder.icon.setImageResource(Note.imageId);
         holder.title.setText(data.get(position).getTitle());
-        holder.modificationDate.setText(String.format("Última modificación: %s", data.get(position).getModificationDate()));
+        holder.modificationDate.setText(String.format("Última modificación: %s", MyUtils.getTime12HoursFormat(data.get(position).getModificationDate(), context.getResources().getString(R.string.date_format))));
         holder.content.setText(data.get(position).getContent());
         //Estas lineas if-else son necesarias porque cuando hacemos scroll en el recyclerview el viewholder se va reciclando, esto quiere decir que si un viewholder ya estaba expandido y este es reciclado pues va a seguir expandido, por eso se tiene que checar si la posicion de ese viewholder efectivamente es una posicion con el estatus de expandido
         if (expandedItems.get(position)) {

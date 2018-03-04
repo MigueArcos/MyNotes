@@ -1,5 +1,6 @@
 package com.example.miguel.misnotas.adapters;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.models.Note;
 
@@ -23,7 +25,7 @@ import java.util.List;
 public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapter.ItemView> {
 
     private NotesAdapterActions listener;
-
+    private Context context;
     @Override
     public void filterResults(String filter) {
         filter = filter.toLowerCase();
@@ -42,8 +44,9 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
     }
 
 
-    public NotesAdapter(List<Note> originalList, NotesAdapterActions listener) {
+    public NotesAdapter(List<Note> originalList, NotesAdapterActions listener, Context context) {
         super(originalList);
+        this.context = context;
         this.listener = listener;
     }
 
@@ -96,7 +99,7 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
     public void onBindViewHolder(ItemView holder, int position) {
         holder.noteImage.setImageResource(Note.imageId);
         holder.title.setText(data.get(position).getTitle());
-        holder.modificationDate.setText(String.format("Última modificación: %s", data.get(position).getModificationDate()));
+        holder.modificationDate.setText(String.format("Última modificación: %s", MyUtils.getTime12HoursFormat(data.get(position).getModificationDate(), context.getResources().getString(R.string.date_format))));
     }
 
 

@@ -18,7 +18,7 @@
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/title_activity_notes"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>

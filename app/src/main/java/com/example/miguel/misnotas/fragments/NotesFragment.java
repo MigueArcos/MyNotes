@@ -29,6 +29,7 @@ import com.example.miguel.misnotas.models.Note;
 
 import java.util.List;
 
+import static android.app.Activity.RESULT_OK;
 import static com.example.miguel.misnotas.activities.SearchNotesActivity.NOTES;
 
 
@@ -61,7 +62,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
         list = (RecyclerView) rootView.findViewById(R.id.lista);
         //Se crea el adaptador de la lista que contendra todos los datos
         data = Database.getInstance(getActivity()).getNotes(false);
-        adapter = new NotesAdapter(data, this);
+        adapter = new NotesAdapter(data, this, getContext());
         LinearLayoutManager llm = new LinearLayoutManager(this.getActivity());
         list.setLayoutManager(llm);
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -113,8 +114,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
                 Intent intent = new Intent(getActivity(), SearchNotesActivity.class);
                 intent.putExtra("calledFromSearch", true);
                 intent.putExtra("type", NOTES);
-                intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
-                startActivityForResult(intent, -1);
+                startActivityForResult(intent, CALL_EDITOR_ACTIVITY);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -122,13 +122,19 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
 
 
     private void CreateNewNote() {
-        Intent i = new Intent(getActivity(), NotesEditorActivity.class);
+        Intent intent = new Intent(getActivity(), NotesEditorActivity.class);
         Bundle packageData = new Bundle();
         //Add your data from getFactualResults method to bundle
         packageData.putBoolean("isNewNote", true);
         //Add the bundle to the intent
-        i.putExtras(packageData);
-        startActivityForResult(i, CALL_EDITOR_ACTIVITY);
+        intent.putExtras(packageData);
+        if (calledFromSearch){
+            intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+            startActivity(intent);
+        }
+        else{
+            startActivityForResult(intent, CALL_EDITOR_ACTIVITY);
+        }
     }
 
     @Override
@@ -198,7 +204,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
     public void onClick(int position) {
         dismissSnackBar();
         Note note = adapter.getCurrentData().get(position);
-        Intent i = new Intent(getActivity(), NotesEditorActivity.class);
+        Intent intent = new Intent(getActivity(), NotesEditorActivity.class);
         Bundle packageData = new Bundle();
         //Add your data from getFactualResults method to bundle
         packageData.putBoolean("isNewNote", false);
@@ -206,18 +212,30 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
         packageData.putString("title", note.getTitle());
         packageData.putInt("noteToModifyId", note.getNoteId());
         packageData.putInt("position", position);
+        packageData.putBoolean("calledFromSearch", calledFromSearch);
         //Add the bundle to the intent
-        i.putExtras(packageData);
+        intent.putExtras(packageData);
 
-        startActivityForResult(i, CALL_EDITOR_ACTIVITY);
+        if (calledFromSearch){
+            intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+            startActivity(intent);
+        }
+        else{
+            startActivityForResult(intent, CALL_EDITOR_ACTIVITY);
+        }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(MyUtils.GLOBAL_LOG_TAG, "Returnig to this framet");
         if (requestCode == CALL_EDITOR_ACTIVITY) {
             if (resultCode == Activity.RESULT_OK) {
+                //Since we don't know the real position of the result when it return from searchActivity, the best way to keep data consistency is to reload the data from database
+                if (data.getBooleanExtra("calledFromSearch", false)){
+                    adapter.loadData(Database.getInstance(getActivity()).getNotes(false));
+                    adapter.notifyDataSetChanged();
+                    return;
+                }
                 Note resultNote = data.getParcelableExtra("resultNote");
                 if (data.getBooleanExtra("isNewNote", true)) {
                     adapter.insertItem(resultNote);

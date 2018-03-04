@@ -86,20 +86,19 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
 
     @Override
     public void onBackPressed() {
-        InsertOrUpdate();
         //This line is to ensure that this activity will come back to MainActivity (This is useful when this activity is called from search, because in this way is not necessary to remain the query to still showing the coincidences in search activity)
+
         String noteTitle = title.getText().toString();
         String noteContent = content.getText().toString();
-        if (!noteTitle.isEmpty() || !noteContent.isEmpty()) {
+        if ((!noteTitle.isEmpty() || !noteContent.isEmpty()) && changesCounter > 0) {
+            InsertOrUpdate();
             //Log.d(MyUtils.GLOBAL_LOG_TAG, "TRying to find data");
             Intent returnIntent = getIntent();
-            returnIntent.putExtra("resultNote", new Note(noteToModifyId, noteTitle, noteContent, MyUtils.formatDate(getString(R.string.date_format))));
+            returnIntent.putExtra("resultNote", new Note(noteToModifyId, noteTitle, noteContent, System.currentTimeMillis()));
             setResult(Activity.RESULT_OK, returnIntent);
-            finish();
         }
         else{
             setResult(Activity.RESULT_CANCELED);
-            finish();
         }
         NavUtils.navigateUpFromSameTask(this);
         super.onBackPressed();

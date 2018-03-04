@@ -1,5 +1,6 @@
 package com.example.miguel.misnotas.adapters;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -31,6 +32,11 @@ public abstract class FilterableRecyclerViewAdapter<DataModel, ViewHolder extend
     }
 
     public FilterableRecyclerViewAdapter(List<DataModel> data) {
+        this.originalList = data;
+        this.data = new ArrayList<>(data);
+    }
+
+    public void loadData(List<DataModel> data){
         this.originalList = data;
         this.data = new ArrayList<>(data);
     }

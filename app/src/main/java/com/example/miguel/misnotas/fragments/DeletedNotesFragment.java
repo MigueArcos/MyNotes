@@ -53,7 +53,7 @@ public class DeletedNotesFragment extends Fragment implements FilterableRecycler
         ViewModelProviders.of(this).get(DeletedNotesFragmentViewModel.class);
         list = rootView.findViewById(R.id.lista);
         data = Database.getInstance(getActivity()).getNotes(true);
-        adapter = new DeletedNotesAdapter(data, this);
+        adapter = new DeletedNotesAdapter(data, this, getContext());
         LinearLayoutManager llm = new LinearLayoutManager(this.getActivity());
         list.setLayoutManager(llm);
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
