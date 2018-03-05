@@ -84,7 +84,7 @@
 	<div id="modal1" class="modal">
 		<div class="modal-content">
 			<h4>Notas de MigueLópez :D</h4>
-			<form class="form_notas col s12" action="insert_note.php" id="insert" method="POST">
+			<form class="form_notas col s12" action="insert_note.php" id="insert" enctype='application/json' method="POST">
 				<div class="row">
 					<div class="input-field col s12">
 						<input id="titulo_new" name="titulo_new" type="text" class="validate">

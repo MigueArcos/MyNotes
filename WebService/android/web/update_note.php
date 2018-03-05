@@ -9,7 +9,7 @@ include("../conexion.php");
 extract($_POST);
 $titulo_bd=$conn->real_escape_string($titulo);
 $contenido_bd=$conn->real_escape_string($contenido);
-$SQL="UPDATE notas SET titulo='$titulo_bd', contenido='$contenido_bd', fecha_modificacion='$fecha_hora', fecha_modificacion_orden='$timestamp' WHERE id_nota=$id_nota AND id_usuario=$id_usuario";
+$SQL="UPDATE $NOTES_TABLE_NAME SET $NOTE_TITLE='$titulo_bd', $NOTE_CONTENT='$contenido_bd', $NOTE_MODIFICATION_DATE=$timestamp WHERE $NOTE_ID=$id_nota AND $NOTES_USER_ID=$id_usuario";
 if ($conn->query($SQL)){
 	echo "<li class='collection-item c-i$id_nota' data-id_nota='$id_nota' data-titulo='".htmlspecialchars($titulo_bd, ENT_HTML5)."' data-contenido='".htmlspecialchars($contenido_bd, ENT_HTML5)."'>
 	        <div>".htmlspecialchars($titulo_bd, ENT_HTML5)."
