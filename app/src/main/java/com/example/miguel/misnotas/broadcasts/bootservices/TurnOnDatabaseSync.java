@@ -19,7 +19,7 @@ public class TurnOnDatabaseSync extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences shPrSync = context.getSharedPreferences("Sync", Context.MODE_PRIVATE);
-        if (shPrSync.getInt("userID", 0) != 0) {
+        if (shPrSync.getInt("userId", 0) != 0) {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             //Se genera un intent para acceder a la clase del servicio
             Intent sync_service = new Intent(context, SyncNotesService.class);
@@ -27,7 +27,7 @@ public class TurnOnDatabaseSync extends BroadcastReceiver {
             PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, sync_service, 0);
             //Se genera una instancia del calendario a una hora determinada
             Calendar calendar = Calendar.getInstance();
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), shPrSync.getInt("sync_time", 3600000), pendingIntent);
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), shPrSync.getInt("syncTime", 3600000), pendingIntent);
         }
     }
 }

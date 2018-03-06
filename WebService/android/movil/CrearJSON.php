@@ -14,7 +14,7 @@
 	}
 	$conn->close();
 	//Post JSON response back to Android Application
-	$RespuestaJSON[]=array("TotalNumberOfNotes"=> $TotalNumberOfNotes, "UltimoIDSync"=>$UltimoIDSync);
+	$RespuestaJSON[]=array("TotalNumberOfNotes"=> $TotalNumberOfNotes, "lastSyncedId"=>$UltimoIDSync);
 	echo json_encode($RespuestaJSON,JSON_UNESCAPED_SLASHES);
 
 	function CreateArrayFromColumn($Array, $Column_Name){

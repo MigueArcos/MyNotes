@@ -7,6 +7,7 @@ package com.example.miguel.misnotas;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SyncInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -17,6 +18,7 @@ import android.util.Log;
 import com.example.miguel.misnotas.adapters.FinancesAdapter;
 import com.example.miguel.misnotas.models.Finance;
 import com.example.miguel.misnotas.models.Note;
+import com.example.miguel.misnotas.models.SyncData;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -38,7 +40,7 @@ import java.util.Map;
  * Created by Miguel on 01/09/2015.
  */
 public class Database extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 23;
+    private static final int DATABASE_VERSION = 26;
     private static final String PATH = Environment.getExternalStorageDirectory().getPath() + "/Mis_Notas.db";
     private static Database Instance;
     private static Context AppContext;
@@ -53,6 +55,7 @@ public class Database extends SQLiteOpenHelper {
     public static final String NOTE_MODIFICATION_DATE = "modification_date";
     public static final String NOTE_DELETED = "deleted";
     public static final String NOTE_UPLOADED = "uploaded";
+    public static final String NOTE_MODIFIED = "modified";
     //Index of the columns
     private Map<String, Integer> columnsIndexes = new HashMap<String, Integer>() {{
         put(NOTE_ID, 0);
@@ -62,6 +65,7 @@ public class Database extends SQLiteOpenHelper {
         put(NOTE_MODIFICATION_DATE, 4);
         put(NOTE_DELETED, 5);
         put(NOTE_UPLOADED, 6);
+        put(NOTE_MODIFIED, 7);
     }};
 
     private Database(Context context) {
@@ -82,7 +86,7 @@ public class Database extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE activos(id INTEGER PRIMARY KEY AUTOINCREMENT, recurso TEXT NOT NULL, valor INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE bitacora(fecha DATETIME PRIMARY KEY, total_en_fecha INTEGER)");
 
-        db.execSQL("CREATE TABLE " + NOTES_TABLE_NAME + " (" + NOTE_ID + " INTEGER PRIMARY KEY, " + NOTE_TITLE + " VARCHAR(100), " + NOTE_CONTENT + " TEXT, " + NOTE_CREATION_DATE + " INTEGER, " + NOTE_MODIFICATION_DATE + " INTEGER, " + NOTE_DELETED + " INTEGER, " + NOTE_UPLOADED + " INTEGER)");
+        db.execSQL("CREATE TABLE " + NOTES_TABLE_NAME + " (" + NOTE_ID + " INTEGER PRIMARY KEY, " + NOTE_TITLE + " VARCHAR(100), " + NOTE_CONTENT + " TEXT, " + NOTE_CREATION_DATE + " INTEGER, " + NOTE_MODIFICATION_DATE + " INTEGER, " + NOTE_DELETED + " INTEGER, " + NOTE_UPLOADED + " INTEGER, " + NOTE_MODIFIED +" INTEGER)");
 
         db.execSQL("CREATE  TRIGGER actualizar AFTER UPDATE  \n" +
                 "ON activos\n" +
@@ -109,9 +113,11 @@ public class Database extends SQLiteOpenHelper {
         //db.execSQL("DROP TABLE notas");
         //db.execSQL("ALTER TABLE Notes RENAME TO Notes_Backup");
         //db.execSQL("ALTER TABLE notes RENAME TO notes_backup");
-        db.execSQL("DROP TABLE notes");
-        db.execSQL("CREATE TABLE " + NOTES_TABLE_NAME + " (" + NOTE_ID + " INTEGER PRIMARY KEY, " + NOTE_TITLE + " VARCHAR(100), " + NOTE_CONTENT + " TEXT, " + NOTE_CREATION_DATE + " INTEGER, " + NOTE_MODIFICATION_DATE + " INTEGER, " + NOTE_DELETED + " INTEGER, " + NOTE_UPLOADED + " INTEGER)");
-
+        //db.execSQL("DROP TABLE notes");
+        //db.execSQL("CREATE TABLE " + NOTES_TABLE_NAME + " (" + NOTE_ID + " INTEGER PRIMARY KEY, " + NOTE_TITLE + " VARCHAR(100), " + NOTE_CONTENT + " TEXT, " + NOTE_CREATION_DATE + " INTEGER, " + NOTE_MODIFICATION_DATE + " INTEGER, " + NOTE_DELETED + " INTEGER, " + NOTE_UPLOADED + " INTEGER, " + NOTE_MODIFIED +" INTEGER)");
+        //db.execSQL("ALTER TABLE notes ADD COLUMN modified INTEGER");
+        //db.execSQL("UPDATE notes SET modified = 0");
+        db.execSQL("UPDATE notes SET uploaded = 0 WHERE note_id < 30");
         //String SQL = "SELECT " + NOTE_ID + ", " + NOTE_TITLE + ", " + NOTE_CONTENT + ", " + NOTE_CREATION_DATE + ", CAST(" + NOTE_ORDER_MODIFICATION_DATE + " AS INT), " + NOTE_DELETED + ", " + NOTE_UPLOADED + " FROM notes_backup";
        /*Cursor cursor = db.rawQuery(SQL, null);
         while (cursor.moveToNext()) {
@@ -259,7 +265,7 @@ public class Database extends SQLiteOpenHelper {
         title = title.isEmpty() ? AppContext.getString(R.string.activity_editor_note_placeholder) : title;
         title = title.replace("'", "\'\'");
         content = content.replace("'", "\'\'");
-        String SQL = String.format(Locale.US, "INSERT INTO %s VALUES ((SELECT MAX(%s) FROM %s)+1, '%s', '%s', %d, %d, 0, 0)", NOTES_TABLE_NAME, NOTE_ID, NOTES_TABLE_NAME, title, content, System.currentTimeMillis(), System.currentTimeMillis());
+        String SQL = String.format(Locale.US, "INSERT INTO %s VALUES ((SELECT MAX(%s) FROM %s)+1, '%s', '%s', %d, %d, 0, 0, 0)", NOTES_TABLE_NAME, NOTE_ID, NOTES_TABLE_NAME, title, content, System.currentTimeMillis(), System.currentTimeMillis());
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL(SQL);
         int noteId;
@@ -283,6 +289,7 @@ public class Database extends SQLiteOpenHelper {
         note.put(NOTE_TITLE, title);
         note.put(NOTE_CONTENT, content);
         note.put(NOTE_MODIFICATION_DATE, System.currentTimeMillis());
+        note.put(NOTE_MODIFIED, 1);
         SQLiteDatabase db = getWritableDatabase();
         db.update(NOTES_TABLE_NAME, note, NOTE_ID + " = " + noteId, null);
         db.close();
@@ -294,6 +301,7 @@ public class Database extends SQLiteOpenHelper {
         ContentValues note = new ContentValues();
         note.put(NOTE_MODIFICATION_DATE, System.currentTimeMillis());
         note.put(NOTE_DELETED, 1);
+        note.put(NOTE_MODIFIED, 1);
         db.update(NOTES_TABLE_NAME, note, NOTE_ID + " = " + noteId, null);
         db.close();
     }
@@ -304,6 +312,7 @@ public class Database extends SQLiteOpenHelper {
         ContentValues note = new ContentValues();
         note.put(NOTE_MODIFICATION_DATE, System.currentTimeMillis());
         note.put(NOTE_DELETED, 0);
+        note.put(NOTE_MODIFIED, 1);
         db.update(NOTES_TABLE_NAME, note, NOTE_ID + " = " + noteId, null);
         db.close();
     }
@@ -318,7 +327,7 @@ public class Database extends SQLiteOpenHelper {
     //Este método se usara cuando se cierre la sesión y las notas del usuario que la cerro seran borradas
     public void emptySyncedNotes() {
         SQLiteDatabase db = getWritableDatabase();
-        db.delete(NOTES_TABLE_NAME, NOTE_UPLOADED + " = 'S'", null);
+        db.delete(NOTES_TABLE_NAME, NOTE_UPLOADED + " = 1", null);
         db.close();
     }
 
@@ -336,10 +345,12 @@ public class Database extends SQLiteOpenHelper {
 
      **************************************/
 
-    public String createJSON(boolean deletedNotes) {
-        List<Note> notes = new ArrayList<>();
+    public String createJSON(final SyncData.SyncInfo syncInfo) {
+        SyncData syncData = new SyncData();
+        List<Note> newNotes = new ArrayList<>();
+        List<Note> modifiedNotes = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
-        String SQL = String.format("SELECT * FROM %s WHERE %s ='%c'", NOTES_TABLE_NAME, NOTE_DELETED, deletedNotes ? 'S' : 'N');
+        String SQL = "SELECT * FROM " + NOTES_TABLE_NAME;
         Cursor cursor = db.rawQuery(SQL, null);
         if (cursor.getCount() == 0) {
             return "";
@@ -352,19 +363,28 @@ public class Database extends SQLiteOpenHelper {
                     cursor.getLong(columnsIndexes.get(NOTE_CREATION_DATE)),
                     cursor.getLong(columnsIndexes.get(NOTE_MODIFICATION_DATE)),
                     cursor.getInt(columnsIndexes.get(NOTE_DELETED)),
-                    cursor.getInt(columnsIndexes.get(NOTE_UPLOADED))
+                    cursor.getInt(columnsIndexes.get(NOTE_UPLOADED)),
+                    cursor.getInt(columnsIndexes.get(NOTE_MODIFIED))
             );
-            notes.add(note);
+            if (note.getUploaded() == 0){
+                newNotes.add(note);
+            }
+            if (note.getUploaded() == 1 && note.getModified() == 1){
+                modifiedNotes.add(note);
+            }
         }
         db.close();
+        syncData.setSyncInfo(syncInfo);
+        syncData.setModifiedNotes(modifiedNotes);
+        syncData.setNewNotes(newNotes);
         Gson gson = new GsonBuilder().create();
         /*Use GSON to serialize Array List to JSON
           Por defecto GSON serializara el ArrayList con los nombres de los campos que esta en la clase seleccionada (Note)
           Si se quieren utilizar otros nombre se ha de añadir la anotación @SerializedName("Nombre") antes de cada campo
           Si se quieren omitir algunos campos se han de usar la anotación @Expose y luego se usara el método .excludeFieldsWithoutExposeAnnotation() de GsonBuilder()  [Esto es solo una estrategia de exclusión] o añadir la palabra transient o static antes del tipo de variable
         */
-        Log.d(MyUtils.GLOBAL_LOG_TAG, gson.toJson(notes));
-        return gson.toJson(notes);
+        Log.d(MyUtils.GLOBAL_LOG_TAG, gson.toJson(newNotes));
+        return gson.toJson(syncData);
     }
 
     /*@Deprecated

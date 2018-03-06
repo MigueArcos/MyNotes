@@ -122,19 +122,19 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Vo
     }
 
     void StartDatabaseSync() {
-        String syncedNotes = Database.getInstance(getActivity()).createJSON(false);
+        /*String syncedNotes = Database.getInstance(getActivity()).createJSON(false);
         String noSyncedNotes = Database.getInstance(getActivity()).createJSON(true);
         progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
-        VolleySingleton.getInstance(getActivity()).syncDBLocal_Remota(noSyncedNotes, syncedNotes, ShPrSync.getInt("userID", 1), ShPrSync.getInt("UltimoIDSync", 0), true, this);
+        VolleySingleton.getInstance(getActivity()).syncDatabases(noSyncedNotes, syncedNotes, ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0), true, this);*/
     }
 
 
     @Override
     public void onLoginSuccess(int userId, String username, String email, int syncTime) {
-        ShPrSync.edit().putInt("sync_time", syncTime).apply();
+        ShPrSync.edit().putInt("syncTime", syncTime).apply();
         progressDialog.dismiss();
-        ShPrSync.edit().putInt("userID", userId).putString("username", username).putString("email", email).apply();
+        ShPrSync.edit().putInt("userId", userId).putString("username", username).putString("email", email).apply();
         StartDatabaseSync();
     }
 
@@ -160,7 +160,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Vo
     @Override
     public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
         progressDialog.dismiss();
-        ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
+        ShPrSync.edit().putInt("lastSyncedId", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
         Intent i = new Intent(getActivity(), MainActivity.class);
         getActivity().startActivity(i);
     }

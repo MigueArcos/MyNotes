@@ -70,22 +70,12 @@ public class VolleySingleton {
         getRequestQueue().add(req);
     }
 
-    public void syncDBLocal_Remota(final String NotasSync, final String NotasNoSync, final int id_usuario, final int UltimoIDSync, final boolean isLogin, final NotesResponseListener listener) {
-        StringRequest MyRequest = new StringRequest(Request.Method.POST, URL + "/OperacionesBD.php",
+    public void syncDatabases(final String syncDataJson, final boolean isLogin, final NotesResponseListener listener) {
+        StringRequest MyRequest = new StringRequest(Request.Method.POST, URL + "/DatabaseSync.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        JSONArray array = null;
-                        JSONObject SyncData = null;
-                        try {
-                            array = new JSONArray(response);
-                            SyncData = array.getJSONObject(array.length() - 1);
-                            Database.getInstance(AppContext).updateLocalDatabase(array.remove(array.length() - 1).toString(), isLogin);
-                            listener.onSyncSuccess(SyncData.getInt("UltimoIDSync"), SyncData.getInt("TotalNumberOfNotes"));
-                            Log.d("JSON", response);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        listener.onSyncError(response);
                     }
                 },
                 new Response.ErrorListener() {
@@ -99,14 +89,7 @@ public class VolleySingleton {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                if (!NotasNoSync.equals("")) {
-                    params.put("NotasNoSyncJSON", NotasNoSync);
-                }
-                if (!NotasSync.equals("")) {
-                    params.put("NotasSyncJSON", NotasSync);
-                }
-                params.put("id_usuario", String.valueOf(id_usuario));
-                params.put("UltimoIDSync", String.valueOf(UltimoIDSync));
+                params.put("syncDataJson", syncDataJson);
                 return params;
             }
         };

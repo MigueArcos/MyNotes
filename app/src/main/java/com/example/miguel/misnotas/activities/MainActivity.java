@@ -40,6 +40,7 @@ import com.example.miguel.misnotas.fragments.DeletedNotesFragment;
 import com.example.miguel.misnotas.fragments.FinancesFragment;
 import com.example.miguel.misnotas.fragments.NotesFragment;
 import com.example.miguel.misnotas.fragments.WeeklyExpensesFragment;
+import com.example.miguel.misnotas.models.SyncData;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, VolleySingleton.NotesResponseListener {
@@ -105,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView header_email = (TextView) header.findViewById(R.id.header_email);
         header_username.setText(ShPrSync.getString("username", ""));
         header_email.setText(ShPrSync.getString("email", getString(R.string.activity_login_sign_in_label)));
-        if (ShPrSync.getInt("userID", 0) == 0) {
+        if (ShPrSync.getInt("userId", 0) == 0) {
             header_email.setTextSize(25);
             navigationView.getMenu().findItem(R.id.sync).setVisible(false);
             navigationView.getMenu().findItem(R.id.close_session).setVisible(false);
@@ -114,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 @Override
                 public void onClick(View v) {
                     //It is neccesary to repeat this if because when the LoginActivity activity redirects to this activity, this event will be fired because it was already set (This is because this activity is SingleTask)
-                    if (ShPrSync.getInt("userID", 0) == 0) {
+                    if (ShPrSync.getInt("userId", 0) == 0) {
                         Intent login = new Intent(MainActivity.this, LoginActivity.class);
                         startActivity(login);
                     }
@@ -319,19 +320,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     void StartDatabaseSync() {
+        /*
         String NotasNoSync = Database.getInstance(this).createJSON(false);
         String NotasSync = Database.getInstance(this).createJSON(true);
-        Log.d("NotesSync", NotasSync);
-        Log.d("NotesUnSync", NotasNoSync);
-        progressDialog.setMessage(getString(R.string.syncing_label));
-        progressDialog.show();
-        VolleySingleton.getInstance(this).syncDBLocal_Remota(NotasSync, NotasNoSync, ShPrSync.getInt("userID", 1), ShPrSync.getInt("UltimoIDSync", 0), false, this);
+        */
+        //progressDialog.setMessage(getString(R.string.syncing_label));
+        //progressDialog.show();
+        String syncDataJson = Database.getInstance(this).createJSON(new SyncData.SyncInfo(ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0)));
+        mensaje.setMessage(syncDataJson);
+        mensaje.show();
+        Log.d(MyUtils.GLOBAL_LOG_TAG, syncDataJson);
+        VolleySingleton.getInstance(this).syncDatabases(syncDataJson, false, this);
+        //VolleySingleton.getInstance(this).syncDatabases(NotasSync, NotasNoSync, ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0), false, this);
     }
 
     @Override
     public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
         progressDialog.dismiss();
-        ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
+        ShPrSync.edit().putInt("lastSyncedId", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
         getSupportFragmentManager().findFragmentById(R.id.content_frame).onResume();
         MyTxtLogger.getInstance().writeToSD("" + TotalNumberOfNotes);
     }
@@ -341,5 +347,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         progressDialog.dismiss();
         mensaje.setMessage(error);
         mensaje.show();
+        Log.d(MyUtils.GLOBAL_LOG_TAG, error);
     }
 }

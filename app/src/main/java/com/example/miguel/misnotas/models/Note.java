@@ -3,6 +3,7 @@ package com.example.miguel.misnotas.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.R;
 import com.google.gson.annotations.SerializedName;
 
@@ -16,20 +17,22 @@ public class Note implements Parcelable{
     /*Check this link to see properties of serialization wit Gson (First answer)
     https://stackoverflow.com/questions/14644860/why-static-fields-not-serialized-using-google-gson-gsonbuilder-json-parser*/
     public static final int imageId = R.drawable.note;
-    @SerializedName("id_nota")
+    @SerializedName(Database.NOTE_ID)
     private int noteId;
-    @SerializedName("titulo")
+    @SerializedName(Database.NOTE_TITLE)
     private String title;
-    @SerializedName("contenido")
+    @SerializedName(Database.NOTE_CONTENT)
     private String content;
-    @SerializedName("fecha_creacion")
+    @SerializedName(Database.NOTE_CREATION_DATE)
     private long creationDate;
-    @SerializedName("fecha_modificacion")
+    @SerializedName(Database.NOTE_MODIFICATION_DATE)
     private long modificationDate;
-    @SerializedName("eliminado")
+    @SerializedName(Database.NOTE_DELETED)
     private int deleted;
-    @SerializedName("subida")
+    @SerializedName(Database.NOTE_UPLOADED)
     private int uploaded;
+    @SerializedName(Database.NOTE_MODIFIED)
+    private int modified;
 
     public Note(int noteId, String title, String content, long creationDate, long modificationDate) {
         this.noteId = noteId;
@@ -39,7 +42,7 @@ public class Note implements Parcelable{
         this.modificationDate = modificationDate;
     }
 
-    public Note(int noteId, String title, String content, long creationDate, long modificationDate, int deleted, int uploaded) {
+    public Note(int noteId, String title, String content, long creationDate, long modificationDate, int deleted, int uploaded, int modified) {
         this.noteId = noteId;
         this.title = title;
         this.content = content;
@@ -47,6 +50,7 @@ public class Note implements Parcelable{
         this.modificationDate = modificationDate;
         this.deleted = deleted;
         this.uploaded = uploaded;
+        this.modified = modified;
     }
 
     public Note(int noteId, String title, String content, long modificationDate) {
@@ -65,6 +69,7 @@ public class Note implements Parcelable{
         modificationDate = in.readLong();
         deleted = in.readInt();
         uploaded = in.readInt();
+        modified = in.readInt();
     }
 
     public static final Creator<Note> CREATOR = new Creator<Note>() {
@@ -111,6 +116,9 @@ public class Note implements Parcelable{
         return uploaded;
     }
 
+    public int getModified() {
+        return modified;
+    }
 
     @Override
     public int describeContents() {
@@ -118,13 +126,14 @@ public class Note implements Parcelable{
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(noteId);
-        dest.writeString(title);
-        dest.writeString(content);
-        dest.writeLong(creationDate);
-        dest.writeLong(modificationDate);
-        dest.writeInt(deleted);
-        dest.writeInt(uploaded);
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(noteId);
+        parcel.writeString(title);
+        parcel.writeString(content);
+        parcel.writeLong(creationDate);
+        parcel.writeLong(modificationDate);
+        parcel.writeInt(deleted);
+        parcel.writeInt(uploaded);
+        parcel.writeInt(modified);
     }
 }

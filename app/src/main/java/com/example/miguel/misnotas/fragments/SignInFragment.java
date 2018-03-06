@@ -15,19 +15,13 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.util.Patterns;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.miguel.misnotas.Database;
@@ -107,22 +101,24 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vo
     }
 
     void StartDatabaseSync() {
-        String noSyncedNotes = Database.getInstance(getActivity()).createJSON(false);
+        /*String noSyncedNotes = Database.getInstance(getActivity()).createJSON(false);
         String syncedNotes = Database.getInstance(getActivity()).createJSON(true);
         progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
-        VolleySingleton.getInstance(getActivity()).syncDBLocal_Remota(syncedNotes, noSyncedNotes, ShPrSync.getInt("userID", 1), ShPrSync.getInt("UltimoIDSync", 0), true, this);
+        VolleySingleton.getInstance(getActivity()).syncDatabases(syncedNotes, noSyncedNotes, ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0), true, this);*/
     }
 
 
 
     @Override
     public void onLoginSuccess(int userId, String username, String email, int sync_time) {
-        ShPrSync.edit().putInt("sync_time", sync_time).apply();
+        ShPrSync.edit().putInt("syncTime", sync_time).apply();
         //activateAutoSync(sync_time);
         progressDialog.dismiss();
-        ShPrSync.edit().putInt("userID", userId).putString("username", username).putString("email", email).apply();
-        StartDatabaseSync();
+        ShPrSync.edit().putInt("userId", userId).putString("username", username).putString("email", email).apply();
+
+
+        //StartDatabaseSync();
     }
 
     @Override
@@ -147,7 +143,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vo
     @Override
     public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
         progressDialog.dismiss();
-        ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
+        ShPrSync.edit().putInt("lastSyncedId", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
         Intent i = new Intent(getActivity(), MainActivity.class);
         getActivity().startActivity(i);
     }

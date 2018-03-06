@@ -17,15 +17,15 @@ public class SyncNotesService extends BroadcastReceiver implements VolleySinglet
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        ShPrSync = context.getSharedPreferences("Sync", Context.MODE_PRIVATE);
+        /*ShPrSync = context.getSharedPreferences("Sync", Context.MODE_PRIVATE);
         String syncedNotes = Database.getInstance(context).createJSON(false);
         String notSyncedNotes = Database.getInstance(context).createJSON(true);
-        VolleySingleton.getInstance(context).syncDBLocal_Remota(notSyncedNotes, syncedNotes, ShPrSync.getInt("userID", 1), ShPrSync.getInt("UltimoIDSync", 0), false, this);
+        VolleySingleton.getInstance(context).syncDatabases(notSyncedNotes, syncedNotes, ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0), false, this);*/
     }
 
     @Override
     public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
-        ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
+        ShPrSync.edit().putInt("lastSyncedId", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
     }
 
     @Override
