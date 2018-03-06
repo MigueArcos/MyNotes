@@ -30,7 +30,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.miguel.misnotas.Database;
-import com.example.miguel.misnotas.MyTxtLogger;
 import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.VolleySingleton;
@@ -59,6 +58,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private AlarmManager alarmManager;
     private PackageManager packageManager;
     private ComponentName receiver;
+    private FinancesFragment financesFragment;
+    private NotesFragment notesFragment;
+    private DeletedNotesFragment deletedNotesFragment;
+    private WeeklyExpensesFragment weeklyExpensesFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //now getIntent() should always return the last received intent
     }
 
-    Fragment SelectLastFragment() {
+    private Fragment SelectLastFragment() {
         MenuItem item;
         Fragment fr = null;
         switch (ShPrFragments.getInt("FragmentoSeleccionado", 1)) {
@@ -324,22 +327,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String NotasNoSync = Database.getInstance(this).createJSON(false);
         String NotasSync = Database.getInstance(this).createJSON(true);
         */
-        //progressDialog.setMessage(getString(R.string.syncing_label));
-        //progressDialog.show();
-        String syncDataJson = Database.getInstance(this).createJSON(new SyncData.SyncInfo(ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0)));
-        mensaje.setMessage(syncDataJson);
-        mensaje.show();
-        Log.d(MyUtils.GLOBAL_LOG_TAG, syncDataJson);
-        VolleySingleton.getInstance(this).syncDatabases(syncDataJson, false, this);
+        progressDialog.setMessage(getString(R.string.syncing_label));
+        progressDialog.show();
+        SyncData localSyncData = Database.getInstance(this).createLocalSyncData(new SyncData.SyncInfo(ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0)));
+        //mensaje.setMessage();
+        //mensaje.show();
+        //Log.d(MyUtils.GLOBAL_LOG_TAG, syncDataJson);
+        VolleySingleton.getInstance(this).syncDatabases(localSyncData, false, this);
         //VolleySingleton.getInstance(this).syncDatabases(NotasSync, NotasNoSync, ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0), false, this);
     }
 
     @Override
-    public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
+    public void onSyncSuccess(SyncData.SyncInfo syncInfo) {
         progressDialog.dismiss();
-        ShPrSync.edit().putInt("lastSyncedId", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
-        getSupportFragmentManager().findFragmentById(R.id.content_frame).onResume();
-        MyTxtLogger.getInstance().writeToSD("" + TotalNumberOfNotes);
+        ShPrSync.edit().putInt("lastSyncedId", syncInfo.getLastSyncedId()).apply();
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+        if (currentFragment instanceof NotesFragment){
+            ((NotesFragment) currentFragment).updateFromDatabase();
+        }
+        else if (currentFragment instanceof DeletedNotesFragment){
+            ((DeletedNotesFragment) currentFragment).updateFromDatabase();
+        }
+        //MyTxtLogger.getInstance().writeToSD("" + TotalNumberOfNotes);
     }
 
     @Override

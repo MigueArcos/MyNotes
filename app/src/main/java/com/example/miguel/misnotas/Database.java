@@ -331,6 +331,12 @@ public class Database extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void deleteUnsyncedNotes(){
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(NOTES_TABLE_NAME, NOTE_UPLOADED + " = 0", null);
+
+    }
+
     public void deleteAllNotes() {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(NOTES_TABLE_NAME, null, null);
@@ -345,16 +351,14 @@ public class Database extends SQLiteOpenHelper {
 
      **************************************/
 
-    public String createJSON(final SyncData.SyncInfo syncInfo) {
+    public SyncData createLocalSyncData(final SyncData.SyncInfo syncInfo) {
         SyncData syncData = new SyncData();
         List<Note> newNotes = new ArrayList<>();
         List<Note> modifiedNotes = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
         String SQL = "SELECT * FROM " + NOTES_TABLE_NAME;
         Cursor cursor = db.rawQuery(SQL, null);
-        if (cursor.getCount() == 0) {
-            return "";
-        }
+
         while (cursor.moveToNext()) {
             Note note = new Note(
                     cursor.getInt(columnsIndexes.get(NOTE_ID)),
@@ -377,14 +381,7 @@ public class Database extends SQLiteOpenHelper {
         syncData.setSyncInfo(syncInfo);
         syncData.setModifiedNotes(modifiedNotes);
         syncData.setNewNotes(newNotes);
-        Gson gson = new GsonBuilder().create();
-        /*Use GSON to serialize Array List to JSON
-          Por defecto GSON serializara el ArrayList con los nombres de los campos que esta en la clase seleccionada (Note)
-          Si se quieren utilizar otros nombre se ha de añadir la anotación @SerializedName("Nombre") antes de cada campo
-          Si se quieren omitir algunos campos se han de usar la anotación @Expose y luego se usara el método .excludeFieldsWithoutExposeAnnotation() de GsonBuilder()  [Esto es solo una estrategia de exclusión] o añadir la palabra transient o static antes del tipo de variable
-        */
-        Log.d(MyUtils.GLOBAL_LOG_TAG, gson.toJson(newNotes));
-        return gson.toJson(syncData);
+        return syncData;
     }
 
     /*@Deprecated
@@ -413,32 +410,31 @@ public class Database extends SQLiteOpenHelper {
         }
     }*/
 
-    public void updateLocalDatabase(String json, boolean isLogin) {
-        //ArrayList<Note> list = new ArrayList<>();
+    public SyncData.SyncInfo updateLocalDatabase(SyncData localSyncData, SyncData remoteSyncData) {
 
-        List<Note> noteList = new Gson().fromJson(json, new TypeToken<List<Note>>() {
-        }.getType());
-        if (noteList.size() > 0) {
-            SQLiteDatabase db = getWritableDatabase();
-            if (isLogin) {
-                //This line is needed when is a login to guarantee that won´t have been duplicate notes
-                deleteAllNotes();
+        int lastSyncedId = remoteSyncData.getSyncInfo().getLastSyncedId();
+        SQLiteDatabase db = getWritableDatabase();
+        //Local NewNotes and ModifiedNotes List will always gonna exist because in the method of createLocalSyncData we initialized them
+        if (localSyncData.getNewNotes().size() > 0){
+            deleteUnsyncedNotes();
+            for (Note localNote : localSyncData.getNewNotes()) {
+                String insertSQL = String.format(Locale.US, "INSERT INTO %s VALUES (%d, '%s', '%s', %d, %d, %d, 1, 0)", NOTES_TABLE_NAME, lastSyncedId +1, localNote.getTitle(), localNote.getContent(), localNote.getCreationDate(), localNote.getModificationDate(), localNote.getDeleted());
+                db.execSQL(insertSQL);
+                lastSyncedId++;
             }
-            for (Note note : noteList) {
-                ContentValues currentNote = new ContentValues();
-                currentNote.put(NOTE_ID, note.getNoteId());
-                currentNote.put(NOTE_TITLE, note.getTitle());
-                currentNote.put(NOTE_CONTENT, note.getContent());
-                currentNote.put(NOTE_CREATION_DATE, note.getCreationDate());
-                currentNote.put(NOTE_MODIFICATION_DATE, note.getModificationDate());
-                currentNote.put(NOTE_DELETED, note.getDeleted());
-                currentNote.put(NOTE_UPLOADED, note.getUploaded());
-                db.replace(NOTES_TABLE_NAME, null, currentNote);
+        }
+        //All server notes must be inserted in the same order as they arrived
+        if (remoteSyncData.getNewNotes() != null){
+            for (Note serverNote : remoteSyncData.getNewNotes()) {
+                String insertSQL = String.format(Locale.US, "INSERT INTO %s VALUES (%d, '%s', '%s', %d, %d, %d, 1, 0)", NOTES_TABLE_NAME, serverNote.getNoteId(), serverNote.getTitle(), serverNote.getContent(), serverNote.getCreationDate(), serverNote.getModificationDate(), serverNote.getDeleted());
+                db.execSQL(insertSQL);
             }
-            db.close();
         }
 
+        db.close();
 
+        remoteSyncData.getSyncInfo().setLastSyncedId(lastSyncedId);
+        return remoteSyncData.getSyncInfo();
     }
 
 

@@ -14,6 +14,8 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.miguel.misnotas.models.SyncData;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,7 +34,7 @@ public class VolleySingleton {
     private final int SYNC_TIME = 3600000;
 
     public interface NotesResponseListener {
-        void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes);
+        void onSyncSuccess(SyncData.SyncInfo syncInfo);
 
         void onSyncError(String error);
     }
@@ -70,12 +72,16 @@ public class VolleySingleton {
         getRequestQueue().add(req);
     }
 
-    public void syncDatabases(final String syncDataJson, final boolean isLogin, final NotesResponseListener listener) {
+    public void syncDatabases(final SyncData localSyncData, final boolean isLogin, final NotesResponseListener listener) {
         StringRequest MyRequest = new StringRequest(Request.Method.POST, URL + "/DatabaseSync.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        listener.onSyncError(response);
+                        SyncData remoteSyncData = new Gson().fromJson(response, SyncData.class);
+                        SyncData.SyncInfo syncInfo = Database.getInstance(AppContext).updateLocalDatabase(localSyncData, remoteSyncData);
+                        Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Local" + new Gson().toJson(localSyncData));
+                        Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Remote" + new Gson().toJson(remoteSyncData));
+                        listener.onSyncSuccess(syncInfo);
                     }
                 },
                 new Response.ErrorListener() {
@@ -89,6 +95,7 @@ public class VolleySingleton {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
+                String syncDataJson = new Gson().toJson(localSyncData);
                 params.put("syncDataJson", syncDataJson);
                 return params;
             }

@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 
 import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.VolleySingleton;
+import com.example.miguel.misnotas.models.SyncData;
 
 
 /**
@@ -24,8 +25,8 @@ public class SyncNotesService extends BroadcastReceiver implements VolleySinglet
     }
 
     @Override
-    public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
-        ShPrSync.edit().putInt("lastSyncedId", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
+    public void onSyncSuccess(SyncData.SyncInfo syncInfo) {
+        //ShPrSync.edit().putInt("lastSyncedId", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
     }
 
     @Override

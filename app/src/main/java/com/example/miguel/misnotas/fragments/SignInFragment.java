@@ -31,6 +31,7 @@ import com.example.miguel.misnotas.VolleySingleton;
 import com.example.miguel.misnotas.activities.MainActivity;
 import com.example.miguel.misnotas.broadcasts.SyncNotesService;
 import com.example.miguel.misnotas.broadcasts.bootservices.TurnOnDatabaseSync;
+import com.example.miguel.misnotas.models.SyncData;
 import com.example.miguel.misnotas.viewmodels.LoginActivityViewModel;
 
 import java.util.Calendar;
@@ -141,11 +142,11 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vo
     }
 
     @Override
-    public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
-        progressDialog.dismiss();
+    public void onSyncSuccess(SyncData.SyncInfo syncInfo) {
+        /*progressDialog.dismiss();
         ShPrSync.edit().putInt("lastSyncedId", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
         Intent i = new Intent(getActivity(), MainActivity.class);
-        getActivity().startActivity(i);
+        getActivity().startActivity(i);*/
     }
 
     @Override

@@ -53,6 +53,10 @@ public class SyncData {
             this.lastSyncedId = lastSyncedId;
         }
 
+        public SyncInfo(int lastSyncedId) {
+            this.lastSyncedId = lastSyncedId;
+        }
+
         public int getUserId() {
             return userId;
         }

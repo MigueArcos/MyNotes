@@ -232,8 +232,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
             if (resultCode == Activity.RESULT_OK) {
                 //Since we don't know the real position of the result when it return from searchActivity, the best way to keep data consistency is to reload the data from database
                 if (data.getBooleanExtra("calledFromSearch", false)){
-                    adapter.loadData(Database.getInstance(getActivity()).getNotes(false));
-                    adapter.notifyDataSetChanged();
+                    updateFromDatabase();
                     return;
                 }
                 Note resultNote = data.getParcelableExtra("resultNote");
@@ -266,7 +265,10 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
         this.text = text;
         adapter.filterResults(text);
     }
-
+    public void updateFromDatabase(){
+        adapter.loadData(Database.getInstance(getActivity()).getNotes(false));
+        adapter.notifyDataSetChanged();
+    }
 }
 
 

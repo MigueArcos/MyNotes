@@ -144,6 +144,10 @@ public class DeletedNotesFragment extends Fragment implements FilterableRecycler
         adapter.filterResults(text);
     }
 
+    public void updateFromDatabase(){
+        adapter.loadData(Database.getInstance(getActivity()).getNotes(true));
+        adapter.notifyDataSetChanged();
+    }
 
 }
 
