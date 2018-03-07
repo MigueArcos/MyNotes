@@ -418,7 +418,7 @@ public class Database extends SQLiteOpenHelper {
         if (localSyncData.getNewNotes().size() > 0){
             deleteUnsyncedNotes();
             for (Note localNote : localSyncData.getNewNotes()) {
-                String insertSQL = String.format(Locale.US, "INSERT INTO %s VALUES (%d, '%s', '%s', %d, %d, %d, 1, 0)", NOTES_TABLE_NAME, lastSyncedId +1, localNote.getTitle(), localNote.getContent(), localNote.getCreationDate(), localNote.getModificationDate(), localNote.getDeleted());
+                String insertSQL = String.format(Locale.US, "INSERT INTO %s VALUES (%d, '%s', '%s', %d, %d, %d, 1, 0)", NOTES_TABLE_NAME, lastSyncedId +1, localNote.getTitle().replace("'", "\'\'"), localNote.getContent().replace("'", "\'\'"), localNote.getCreationDate(), localNote.getModificationDate(), localNote.getDeleted());
                 db.execSQL(insertSQL);
                 lastSyncedId++;
             }
@@ -426,8 +426,25 @@ public class Database extends SQLiteOpenHelper {
         //All server notes must be inserted in the same order as they arrived
         if (remoteSyncData.getNewNotes() != null){
             for (Note serverNote : remoteSyncData.getNewNotes()) {
-                String insertSQL = String.format(Locale.US, "INSERT INTO %s VALUES (%d, '%s', '%s', %d, %d, %d, 1, 0)", NOTES_TABLE_NAME, serverNote.getNoteId(), serverNote.getTitle(), serverNote.getContent(), serverNote.getCreationDate(), serverNote.getModificationDate(), serverNote.getDeleted());
+                String insertSQL = String.format(Locale.US, "INSERT INTO %s VALUES (%d, '%s', '%s', %d, %d, %d, 1, 0)", NOTES_TABLE_NAME, serverNote.getNoteId(), serverNote.getTitle().replace("'", "\'\'"), serverNote.getContent().replace("'", "\'\'"), serverNote.getCreationDate(), serverNote.getModificationDate(), serverNote.getDeleted());
                 db.execSQL(insertSQL);
+            }
+        }
+
+        if (remoteSyncData.getModifiedNotes() != null){
+            for (Note modifiedNote : remoteSyncData.getModifiedNotes()) {
+                ContentValues note = new ContentValues();
+
+                note.put(NOTE_ID, modifiedNote.getNoteId());
+                note.put(NOTE_TITLE, modifiedNote.getTitle());
+                note.put(NOTE_CONTENT, modifiedNote.getContent());
+                note.put(NOTE_CREATION_DATE, modifiedNote.getCreationDate());
+                note.put(NOTE_MODIFICATION_DATE, modifiedNote.getModificationDate());
+                note.put(NOTE_DELETED, modifiedNote.getDeleted());
+                note.put(NOTE_UPLOADED, 1);
+                note.put(NOTE_MODIFIED, 0);
+
+                db.replace(NOTES_TABLE_NAME, null, note);
             }
         }
 
