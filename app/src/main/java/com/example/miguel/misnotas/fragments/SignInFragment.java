@@ -78,8 +78,8 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vo
         receiver = new ComponentName(getActivity(), TurnOnDatabaseSync.class);
 
         loginActivityViewModel = ViewModelProviders.of(getActivity()).get(LoginActivityViewModel.class);
-        password.getEditText().setText(loginActivityViewModel.getSignInFragmentViewModel().getPassword());
-        email.getEditText().setText(loginActivityViewModel.getSignInFragmentViewModel().getEmail());
+        password.setText(loginActivityViewModel.getSignInFragmentViewModel().getPassword());
+        email.setText(loginActivityViewModel.getSignInFragmentViewModel().getEmail());
         return rootView;
     }
 

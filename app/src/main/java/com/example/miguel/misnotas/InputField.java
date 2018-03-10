@@ -96,4 +96,8 @@ public class InputField extends TextInputLayout {
         return editText.getText().toString();
     }
 
+    public void setText(String text){
+        assert getEditText() != null;
+        getEditText().setText(text);
+    }
 }

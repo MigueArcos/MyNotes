@@ -26,6 +26,7 @@ import com.google.gson.reflect.TypeToken;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,7 +41,7 @@ import java.util.Map;
  * Created by Miguel on 01/09/2015.
  */
 public class Database extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 26;
+    private static final int DATABASE_VERSION = 33;
     private static final String PATH = Environment.getExternalStorageDirectory().getPath() + "/Mis_Notas.db";
     private static Database Instance;
     private static Context AppContext;
@@ -112,13 +113,18 @@ public class Database extends SQLiteOpenHelper {
         Log.d(MyUtils.GLOBAL_LOG_TAG, "Trying to upgrade database");
         //db.execSQL("DROP TABLE notas");
         //db.execSQL("ALTER TABLE Notes RENAME TO Notes_Backup");
-        //db.execSQL("ALTER TABLE notes RENAME TO notes_backup");
+        //db.execSQL("ALTER TABLE notas RENAME TO notes_backup");
+
+        //db.execSQL("CREATE TABLE " + NOTES_TABLE_NAME + " (" + NOTE_ID + " INTEGER PRIMARY KEY, " + NOTE_TITLE + " VARCHAR(100), " + NOTE_CONTENT + " TEXT, " + NOTE_CREATION_DATE + " INTEGER, " + NOTE_MODIFICATION_DATE + " INTEGER, " + NOTE_DELETED + " INTEGER, " + NOTE_UPLOADED + " INTEGER, " + NOTE_MODIFIED +" INTEGER)");
+
         //db.execSQL("DROP TABLE notes");
         //db.execSQL("CREATE TABLE " + NOTES_TABLE_NAME + " (" + NOTE_ID + " INTEGER PRIMARY KEY, " + NOTE_TITLE + " VARCHAR(100), " + NOTE_CONTENT + " TEXT, " + NOTE_CREATION_DATE + " INTEGER, " + NOTE_MODIFICATION_DATE + " INTEGER, " + NOTE_DELETED + " INTEGER, " + NOTE_UPLOADED + " INTEGER, " + NOTE_MODIFIED +" INTEGER)");
         //db.execSQL("ALTER TABLE notes ADD COLUMN modified INTEGER");
         //db.execSQL("UPDATE notes SET modified = 0");
-        db.execSQL("UPDATE notes SET uploaded = 0 WHERE note_id < 30");
+        //db.execSQL("UPDATE notes SET uploaded = 0 WHERE note_id < 30");
         //String SQL = "SELECT " + NOTE_ID + ", " + NOTE_TITLE + ", " + NOTE_CONTENT + ", " + NOTE_CREATION_DATE + ", CAST(" + NOTE_ORDER_MODIFICATION_DATE + " AS INT), " + NOTE_DELETED + ", " + NOTE_UPLOADED + " FROM notes_backup";
+
+        //String SQL = "SELECT id_nota, titulo, contenido, fecha_creacion, fecha_modificacion_orden, eliminado, subida FROM notes_backup";
        /*Cursor cursor = db.rawQuery(SQL, null);
         while (cursor.moveToNext()) {
             int     note_id = cursor.getInt(columnsIndexes.get(NOTE_ID));
@@ -129,12 +135,36 @@ public class Database extends SQLiteOpenHelper {
 
             int     deleted = charToIntBoolean(cursor.getString(5)),
                     uploaded = charToIntBoolean(cursor.getString(6));
-            db.execSQL(String.format(Locale.US, "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s) VALUES (%d, '%s', '%s', %d, %d, %d, %d)", NOTES_TABLE_NAME, NOTE_ID, NOTE_TITLE, NOTE_CONTENT, NOTE_CREATION_DATE, NOTE_MODIFICATION_DATE, NOTE_DELETED, NOTE_UPLOADED, note_id, title.replace("'", "\'\'"), content.replace("'", "\'\'"), creation_date, order_modification_date, deleted, uploaded));
+            db.execSQL(String.format(Locale.US, "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s) VALUES (%d, '%s', '%s', %d, %d, %d, %d, 0)", NOTES_TABLE_NAME, NOTE_ID, NOTE_TITLE, NOTE_CONTENT, NOTE_CREATION_DATE, NOTE_MODIFICATION_DATE, NOTE_DELETED, NOTE_UPLOADED, NOTE_MODIFIED, note_id, title.replace("'", "\'\'"), content.replace("'", "\'\'"), creation_date, order_modification_date, deleted, uploaded));
+        }*/
+
+        String SQL = "SELECT id_nota, fecha_creacion FROM notes_backup";
+        Cursor cursor = db.rawQuery(SQL, null);
+        while (cursor.moveToNext()) {
+            long creationDate = timeFormatToTimeStamp(cursor.getString(1));
+            db.execSQL("UPDATE notes SET " + NOTE_CREATION_DATE + " = " + creationDate +" WHERE note_id = " + cursor.getInt(0));
         }
+
+        //db.execSQL("UPDATE notes SET uploaded = 0");
         //db.execSQL("DROP TABLE notas"
-        */
+
+    }
+    private long timeFormatToTimeStamp(String datetime) {
+        String date = datetime.substring(0, 10);
+        String time = datetime.substring(17, 22);
+        DateFormat df = new SimpleDateFormat( "dd/MM/yyyy HH:mm", Locale.US);
+        long timestamp = 0;
+        try {
+            timestamp = df.parse(date + " " +time).getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return timestamp;
     }
 
+    private int charToIntBoolean(String value){
+        return value.equalsIgnoreCase("s") ? 1 : 0;
+    }
 
     String Tiempo_12_Horas(String Tiempo_24_Horas, int Longitud_Hora) {
         int Hora_F24 = Integer.parseInt(Tiempo_24_Horas.substring(0, 2));
@@ -445,6 +475,12 @@ public class Database extends SQLiteOpenHelper {
                 note.put(NOTE_MODIFIED, 0);
 
                 db.replace(NOTES_TABLE_NAME, null, note);
+            }
+        }
+
+        if (remoteSyncData.getIdsToDelete() != null){
+            for (int id : remoteSyncData.getIdsToDelete()){
+                deleteNoteCompletely(id);
             }
         }
 

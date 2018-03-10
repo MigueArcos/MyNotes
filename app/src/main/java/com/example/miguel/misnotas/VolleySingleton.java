@@ -80,7 +80,7 @@ public class VolleySingleton {
                         SyncData remoteSyncData = new Gson().fromJson(response, SyncData.class);
                         SyncData.SyncInfo syncInfo = Database.getInstance(AppContext).updateLocalDatabase(localSyncData, remoteSyncData);
                         Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Local" + new Gson().toJson(localSyncData));
-                        Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Remote" + new Gson().toJson(remoteSyncData));
+                        Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Remote" + response);
                         listener.onSyncSuccess(syncInfo);
                     }
                 },

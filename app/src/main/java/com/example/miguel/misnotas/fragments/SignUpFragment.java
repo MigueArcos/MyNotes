@@ -92,10 +92,10 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Vo
 
         loginActivityViewModel = ViewModelProviders.of(getActivity()).get(LoginActivityViewModel.class);
 
-        password.getEditText().setText(loginActivityViewModel.getSignUpFragmentViewModel().getPassword());
-        email.getEditText().setText(loginActivityViewModel.getSignUpFragmentViewModel().getEmail());
-        confirmPassword.getEditText().setText(loginActivityViewModel.getSignUpFragmentViewModel().getConfirmedPassword());
-        username.getEditText().setText(loginActivityViewModel.getSignUpFragmentViewModel().getUserName());
+        password.setText(loginActivityViewModel.getSignUpFragmentViewModel().getPassword());
+        email.setText(loginActivityViewModel.getSignUpFragmentViewModel().getEmail());
+        confirmPassword.setText(loginActivityViewModel.getSignUpFragmentViewModel().getConfirmedPassword());
+        username.setText(loginActivityViewModel.getSignUpFragmentViewModel().getUserName());
         return rootView;
     }
 
