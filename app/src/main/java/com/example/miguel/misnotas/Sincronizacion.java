@@ -51,7 +51,7 @@ public class Sincronizacion {
     private final String URL="http://miguelarcos.x10.mx/android/movil";
     public Sincronizacion(Context ActivityContext){
         this.ActivityContext=ActivityContext;
-        ShPrSync= ActivityContext.getSharedPreferences("Sync", Context.MODE_PRIVATE);
+        ShPrSync= ActivityContext.getSharedPreferences("sync", Context.MODE_PRIVATE);
         Editor=ShPrSync.edit();
         //Initialize Progress Dialog properties
         progreso = new ProgressDialog(ActivityContext);

@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 
 import com.example.miguel.misnotas.Database;
+import com.example.miguel.misnotas.MyTxtLogger;
+import com.example.miguel.misnotas.MyUtils;
+import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.VolleySingleton;
 import com.example.miguel.misnotas.models.SyncData;
 
@@ -18,19 +21,20 @@ public class SyncNotesService extends BroadcastReceiver implements VolleySinglet
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        /*ShPrSync = context.getSharedPreferences("Sync", Context.MODE_PRIVATE);
-        String syncedNotes = Database.getInstance(context).createJSON(false);
-        String notSyncedNotes = Database.getInstance(context).createJSON(true);
-        VolleySingleton.getInstance(context).syncDatabases(notSyncedNotes, syncedNotes, ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0), false, this);*/
+        ShPrSync = context.getSharedPreferences("sync", Context.MODE_PRIVATE);
+
+        SyncData localSyncData = Database.getInstance(context).createLocalSyncData(new SyncData.SyncInfo(ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0)));
+        VolleySingleton.getInstance(context).syncDatabases(localSyncData, false, this);
     }
 
     @Override
     public void onSyncSuccess(SyncData.SyncInfo syncInfo) {
-        //ShPrSync.edit().putInt("lastSyncedId", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
+        ShPrSync.edit().putInt("lastSyncedId", syncInfo.getLastSyncedId()).apply();
     }
 
     @Override
     public void onSyncError(String error) {
+        MyTxtLogger.getInstance().writeToSD("There was an error with automatic sync: " +error);
     }
 }
 

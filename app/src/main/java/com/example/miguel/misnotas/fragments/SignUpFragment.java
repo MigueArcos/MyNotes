@@ -85,7 +85,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Vo
         progressDialog.setCancelable(false);
         progressDialog.setTitle(R.string.dialog_default_title);
 
-        ShPrSync = getActivity().getSharedPreferences("Sync", Context.MODE_PRIVATE);
+        ShPrSync = getActivity().getSharedPreferences("sync", Context.MODE_PRIVATE);
         alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
         packageManager = getActivity().getPackageManager();
         receiver = new ComponentName(getActivity(), TurnOnDatabaseSync.class);
@@ -123,13 +123,11 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Vo
     }
 
     void StartDatabaseSync() {
-        /*String syncedNotes = Database.getInstance(getActivity()).createJSON(false);
-        String noSyncedNotes = Database.getInstance(getActivity()).createJSON(true);
         progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
-        VolleySingleton.getInstance(getActivity()).syncDatabases(noSyncedNotes, syncedNotes, ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0), true, this);*/
+        SyncData localSyncData = Database.getInstance(getActivity()).createLocalSyncData(new SyncData.SyncInfo(ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0)));
+        VolleySingleton.getInstance(getActivity()).syncDatabases(localSyncData, false, this);
     }
-
 
     @Override
     public void onLoginSuccess(int userId, String username, String email, int syncTime) {
@@ -160,10 +158,10 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Vo
 
     @Override
     public void onSyncSuccess(SyncData.SyncInfo syncInfo) {
-        /*progressDialog.dismiss();
-        ShPrSync.edit().putInt("lastSyncedId", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
+        progressDialog.dismiss();
+        ShPrSync.edit().putInt("lastSyncedId", syncInfo.getLastSyncedId()).apply();
         Intent i = new Intent(getActivity(), MainActivity.class);
-        getActivity().startActivity(i);*/
+        getActivity().startActivity(i);
     }
 
     @Override

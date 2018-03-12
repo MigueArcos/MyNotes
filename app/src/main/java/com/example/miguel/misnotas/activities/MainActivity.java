@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -32,7 +33,7 @@ import android.widget.Toast;
 import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
-import com.example.miguel.misnotas.SharedPreferencesManager;
+import com.example.miguel.misnotas.Cache;
 import com.example.miguel.misnotas.VolleySingleton;
 import com.example.miguel.misnotas.broadcasts.SyncNotesService;
 import com.example.miguel.misnotas.broadcasts.bootservices.TurnOnDatabaseSync;
@@ -47,18 +48,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public static final int WRITE_PERMISSION = 1;
 
-    private NavigationView navigationView;
-    private AlertDialog.Builder message;
     private int currentFragmentId;
-    private SharedPreferences ShPrFragments;
-    private SharedPreferences.Editor Editor;
-    private SharedPreferences ShPrSync;
-    private SharedPreferencesManager preferencesManager;
+
+    private NavigationView navigationView;
     private DrawerLayout drawer;
+
     private ProgressDialog progressDialog;
+    private AlertDialog.Builder message;
+
+    private Cache cache;
+
     private AlarmManager alarmManager;
     private PackageManager packageManager;
     private ComponentName receiver;
+
     private FinancesFragment financesFragment;
     private NotesFragment notesFragment;
     private DeletedNotesFragment deletedNotesFragment;
@@ -70,29 +73,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkPermissions();
         }
+        cache = Cache.getInstance(this);
+
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        /*Este editor de SharedPrefs sirve para obtener el ultimo fragmento que se quedo seleccionado, ya que cuando la app se cierra
-        con el boton de atras entonces esta se vuelve a construir y siempre volveria al primer fragmento si estos no se guardan*/
-        ShPrFragments = getSharedPreferences("fragmentos", Context.MODE_PRIVATE);
-        Editor = ShPrFragments.edit();
-        ShPrSync = getSharedPreferences("Sync", Context.MODE_PRIVATE);
+
+
         /*Este paquete sirve para que si la llamada a esta actividad es desde la notificacion, siempre inicie en el
         fragmento de gastos */
         if (getIntent().hasExtra("CalledFromNotification")) {
-            Editor.putInt("lastSelectedFragment", 1);
-            Editor.commit();
+            cache.getSettings().edit().putInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 1).apply();
         }
         LoadUserData();
 
-        initiliazeFragments();
+        initializeFragments();
 
         //Initialize Progress Dialog properties
         progressDialog = new ProgressDialog(this);
@@ -106,31 +108,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void LoadUserData() {
+        Log.d(MyUtils.GLOBAL_LOG_TAG,"ID de usuario : " +  cache.getSyncInfo().getInt("userId", 0));
         View header = navigationView.getHeaderView(0);
-        TextView header_username = header.findViewById(R.id.header_username);
-        TextView header_email = header.findViewById(R.id.header_email);
-        header_username.setText(ShPrSync.getString("username", ""));
-        header_email.setText(ShPrSync.getString("email", getString(R.string.activity_login_sign_in_label)));
-        if (ShPrSync.getInt("userId", 0) == 0) {
-            header_email.setTextSize(25);
+        TextView username = header.findViewById(R.id.header_username);
+        TextView email = header.findViewById(R.id.header_email);
+        username.setText(cache.getSyncInfo().getString(Cache.SYNC_USERNAME, ""));
+        email.setText(cache.getSyncInfo().getString(Cache.SYNC_EMAIL, getString(R.string.activity_login_sign_in_label)));
+        if (cache.getSyncInfo().getInt(Cache.SYNC_USER_ID, 0) == 0) {
+            email.setTextSize(25);
             navigationView.getMenu().findItem(R.id.sync).setVisible(false);
             navigationView.getMenu().findItem(R.id.close_session).setVisible(false);
-            LinearLayout header_linearlayout = (LinearLayout) header.findViewById(R.id.header_linearlayout);
-            header_linearlayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //It is neccesary to repeat this if because when the LoginActivity activity redirects to this activity, this event will be fired because it was already set (This is because this activity is SingleTask)
-                    if (ShPrSync.getInt("userId", 0) == 0) {
-                        Intent login = new Intent(MainActivity.this, LoginActivity.class);
-                        startActivity(login);
-                    }
+            LinearLayout container = header.findViewById(R.id.header_linear_layout);
+            container.setOnClickListener(v -> {
+                //It is necessary to repeat this is because when the LoginActivity activity redirects to this activity, this event will be fired because it was already set (This is because this activity is SingleTask)
+                if (cache.getSyncInfo().getInt(Cache.SYNC_USER_ID, 0) == 0) {
+                    Intent login = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(login);
                 }
             });
         } else {
-            header_email.setTextSize(15);
+            email.setTextSize(15);
             navigationView.getMenu().findItem(R.id.sync).setVisible(true);
             navigationView.getMenu().findItem(R.id.close_session).setVisible(true);
-
         }
     }
 
@@ -142,88 +141,52 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.d(MyUtils.GLOBAL_LOG_TAG, "Executing newIntent");
         drawer.closeDrawer(GravityCompat.START);
         LoadUserData();
+        updateFragments();
         if (intent.hasExtra("CalledFromNotification")) {
-            Editor.putInt("lastSelectedFragment", 1);
-            Editor.commit();
-            Fragment fragment = SelectLastFragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+            cache.getSettings().edit().putInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 1).apply();
+            initializeFragments();
         }
         //now getIntent() should always return the last received intent
     }
 
-    private Fragment SelectLastFragment() {
+    private void initializeFragments(){
         MenuItem item;
-        Fragment fr = null;
-        switch (ShPrFragments.getInt("lastSelectedFragment", 1)) {
-            case 1:
-                item = navigationView.getMenu().findItem(R.id.it1);
-                item.setChecked(true);
-                currentFragmentId = item.getItemId();
-                fr = new WeeklyExpensesFragment();
-                getSupportActionBar().setTitle(item.getTitle());
-                break;
-            case 2:
-                item = navigationView.getMenu().findItem(R.id.it2);
-                item.setChecked(true);
-                currentFragmentId = item.getItemId();
-                fr = new FinancesFragment();
-                getSupportActionBar().setTitle(item.getTitle());
-                break;
-            case 3:
-                item = navigationView.getMenu().findItem(R.id.it3);
-                item.setChecked(true);
-                currentFragmentId = item.getItemId();
-                fr = new NotesFragment();
-                getSupportActionBar().setTitle(item.getTitle());
-                break;
-            case 4:
-                item = navigationView.getMenu().findItem(R.id.it4);
-                item.setChecked(true);
-                currentFragmentId = item.getItemId();
-                fr = new DeletedNotesFragment();
-                getSupportActionBar().setTitle(item.getTitle());
-        }
-        return fr;
-    }
-
-    private void initiliazeFragments(){
-        MenuItem item;
-        Fragment fr = null;
+        Fragment fragment = null;
         weeklyExpensesFragment = new WeeklyExpensesFragment();
         financesFragment = new FinancesFragment();
         notesFragment = new NotesFragment();
         deletedNotesFragment = new DeletedNotesFragment();
 
-        switch (ShPrFragments.getInt("lastSelectedFragment", 1)) {
+        switch (cache.getSettings().getInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 1)) {
             case 1:
                 item = navigationView.getMenu().findItem(R.id.it1);
                 item.setChecked(true);
                 currentFragmentId = item.getItemId();
-                fr = weeklyExpensesFragment;
+                fragment = weeklyExpensesFragment;
                 getSupportActionBar().setTitle(item.getTitle());
                 break;
             case 2:
                 item = navigationView.getMenu().findItem(R.id.it2);
                 item.setChecked(true);
                 currentFragmentId = item.getItemId();
-                fr = financesFragment;
+                fragment = financesFragment;
                 getSupportActionBar().setTitle(item.getTitle());
                 break;
             case 3:
                 item = navigationView.getMenu().findItem(R.id.it3);
                 item.setChecked(true);
                 currentFragmentId = item.getItemId();
-                fr = notesFragment;
+                fragment = notesFragment;
                 getSupportActionBar().setTitle(item.getTitle());
                 break;
             case 4:
                 item = navigationView.getMenu().findItem(R.id.it4);
                 item.setChecked(true);
                 currentFragmentId = item.getItemId();
-                fr = deletedNotesFragment;
+                fragment = deletedNotesFragment;
                 getSupportActionBar().setTitle(item.getTitle());
         }
-        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fr, fr.getClass().getSimpleName());
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
     }
 
     private void checkPermissions() {
@@ -233,26 +196,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case WRITE_PERMISSION:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // El permiso ha sido otorgado :D
-
+                    // Permission has been granted
                 } else {
                     // permission denied, boo!
                     Toast.makeText(this.getBaseContext(), R.string.main_activity_request_permission, Toast.LENGTH_SHORT).show();
                     this.finish();
-
                 }
                 return;
         }
-
-        // other 'case' lines to check for other
-        // permissions this app might request
-
     }
 
     @Override
@@ -266,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         Fragment fragment = null;
         MyUtils.hideKeyboard(this);
         if (item.getItemId() == currentFragmentId) {
@@ -275,23 +231,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         switch (item.getItemId()) {
             case R.id.it1:
-                fragment = new WeeklyExpensesFragment();
-                Editor.putInt("lastSelectedFragment", 1);
+                fragment = weeklyExpensesFragment;
+                cache.getSettings().edit().putInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 1).apply();
                 currentFragmentId = item.getItemId();
                 break;
             case R.id.it2:
-                fragment = new FinancesFragment();
-                Editor.putInt("lastSelectedFragment", 2);
+                fragment = financesFragment;
+                cache.getSettings().edit().putInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 2).apply();
                 currentFragmentId = item.getItemId();
                 break;
             case R.id.it3:
-                fragment = new NotesFragment();
-                Editor.putInt("lastSelectedFragment", 3);
+                fragment = notesFragment;
+                cache.getSettings().edit().putInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 3).apply();
                 currentFragmentId = item.getItemId();
                 break;
             case R.id.it4:
-                fragment = new DeletedNotesFragment();
-                Editor.putInt("lastSelectedFragment", 4);
+                fragment = deletedNotesFragment;
+                cache.getSettings().edit().putInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 4).apply();
                 currentFragmentId = item.getItemId();
                 break;
             case R.id.schedule:
@@ -305,11 +261,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 message.show();
                 return false;
             case R.id.sync:
-                /***
-                 * Se envia la instancia del framento que actualmente se esta mostrando a la clase Sincronizacion para que alla se ejecute el metodo onResume() de cualquier fragment y se actualicen las notas en tiempo real (se debe hacer forzosamente en el success de la clase sync ya que de no ser asi, al ser una peticion aincrona el codigo de actualizar BD se ejecutaria inmediatamente despues y no se mostrarianb los cambios
-                 */
-                //Fragment fragmento=getSupportFragmentManager().findFragmentById(R.id.content_frame);
-                //VolleySingleton.getInstance(this).syncDBLocal_Remota(fragmento);
                 StartDatabaseSync();
                 drawer.closeDrawer(GravityCompat.START);
                 return false;
@@ -319,7 +270,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .setPositiveButton(R.string.positive_button_label, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 closeSession();
-                                getSupportFragmentManager().findFragmentById(R.id.content_frame).onResume();
                                 drawer.closeDrawer(GravityCompat.START);
                                 LoadUserData();
                             }
@@ -332,7 +282,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 message.show();
                 return false;
         }
-        Editor.commit();
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
         item.setChecked(true);
         getSupportActionBar().setTitle(item.getTitle());
@@ -342,39 +291,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void closeSession() {
         //If you're not gonna use an editor object (Editor=ShPrSync.edit()) then you must use apply or commit in the same line, if you don't make it, changes will not affect the SharedPreferences. {I don't know why}
-        ShPrSync.edit().clear().apply();
+        cache.getSyncInfo().edit().clear().apply();
         Database.getInstance(this).emptySyncedNotes();
         packageManager.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         alarmManager.cancel(PendingIntent.getBroadcast(this, 0, new Intent(this, SyncNotesService.class), 0));
+        updateFragments();
     }
 
     void StartDatabaseSync() {
-        /*
-        String NotasNoSync = Database.getInstance(this).createJSON(false);
-        String NotasSync = Database.getInstance(this).createJSON(true);
-        */
         progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
-        SyncData localSyncData = Database.getInstance(this).createLocalSyncData(new SyncData.SyncInfo(ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0)));
-        //mensaje.setMessage();
-        //mensaje.show();
-        //Log.d(MyUtils.GLOBAL_LOG_TAG, syncDataJson);
+        SyncData localSyncData = Database.getInstance(this).createLocalSyncData(cache.createMinimalSyncInfo());
+
         VolleySingleton.getInstance(this).syncDatabases(localSyncData, false, this);
-        //VolleySingleton.getInstance(this).syncDatabases(NotasSync, NotasNoSync, ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0), false, this);
+    }
+    private void updateFragments(){
+        notesFragment.updateFromDatabase();
+        deletedNotesFragment.updateFromDatabase();
     }
 
     @Override
     public void onSyncSuccess(SyncData.SyncInfo syncInfo) {
         progressDialog.dismiss();
-        ShPrSync.edit().putInt("lastSyncedId", syncInfo.getLastSyncedId()).apply();
-        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
-        if (currentFragment instanceof NotesFragment){
-            ((NotesFragment) currentFragment).updateFromDatabase();
-        }
-        else if (currentFragment instanceof DeletedNotesFragment){
-            ((DeletedNotesFragment) currentFragment).updateFromDatabase();
-        }
-        //MyTxtLogger.getInstance().writeToSD("" + TotalNumberOfNotes);
+        cache.getSyncInfo().edit().putInt(Cache.SYNC_LAST_SYNCED_ID, syncInfo.getLastSyncedId()).apply();
+        updateFragments();
     }
 
     @Override
@@ -382,6 +322,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         progressDialog.dismiss();
         message.setMessage(error);
         message.show();
-        Log.d(MyUtils.GLOBAL_LOG_TAG, error);
+        //Log.d(MyUtils.GLOBAL_LOG_TAG, error);
     }
 }

@@ -18,7 +18,7 @@ import java.util.Calendar;
 public class TurnOnDatabaseSync extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        SharedPreferences shPrSync = context.getSharedPreferences("Sync", Context.MODE_PRIVATE);
+        SharedPreferences shPrSync = context.getSharedPreferences("sync", Context.MODE_PRIVATE);
         if (shPrSync.getInt("userId", 0) != 0) {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             //Se genera un intent para acceder a la clase del servicio
