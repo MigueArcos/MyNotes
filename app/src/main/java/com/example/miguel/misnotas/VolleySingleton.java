@@ -31,7 +31,7 @@ public class VolleySingleton {
     private RequestQueue mRequestQueue;
     private static Context AppContext;
     private final String URL = "http://miguelarcos.x10.mx/android/movil";
-    private final int SYNC_TIME = 3600000;
+    private final int SYNC_TIME = 7200000;
 
     public interface NotesResponseListener {
         void onSyncSuccess(SyncData.SyncInfo syncInfo);
@@ -72,16 +72,18 @@ public class VolleySingleton {
         getRequestQueue().add(req);
     }
 
-    public void syncDatabases(final SyncData localSyncData, final boolean isLogin, final NotesResponseListener listener) {
+    public void syncDatabases(final SyncData localSyncData, final NotesResponseListener listener) {
         StringRequest MyRequest = new StringRequest(Request.Method.POST, URL + "/DatabaseSync.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         SyncData remoteSyncData = new Gson().fromJson(response, SyncData.class);
                         SyncData.SyncInfo syncInfo = Database.getInstance(AppContext).updateLocalDatabase(localSyncData, remoteSyncData);
-                        Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Local" + new Gson().toJson(localSyncData));
+                        String localJson = new Gson().toJson(localSyncData);
+                        Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Local" + localJson);
                         Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Remote" + response);
                         listener.onSyncSuccess(syncInfo);
+                        MyTxtLogger.getInstance().writeToSD("Written " + (response.length() + localJson.length()) + "Bytes");
                     }
                 },
                 new Response.ErrorListener() {

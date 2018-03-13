@@ -1,6 +1,5 @@
 package com.example.miguel.misnotas.fragments;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,9 +21,7 @@ import com.example.miguel.misnotas.activities.SearchNotesActivity;
 import com.example.miguel.misnotas.adapters.DeletedNotesAdapter;
 import com.example.miguel.misnotas.adapters.FilterableRecyclerViewAdapter;
 import com.example.miguel.misnotas.models.Note;
-import com.example.miguel.misnotas.viewmodels.DeletedNotesFragmentViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.miguel.misnotas.activities.SearchNotesActivity.DELETED_NOTES;
@@ -39,7 +36,7 @@ public class DeletedNotesFragment extends Fragment implements FilterableRecycler
     private List<Note> data;
     private AlertDialog.Builder dialogDeleteNote;
     private AlertDialog.Builder dialogRecoverNote;
-    private TextView emptyList;
+    private TextView emptyListLabel;
     private boolean calledFromSearch;
     private String text = "";
 
@@ -50,19 +47,20 @@ public class DeletedNotesFragment extends Fragment implements FilterableRecycler
         if (this.getArguments() != null) {
             calledFromSearch = getArguments().getBoolean("calledFromSearch", false);
         }
-        ViewModelProviders.of(this).get(DeletedNotesFragmentViewModel.class);
-        list = rootView.findViewById(R.id.lista);
-        data = Database.getInstance(getActivity()).getNotes(true);
-        adapter = new DeletedNotesAdapter(data, this, getContext());
+        list = rootView.findViewById(R.id.list);
+        emptyListLabel = rootView.findViewById(R.id.empty_list_label);
+
         LinearLayoutManager llm = new LinearLayoutManager(this.getActivity());
         list.setLayoutManager(llm);
-        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                emptyList.setVisibility(data.size() > 0 ? View.GONE : View.VISIBLE);
-                super.onChanged();
-            }
-        });
+        list.setHasFixedSize(true);
+
+        data = Database.getInstance(getActivity()).getNotes(true);
+
+        adapter = new DeletedNotesAdapter(this, getContext());
+
+        adapter.setDataObserver(listSize -> emptyListLabel.setVisibility(listSize == 0 ? View.VISIBLE : View.GONE));
+
+        adapter.loadData(data);
         list.setAdapter(adapter);
 
         dialogDeleteNote = new AlertDialog.Builder(getActivity());
@@ -72,12 +70,11 @@ public class DeletedNotesFragment extends Fragment implements FilterableRecycler
         dialogRecoverNote.setTitle(R.string.dialog_default_title).setMessage(getString(R.string.fragment_deleted_notes_recover_note));
         dialogRecoverNote.setNegativeButton(R.string.negative_button_label, (dialog, which) -> {/*Empty lambda body*/});
 
-        emptyList = rootView.findViewById(R.id.emptyList);
         if (!calledFromSearch) {
             this.setHasOptionsMenu(true);
-            emptyList.setText(R.string.empty_list_default_text);
+            emptyListLabel.setText(R.string.empty_list_default_text);
         } else {
-            emptyList.setText(R.string.empty_list_search_text);
+            emptyListLabel.setText(R.string.empty_list_search_text);
         }
         return rootView;
     }
@@ -145,6 +142,7 @@ public class DeletedNotesFragment extends Fragment implements FilterableRecycler
     }
 
     public void updateFromDatabase(){
+        if (adapter == null) return;
         adapter.loadData(Database.getInstance(getActivity()).getNotes(true));
         adapter.notifyDataSetChanged();
     }

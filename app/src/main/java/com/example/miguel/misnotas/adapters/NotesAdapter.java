@@ -29,11 +29,11 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
     @Override
     public void filterResults(String filter) {
         filter = filter.toLowerCase();
-        List<Note> filteredNotes = new ArrayList<>();
         if (filter.isEmpty()) {
             setData(originalList);
             return;
         }
+        List<Note> filteredNotes = new ArrayList<>();
         for (Note note : originalList) {
             String comparator = note.getTitle().concat(note.getContent()).toLowerCase();
             if (comparator.contains(filter)) {
@@ -44,8 +44,7 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
     }
 
 
-    public NotesAdapter(List<Note> originalList, NotesAdapterActions listener, Context context) {
-        super(originalList);
+    public NotesAdapter(NotesAdapterActions listener, Context context) {
         this.context = context;
         this.listener = listener;
     }

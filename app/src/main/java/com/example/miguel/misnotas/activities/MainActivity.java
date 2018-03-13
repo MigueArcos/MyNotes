@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void LoadUserData() {
-        Log.d(MyUtils.GLOBAL_LOG_TAG,"ID de usuario : " +  cache.getSyncInfo().getInt("userId", 0));
         View header = navigationView.getHeaderView(0);
         TextView username = header.findViewById(R.id.header_username);
         TextView email = header.findViewById(R.id.header_email);
@@ -303,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         progressDialog.show();
         SyncData localSyncData = Database.getInstance(this).createLocalSyncData(cache.createMinimalSyncInfo());
 
-        VolleySingleton.getInstance(this).syncDatabases(localSyncData, false, this);
+        VolleySingleton.getInstance(this).syncDatabases(localSyncData, this);
     }
     private void updateFragments(){
         notesFragment.updateFromDatabase();

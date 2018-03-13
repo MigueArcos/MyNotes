@@ -50,7 +50,7 @@ public class FinancesFragment extends Fragment implements MenuItem.OnMenuItemCli
         View rootView = inflater.inflate(R.layout.fragment_finances, container, false);
         total=(TextView)rootView.findViewById(R.id.total);
         items=new ArrayList<>();
-        lista =(ListView)rootView.findViewById(R.id.lista);
+        lista =(ListView)rootView.findViewById(R.id.list);
         builder=new AlertDialog.Builder(this.getActivity());
         adaptador = new FinancesAdapter(this.getActivity(),items);
         Database.getInstance(getActivity()).leer(adaptador);

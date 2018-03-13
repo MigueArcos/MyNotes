@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,7 +18,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.miguel.misnotas.Database;
-import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.activities.NotesEditorActivity;
 import com.example.miguel.misnotas.activities.SearchNotesActivity;
@@ -29,7 +27,6 @@ import com.example.miguel.misnotas.models.Note;
 
 import java.util.List;
 
-import static android.app.Activity.RESULT_OK;
 import static com.example.miguel.misnotas.activities.SearchNotesActivity.NOTES;
 
 
@@ -43,7 +40,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
     private FloatingActionButton create;
     //private GestureDetectorCompat mDetector;
     private Snackbar snackbar;
-    private TextView emptyList;
+    private TextView emptyListLabel;
     private boolean calledFromSearch;
     private String text = "";
     private AlertDialog.Builder dialogDeleteNoteCompletely;
@@ -57,36 +54,38 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
         if (getArguments() != null) {
             calledFromSearch = getArguments().getBoolean("calledFromSearch", false);
         }
-        emptyList = (TextView) rootView.findViewById(R.id.emptyList);
-        //Se accede a la lista
-        list = (RecyclerView) rootView.findViewById(R.id.lista);
-        //Se crea el adaptador de la lista que contendra todos los datos
-        data = Database.getInstance(getActivity()).getNotes(false);
-        adapter = new NotesAdapter(data, this, getContext());
+
+        emptyListLabel = rootView.findViewById(R.id.empty_list_label);
+        create = rootView.findViewById(R.id.crear);
+        list = rootView.findViewById(R.id.list);
+
         LinearLayoutManager llm = new LinearLayoutManager(this.getActivity());
         list.setLayoutManager(llm);
-        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                emptyList.setVisibility(data.size() > 0 ? View.GONE : View.VISIBLE);
-                super.onChanged();
-            }
-        });
-        //Se vincula dicho adaptador a la lista
+        list.setHasFixedSize(true);
+
+
+        adapter = new NotesAdapter(this, getContext());
+
+        data = Database.getInstance(getActivity()).getNotes(false);
+
+
+        adapter.setDataObserver(listSize -> emptyListLabel.setVisibility(listSize == 0 ? View.VISIBLE : View.GONE));
+
+        adapter.loadData(data);
+
         list.setAdapter(adapter);
         //Esta linea es para mejorar el desempeño de esta recyclerview (lista)
-        list.setHasFixedSize(true);
-        create = (FloatingActionButton) rootView.findViewById(R.id.crear);
 
         if (!calledFromSearch) {
             //Se añade el evento para cuando se presiona el boton de crear
             create.setOnClickListener(this);
             this.setHasOptionsMenu(true);
-            emptyList.setText(R.string.empty_list_default_text);
+            emptyListLabel.setText(R.string.empty_list_default_text);
         } else {
             create.setVisibility(View.GONE);
-            emptyList.setText(R.string.empty_list_search_text);
+            emptyListLabel.setText(R.string.empty_list_search_text);
         }
+
         dialogDeleteNoteCompletely = new AlertDialog.Builder(getActivity());
         dialogDeleteNoteCompletely.setTitle(R.string.dialog_default_title).setMessage(getString(R.string.delete_note_completely));
         dialogDeleteNoteCompletely.setNegativeButton(R.string.negative_button_label, (dialog, which) -> {
@@ -265,7 +264,9 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
         this.text = text;
         adapter.filterResults(text);
     }
+
     public void updateFromDatabase(){
+        if (adapter == null) return;
         adapter.loadData(Database.getInstance(getActivity()).getNotes(false));
         adapter.notifyDataSetChanged();
     }

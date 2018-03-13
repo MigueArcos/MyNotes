@@ -41,6 +41,7 @@ public class Cache {
         return cache;
     }
 
+
     public SharedPreferences getSettings() {
         return sharedPreferencesSettings;
     }
@@ -48,6 +49,7 @@ public class Cache {
     public SharedPreferences getSyncInfo() {
         return sharedPreferencesSync;
     }
+
     public SyncData.SyncInfo createMinimalSyncInfo(){
         return new SyncData.SyncInfo(
                 sharedPreferencesSync.getInt(SYNC_USER_ID, 0),

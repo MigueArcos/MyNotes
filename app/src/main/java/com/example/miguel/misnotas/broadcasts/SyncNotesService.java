@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import com.example.miguel.misnotas.Cache;
 import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.MyTxtLogger;
 import com.example.miguel.misnotas.MyUtils;
@@ -17,19 +18,19 @@ import com.example.miguel.misnotas.models.SyncData;
  * Created by Miguel on 17/08/2017.
  */
 public class SyncNotesService extends BroadcastReceiver implements VolleySingleton.NotesResponseListener {
-    private SharedPreferences ShPrSync;
+    private Cache cache;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        ShPrSync = context.getSharedPreferences("sync", Context.MODE_PRIVATE);
-
-        SyncData localSyncData = Database.getInstance(context).createLocalSyncData(new SyncData.SyncInfo(ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0)));
-        VolleySingleton.getInstance(context).syncDatabases(localSyncData, false, this);
+        cache = Cache.getInstance(context);
+        SyncData localSyncData = Database.getInstance(context).createLocalSyncData(cache.createMinimalSyncInfo());
+        VolleySingleton.getInstance(context).syncDatabases(localSyncData,  this);
+        MyTxtLogger.getInstance().writeToSD("Starting databases automatic sync...");
     }
 
     @Override
     public void onSyncSuccess(SyncData.SyncInfo syncInfo) {
-        ShPrSync.edit().putInt("lastSyncedId", syncInfo.getLastSyncedId()).apply();
+        cache.getSyncInfo().edit().putInt(Cache.SYNC_LAST_SYNCED_ID, syncInfo.getLastSyncedId()).apply();
     }
 
     @Override

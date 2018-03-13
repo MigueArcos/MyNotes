@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.miguel.misnotas.Cache;
 import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.InputField;
 import com.example.miguel.misnotas.R;
@@ -43,7 +44,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Vo
 
     private AlertDialog message;
     private ProgressDialog progressDialog;
-    private SharedPreferences ShPrSync;
+    private Cache cache;
     private AlarmManager alarmManager;
     private PackageManager packageManager;
     private ComponentName receiver;
@@ -54,6 +55,8 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Vo
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_sign_up, container, false);
+
+        cache = Cache.getInstance(getActivity());
 
         Pattern regexPassword = Pattern.compile("^.{4,}$");
 
@@ -85,7 +88,6 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Vo
         progressDialog.setCancelable(false);
         progressDialog.setTitle(R.string.dialog_default_title);
 
-        ShPrSync = getActivity().getSharedPreferences("sync", Context.MODE_PRIVATE);
         alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
         packageManager = getActivity().getPackageManager();
         receiver = new ComponentName(getActivity(), TurnOnDatabaseSync.class);
@@ -125,15 +127,19 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Vo
     void StartDatabaseSync() {
         progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
-        SyncData localSyncData = Database.getInstance(getActivity()).createLocalSyncData(new SyncData.SyncInfo(ShPrSync.getInt("userId", 1), ShPrSync.getInt("lastSyncedId", 0)));
-        VolleySingleton.getInstance(getActivity()).syncDatabases(localSyncData, false, this);
+        SyncData localSyncData = Database.getInstance(getActivity()).createLocalSyncData(cache.createMinimalSyncInfo());
+        VolleySingleton.getInstance(getActivity()).syncDatabases(localSyncData, this);
     }
 
     @Override
     public void onLoginSuccess(int userId, String username, String email, int syncTime) {
-        ShPrSync.edit().putInt("syncTime", syncTime).apply();
+        activateAutoSync(syncTime);
         progressDialog.dismiss();
-        ShPrSync.edit().putInt("userId", userId).putString("username", username).putString("email", email).apply();
+        cache.getSyncInfo().edit().
+                putInt(Cache.SYNC_TIME, syncTime).
+                putInt(Cache.SYNC_USER_ID, userId).
+                putString(Cache.SYNC_USERNAME, username).
+                putString(Cache.SYNC_EMAIL, email).apply();
         StartDatabaseSync();
     }
 
@@ -159,7 +165,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Vo
     @Override
     public void onSyncSuccess(SyncData.SyncInfo syncInfo) {
         progressDialog.dismiss();
-        ShPrSync.edit().putInt("lastSyncedId", syncInfo.getLastSyncedId()).apply();
+        cache.getSyncInfo().edit().putInt(Cache.SYNC_LAST_SYNCED_ID, syncInfo.getLastSyncedId()).apply();
         Intent i = new Intent(getActivity(), MainActivity.class);
         getActivity().startActivity(i);
     }

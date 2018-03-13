@@ -26,8 +26,7 @@ public class DeletedNotesAdapter extends FilterableRecyclerViewAdapter<Note, Del
     private SparseBooleanArray expandedItems;
     private DeletedNotesAdapterActions listener;
     private Context context;
-    public DeletedNotesAdapter(List<Note> originalList, DeletedNotesAdapterActions listener, Context context) {
-        super(originalList);
+    public DeletedNotesAdapter(DeletedNotesAdapterActions listener, Context context) {
         this.context = context;
         this.listener = listener;
         expandedItems = new SparseBooleanArray();
