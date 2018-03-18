@@ -7,8 +7,6 @@ import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.R;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
-
 /**
  * Created by Miguel on 20/06/2016.
  */
@@ -31,7 +29,7 @@ public class Note implements Parcelable{
     private int deleted;
     @SerializedName(Database.NOTE_UPLOADED)
     private int uploaded;
-    @SerializedName(Database.NOTE_MODIFIED)
+    @SerializedName(Database.NOTE_PENDING_CHANGES)
     private int modified;
 
     public Note(int noteId, String title, String content, long creationDate, long modificationDate) {

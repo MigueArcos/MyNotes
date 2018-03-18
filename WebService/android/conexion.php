@@ -21,6 +21,8 @@
     $NOTE_MODIFICATION_DATE = "modification_date";
     $NOTE_DELETED = "deleted";
     $NOTE_UPLOADED = "uploaded";
+    $NOTE_PENDING_CHANGES = "pending_changes";
+    
 
 	$conn = mysqli_connect($servername, $username, $password, $dbname);
 	mysqli_set_charset($conn,"utf8");

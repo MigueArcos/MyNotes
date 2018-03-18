@@ -54,6 +54,6 @@ public class Cache {
         return new SyncData.SyncInfo(
                 sharedPreferencesSync.getInt(SYNC_USER_ID, 0),
                 sharedPreferencesSync.getInt(SYNC_LAST_SYNCED_ID, 0)
-                );
+        );
     }
 }

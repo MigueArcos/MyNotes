@@ -167,6 +167,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Vo
         progressDialog.dismiss();
         cache.getSyncInfo().edit().putInt(Cache.SYNC_LAST_SYNCED_ID, syncInfo.getLastSyncedId()).apply();
         Intent i = new Intent(getActivity(), MainActivity.class);
+        i.putExtra("dataShouldBeLoaded", true);
         getActivity().startActivity(i);
     }
 

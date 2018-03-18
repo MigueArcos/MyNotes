@@ -22,7 +22,7 @@
 	
 	$conn->close();
 	//Post JSON response back to Android Application
-	$RespuestaJSON[]=array("TotalNumberOfNotes"=> $TotalNumberOfNotes, "lastSyncedId"=>$UltimoIDSync);
+	$RespuestaJSON[]=array("TotalNumberOfNotes"=> $TotalNumberOfNotes, "UltimoIDSync"=>$UltimoIDSync);
 	echo json_encode($RespuestaJSON);
 	
 	/*foreach($RespuestaJSON as $array){

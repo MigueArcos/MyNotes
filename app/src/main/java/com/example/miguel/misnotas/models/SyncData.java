@@ -33,7 +33,7 @@ public class SyncData {
     }
 
     public void setModifiedNotes(List<Note> modifiedNotes) {
-        this.modifiedNotes = modifiedNotes;
+        this.modifiedNotes = modifiedNotes.size() > 0 ? modifiedNotes: null;
     }
 
     public List<Integer> getIdsToDelete() {

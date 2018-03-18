@@ -139,8 +139,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onNewIntent(intent);
         Log.d(MyUtils.GLOBAL_LOG_TAG, "Executing newIntent");
         drawer.closeDrawer(GravityCompat.START);
-        LoadUserData();
-        updateFragments();
+        if (intent.hasExtra("dataShouldBeLoaded")){
+            LoadUserData();
+            updateFragments();
+        }
         if (intent.hasExtra("CalledFromNotification")) {
             cache.getSettings().edit().putInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 1).apply();
             initializeFragments();
