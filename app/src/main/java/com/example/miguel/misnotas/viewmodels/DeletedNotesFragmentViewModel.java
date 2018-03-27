@@ -19,7 +19,6 @@ public class DeletedNotesFragmentViewModel extends AndroidViewModel {
 
     public DeletedNotesFragmentViewModel(@NonNull Application application) {
         super(application);
-        notesList = Database.getInstance(getApplication()).leer_notas("SELECT * FROM notas WHERE eliminado='S' ORDER BY fecha_modificacion_orden DESC");
     }
 
     public List<Note> getNotesList() {

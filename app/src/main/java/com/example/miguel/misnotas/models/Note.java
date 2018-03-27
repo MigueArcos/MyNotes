@@ -1,56 +1,145 @@
 package com.example.miguel.misnotas.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.R;
+import com.example.miguel.misnotas.adapters.FilterableRecyclerViewAdapter;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by Miguel on 20/06/2016.
  */
-public class Note {
-    //Por el momento id_nota es estático y por lo tanto no tiene sentido serializarlo para crear el objeto JSON
+public class Note implements Parcelable, FilterableRecyclerViewAdapter.MyFilter{
+    //Por el momento noteId es estático y por lo tanto no tiene sentido serializarlo para crear el objeto JSON
     /*Check this link to see properties of serialization wit Gson (First answer)
     https://stackoverflow.com/questions/14644860/why-static-fields-not-serialized-using-google-gson-gsonbuilder-json-parser*/
-    private static int id_imagen= R.drawable.note;
-    private String  titulo;
-    private String contenido;
-    private String fecha_creacion;
-    private String fecha_modificacion;
-    private int id_nota;
-    private String fecha_modificacion_orden;
-    private char eliminado;
-    private char subida;
-    public Note(int id_nota, String titulo, String contenido, String fecha_creacion, String fecha_modificacion) {
-        this.contenido=contenido;
-        this.titulo=titulo;
-        this.fecha_creacion=fecha_creacion;
-        this.fecha_modificacion=fecha_modificacion;
-        this.id_nota=id_nota;
-    }
-    public Note(int id_nota, String titulo, String contenido, String fecha_creacion, String fecha_modificacion, String fecha_modificacion_orden, char eliminado, char subida) {
-        this.contenido=contenido;
-        this.titulo=titulo;
-        this.fecha_creacion=fecha_creacion;
-        this.fecha_modificacion=fecha_modificacion;
-        this.id_nota=id_nota;
-        this.fecha_modificacion_orden=fecha_modificacion_orden;
-        this.eliminado=eliminado;
-        this.subida=subida;
-    }
-    public int getID_Imagen(){
-        return id_imagen;
-    }
-    public String getContenido(){return contenido;}
-    public int getID_Nota(){
-        return id_nota;
-    }
-    public String getTitulo() {
-        return titulo;
-    }
-    public String getFecha_modificacion() {
-        return fecha_modificacion;
-    }
-    public String getFecha_modificacion_orden(){return fecha_modificacion_orden;}
-    public String getFecha_creacion(){return fecha_creacion;}
-    public char getEliminado(){return eliminado;}
-    public char getSubida(){return subida;}
+    public static final int imageId = R.drawable.note;
+    @SerializedName(Database.NOTE_ID)
+    private int noteId;
+    @SerializedName(Database.NOTE_TITLE)
+    private String title;
+    @SerializedName(Database.NOTE_CONTENT)
+    private String content;
+    @SerializedName(Database.NOTE_CREATION_DATE)
+    private long creationDate;
+    @SerializedName(Database.NOTE_MODIFICATION_DATE)
+    private long modificationDate;
+    @SerializedName(Database.NOTE_DELETED)
+    private int deleted;
+    @SerializedName(Database.NOTE_UPLOADED)
+    private int uploaded;
+    @SerializedName(Database.NOTE_PENDING_CHANGES)
+    private int modified;
 
+    public Note(int noteId, String title, String content, long creationDate, long modificationDate) {
+        this.noteId = noteId;
+        this.title = title;
+        this.content = content;
+        this.creationDate = creationDate;
+        this.modificationDate = modificationDate;
+    }
+
+    public Note(int noteId, String title, String content, long creationDate, long modificationDate, int deleted, int uploaded, int modified) {
+        this.noteId = noteId;
+        this.title = title;
+        this.content = content;
+        this.creationDate = creationDate;
+        this.modificationDate = modificationDate;
+        this.deleted = deleted;
+        this.uploaded = uploaded;
+        this.modified = modified;
+    }
+
+    public Note(int noteId, String title, String content, long modificationDate) {
+        this.noteId = noteId;
+        this.title = title;
+        this.content = content;
+        this.modificationDate = modificationDate;
+    }
+
+
+    protected Note(Parcel in) {
+        noteId = in.readInt();
+        title = in.readString();
+        content = in.readString();
+        creationDate = in.readLong();
+        modificationDate = in.readLong();
+        deleted = in.readInt();
+        uploaded = in.readInt();
+        modified = in.readInt();
+    }
+
+    public static final Creator<Note> CREATOR = new Creator<Note>() {
+        @Override
+        public Note createFromParcel(Parcel in) {
+            return new Note(in);
+        }
+
+        @Override
+        public Note[] newArray(int size) {
+            return new Note[size];
+        }
+    };
+
+    public static int getImageId() {
+        return imageId;
+    }
+
+    public int getNoteId() {
+        return noteId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public long getCreationDate() {
+        return creationDate;
+    }
+
+    public long getModificationDate() {
+        return modificationDate;
+    }
+
+    public int getDeleted() {
+        return deleted;
+    }
+
+    public int getUploaded() {
+        return uploaded;
+    }
+
+    public int getModified() {
+        return modified;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(noteId);
+        parcel.writeString(title);
+        parcel.writeString(content);
+        parcel.writeLong(creationDate);
+        parcel.writeLong(modificationDate);
+        parcel.writeInt(deleted);
+        parcel.writeInt(uploaded);
+        parcel.writeInt(modified);
+    }
+
+    @Override
+    public boolean passFilter(String filter) {
+        String comparator = getTitle().concat(getContent()).toLowerCase();
+        filter = filter.toLowerCase();
+        return comparator.contains(filter);
+    }
 }

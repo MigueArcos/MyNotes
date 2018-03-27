@@ -51,7 +51,7 @@ public class Sincronizacion {
     private final String URL="http://miguelarcos.x10.mx/android/movil";
     public Sincronizacion(Context ActivityContext){
         this.ActivityContext=ActivityContext;
-        ShPrSync= ActivityContext.getSharedPreferences("Sync", Context.MODE_PRIVATE);
+        ShPrSync= ActivityContext.getSharedPreferences("sync", Context.MODE_PRIVATE);
         Editor=ShPrSync.edit();
         //Initialize Progress Dialog properties
         progreso = new ProgressDialog(ActivityContext);
@@ -69,8 +69,8 @@ public class Sincronizacion {
         //Create AsycHttpClient object
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        String NotasNoSync=ob.crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String NotasSync=ob.crearJSON("SELECT * FROM notas WHERE subida='S'");
+        String NotasNoSync=ob.crearJSON("SELECT * FROM Notes WHERE uploaded='N'");
+        String NotasSync=ob.crearJSON("SELECT * FROM Notes WHERE uploaded='S'");
         //Toast.makeText(getActivity(), NotasSync, Toast.LENGTH_LONG).show();
         progreso.setMessage("Sincronizando...Por favor espere");
         progreso.show();
@@ -81,8 +81,8 @@ public class Sincronizacion {
             params.put("NotasSyncJSON", NotasSync);
             Log.d("json",NotasSync);
         }
-        params.put("userID",ShPrSync.getInt("userID", 1));
-        params.put("UltimoIDSync", ShPrSync.getInt("UltimoIDSync", 0));
+        params.put("userId",ShPrSync.getInt("userId", 1));
+        params.put("lastSyncedId", ShPrSync.getInt("lastSyncedId", 0));
         client.setConnectTimeout(10000);
         client.post(URL+"/CrearJSON.php",params ,new AsyncHttpResponseHandler() {
             @Override
@@ -98,7 +98,7 @@ public class Sincronizacion {
                 try {
                     array = new JSONArray(response);
                     JSONObject SyncData=array.getJSONObject(array.length()-1);
-                    Editor.putInt("UltimoIDSync", SyncData.getInt("UltimoIDSync"));
+                    Editor.putInt("lastSyncedId", SyncData.getInt("lastSyncedId"));
                     Editor.putInt("TotalNumberOfNotes", SyncData.getInt("TotalNumberOfNotes"));
                     Editor.commit();
                     if ((array.length()-1)==array.getJSONObject(array.length()-1).getInt("TotalNumberOfNotes")){
@@ -135,8 +135,8 @@ public class Sincronizacion {
         mensaje.show();
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        String NotasNoSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String NotasSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='S'");
+        String NotasNoSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM Notes WHERE uploaded='N'");
+        String NotasSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM Notes WHERE uploaded='S'");
         if (!NotasNoSync.equals("")){
             params.put("NotasNoSyncJSON", NotasNoSync);
         }
@@ -144,8 +144,8 @@ public class Sincronizacion {
             params.put("NotasSyncJSON", NotasSync);
             Log.d("json",NotasSync);
         }
-        params.put("userID",ShPrSync.getInt("userID", 1));
-        params.put("UltimoIDSync", ShPrSync.getInt("UltimoIDSync", 0));
+        params.put("userId",ShPrSync.getInt("userId", 1));
+        params.put("lastSyncedId", ShPrSync.getInt("lastSyncedId", 0));
         client.setConnectTimeout(10000);
         client.post(URL+"/CrearJSON.php",params ,new AsyncHttpResponseHandler() {
             @Override
@@ -160,7 +160,7 @@ public class Sincronizacion {
                 try {
                     array = new JSONArray(response);
                     JSONObject SyncData=array.getJSONObject(array.length()-1);
-                    Editor.putInt("UltimoIDSync", SyncData.getInt("UltimoIDSync"));
+                    Editor.putInt("lastSyncedId", SyncData.getInt("lastSyncedId"));
                     Editor.putInt("TotalNumberOfNotes", SyncData.getInt("TotalNumberOfNotes"));
                     Editor.commit();
                     if ((array.length()-1)==array.getJSONObject(array.length()-1).getInt("TotalNumberOfNotes")){
@@ -185,7 +185,7 @@ public class Sincronizacion {
         progreso.setMessage("Sincronizando...Por favor espere");
         progreso.show();
         client.setConnectTimeout(10000);
-        params.put("userID",ShPrSync.getInt("userID", 0));
+        params.put("userId",ShPrSync.getInt("userId", 0));
         params.put("JSONCompleto",JSONCompleto);
         client.post(URL+"/SincronizarBDs.php",params ,new AsyncHttpResponseHandler() {
             @Override
@@ -195,7 +195,7 @@ public class Sincronizacion {
                 try {
                     array = new JSONArray(JSONCompleto);
                     JSONObject SyncData=array.getJSONObject(array.length()-1);
-                    Editor.putInt("UltimoIDSync", SyncData.getInt("UltimoIDSync"));
+                    Editor.putInt("lastSyncedId", SyncData.getInt("lastSyncedId"));
                     Editor.putInt("TotalNumberOfNotes", SyncData.getInt("TotalNumberOfNotes"));
                     Editor.commit();
                 } catch (JSONException e) {
@@ -228,7 +228,7 @@ public class Sincronizacion {
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
         client.setConnectTimeout(10000);
-        params.put("userID",ShPrSync.getInt("userID", 0));
+        params.put("userId",ShPrSync.getInt("userId", 0));
         params.put("JSONCompleto",JSONCompleto);
         client.post(URL+"/SincronizarBDs.php",params ,new AsyncHttpResponseHandler() {
             @Override
@@ -237,7 +237,7 @@ public class Sincronizacion {
                 try {
                     array = new JSONArray(JSONCompleto);
                     JSONObject SyncData=array.getJSONObject(array.length()-1);
-                    Editor.putInt("UltimoIDSync", SyncData.getInt("UltimoIDSync"));
+                    Editor.putInt("lastSyncedId", SyncData.getInt("lastSyncedId"));
                     Editor.putInt("TotalNumberOfNotes", SyncData.getInt("TotalNumberOfNotes"));
                     Editor.commit();
                 } catch (JSONException e) {
@@ -260,8 +260,8 @@ public class Sincronizacion {
         //Create AsycHttpClient object
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        String NotasNoSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String NotasSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='S'");
+        String NotasNoSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM Notes WHERE uploaded='N'");
+        String NotasSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM Notes WHERE uploaded='S'");
         //Toast.makeText(getActivity(), NotasSync, Toast.LENGTH_LONG).show();
         progreso.setMessage("Sincronizando...Por favor espere");
         progreso.show();
@@ -271,8 +271,8 @@ public class Sincronizacion {
         if (!NotasSync.equals("")){
             params.put("NotasSyncJSON", NotasSync);
         }
-        params.put("userID",ShPrSync.getInt("userID", 1));
-        params.put("UltimoIDSync", ShPrSync.getInt("UltimoIDSync", 0));
+        params.put("userId",ShPrSync.getInt("userId", 1));
+        params.put("lastSyncedId", ShPrSync.getInt("lastSyncedId", 0));
         client.post(URL+"/OperacionesBD.php",params ,new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -296,7 +296,7 @@ public class Sincronizacion {
                 try {
                     array = new JSONArray(response);
                     JSONObject SyncData=array.getJSONObject(array.length()-1);
-                    Editor.putInt("UltimoIDSync", SyncData.getInt("UltimoIDSync"));
+                    Editor.putInt("lastSyncedId", SyncData.getInt("lastSyncedId"));
                     Editor.putInt("TotalNumberOfNotes", SyncData.getInt("TotalNumberOfNotes"));
                     Editor.commit();
                 } catch (JSONException e) {
@@ -331,8 +331,8 @@ public class Sincronizacion {
         //Create AsycHttpClient object
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        String NotasNoSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String NotasSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM notas WHERE subida='S'");
+        String NotasNoSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM Notes WHERE uploaded='N'");
+        String NotasSync=Database.getInstance(ActivityContext).crearJSON("SELECT * FROM Notes WHERE uploaded='S'");
         //Toast.makeText(getActivity(), NotasSync, Toast.LENGTH_LONG).show();
         progreso.setMessage("Sincronizando...Por favor espere");
         progreso.show();
@@ -342,8 +342,8 @@ public class Sincronizacion {
         if (!NotasSync.equals("")){
             params.put("NotasSyncJSON", NotasSync);
         }
-        params.put("userID",ShPrSync.getInt("userID", 1));
-        params.put("UltimoIDSync", ShPrSync.getInt("UltimoIDSync", 0));
+        params.put("userId",ShPrSync.getInt("userId", 1));
+        params.put("lastSyncedId", ShPrSync.getInt("lastSyncedId", 0));
         client.post(URL+"/OperacionesBD.php",params ,new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -367,7 +367,7 @@ public class Sincronizacion {
                 try {
                     array = new JSONArray(response);
                     JSONObject SyncData=array.getJSONObject(array.length()-1);
-                    Editor.putInt("UltimoIDSync", SyncData.getInt("UltimoIDSync"));
+                    Editor.putInt("lastSyncedId", SyncData.getInt("lastSyncedId"));
                     Editor.putInt("TotalNumberOfNotes", SyncData.getInt("TotalNumberOfNotes"));
                     Editor.commit();
                 } catch (JSONException e) {
@@ -421,9 +421,9 @@ public class Sincronizacion {
                     try {
                         JSONObject respuesta=new JSONObject(response);
                         //Toast.makeText(ActivityContext,, Toast.LENGTH_SHORT).show();
-                        //mensaje.setMessage(""+respuesta.getInt("userID"));
+                        //mensaje.setMessage(""+respuesta.getInt("userId"));
                         //mensaje.show();
-                        Editor.putInt("userID",respuesta.getInt("userID"));
+                        Editor.putInt("userId",respuesta.getInt("userId"));
                         Editor.putString("username", respuesta.getString("username"));
                         Editor.putString("email", respuesta.getString("email"));
                         Editor.commit();
@@ -479,9 +479,9 @@ public class Sincronizacion {
                     try {
                         JSONObject respuesta=new JSONObject(response);
                         //Toast.makeText(ActivityContext,, Toast.LENGTH_SHORT).show();
-                        //mensaje.setMessage(""+respuesta.getInt("userID"));
+                        //mensaje.setMessage(""+respuesta.getInt("userId"));
                         //mensaje.show();
-                        Editor.putInt("userID",respuesta.getInt("userID"));
+                        Editor.putInt("userId",respuesta.getInt("userId"));
                         Editor.putString("username", respuesta.getString("username"));
                         Editor.putString("email", respuesta.getString("email"));
                         Editor.commit();

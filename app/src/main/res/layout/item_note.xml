@@ -19,7 +19,7 @@
         android:src="@android:drawable/ic_dialog_info" />
 
     <TextView
-        android:id="@+id/titulo"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:textSize="22sp"
         android:maxLines ="1"
@@ -28,7 +28,7 @@
         android:layout_toRightOf="@+id/foto" />
 
     <TextView
-        android:id="@+id/fecha_modificacion"
+        android:id="@+id/modificationDate"
         android:layout_width="wrap_content"
         android:textSize="11sp"
         android:layout_height="wrap_content"

@@ -5,31 +5,37 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import com.example.miguel.misnotas.Cache;
 import com.example.miguel.misnotas.Database;
+import com.example.miguel.misnotas.MyTxtLogger;
+import com.example.miguel.misnotas.MyUtils;
+import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.VolleySingleton;
+import com.example.miguel.misnotas.models.SyncData;
 
 
 /**
  * Created by Miguel on 17/08/2017.
  */
 public class SyncNotesService extends BroadcastReceiver implements VolleySingleton.NotesResponseListener {
-    private SharedPreferences ShPrSync;
+    private Cache cache;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        ShPrSync = context.getSharedPreferences("Sync", Context.MODE_PRIVATE);
-        String syncedNotes = Database.getInstance(context).crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String notSyncedNotes = Database.getInstance(context).crearJSON("SELECT * FROM notas WHERE subida='S'");
-        VolleySingleton.getInstance(context).syncDBLocal_Remota(notSyncedNotes, syncedNotes, ShPrSync.getInt("userID", 1), ShPrSync.getInt("UltimoIDSync", 0), false, this);
+        cache = Cache.getInstance(context);
+        SyncData localSyncData = Database.getInstance(context).createLocalSyncData(cache.createMinimalSyncInfo());
+        VolleySingleton.getInstance(context).syncDatabases(localSyncData,  this);
+        MyTxtLogger.getInstance().writeToSD("Starting databases automatic sync...");
     }
 
     @Override
-    public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
-        ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
+    public void onSyncSuccess(SyncData.SyncInfo syncInfo) {
+        cache.getSyncInfo().edit().putInt(Cache.SYNC_LAST_SYNCED_ID, syncInfo.getLastSyncedId()).apply();
     }
 
     @Override
     public void onSyncError(String error) {
+        MyTxtLogger.getInstance().writeToSD("There was an error with automatic sync: " +error);
     }
 }
 

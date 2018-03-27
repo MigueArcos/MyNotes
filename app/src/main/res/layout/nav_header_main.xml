@@ -20,7 +20,7 @@
         android:src="@android:drawable/sym_def_app_icon" />
     -->
     <LinearLayout
-        android:id="@+id/header_linearlayout"
+        android:id="@+id/header_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">

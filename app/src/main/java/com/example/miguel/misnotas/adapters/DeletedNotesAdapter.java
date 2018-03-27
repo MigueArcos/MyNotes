@@ -1,6 +1,7 @@
 package com.example.miguel.misnotas.adapters;
 
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.SparseBooleanArray;
@@ -11,21 +12,22 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.models.Note;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Miguel on 20/06/2016.
  */
-public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapter.ItemView> {
-    private ArrayList<Note> data;
+public class DeletedNotesAdapter extends FilterableRecyclerViewAdapter<Note, DeletedNotesAdapter.ItemView> {
     private SparseBooleanArray expandedItems;
-    private AdapterActions listener;
-
-    public DeletedNotesAdapter(ArrayList<Note> data, AdapterActions listener) {
-        this.data = data;
+    private DeletedNotesAdapterActions listener;
+    private Context context;
+    public DeletedNotesAdapter(DeletedNotesAdapterActions listener, Context context) {
+        this.context = context;
         this.listener = listener;
         expandedItems = new SparseBooleanArray();
     }
@@ -34,11 +36,6 @@ public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapte
         expandedItems.delete(position);
     }
 
-    //Sacado de aqui -> https://stackoverflow.com/questions/17341066/android-listview-does-not-update-onresume
-    public void setData(ArrayList<Note> data) {
-        this.data = data;
-        notifyDataSetChanged();
-    }
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
@@ -53,32 +50,27 @@ public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapte
         return new ItemView(v);
     }
 
+
     @Override
     public void onBindViewHolder(ItemView holder, int position) {
-        holder.imagen.setImageResource(data.get(position).getID_Imagen());
-        holder.titulo.setText(data.get(position).getTitulo());
-        holder.fecha_modificacion.setText(String.format("Última modificación: %s", data.get(position).getFecha_modificacion()));
-        holder.contenido.setText(data.get(position).getContenido());
+        holder.icon.setImageResource(Note.imageId);
+        holder.title.setText(data.get(position).getTitle());
+        holder.modificationDate.setText(String.format("Última modificación: %s", MyUtils.getTime12HoursFormat(data.get(position).getModificationDate(), context.getResources().getString(R.string.date_format))));
+        holder.content.setText(data.get(position).getContent());
         //Estas lineas if-else son necesarias porque cuando hacemos scroll en el recyclerview el viewholder se va reciclando, esto quiere decir que si un viewholder ya estaba expandido y este es reciclado pues va a seguir expandido, por eso se tiene que checar si la posicion de ese viewholder efectivamente es una posicion con el estatus de expandido
         if (expandedItems.get(position)) {
-            holder.layout_contenido.setVisibility(View.VISIBLE);
-            holder.flechita.setImageResource(R.drawable.chevron_up);
+            holder.contentLayout.setVisibility(View.VISIBLE);
+            holder.arrow.setImageResource(R.drawable.chevron_up);
         } else {
-            holder.layout_contenido.setVisibility(View.GONE);
-            holder.flechita.setImageResource(R.drawable.chevron_down);
+            holder.contentLayout.setVisibility(View.GONE);
+            holder.arrow.setImageResource(R.drawable.chevron_down);
         }
     }
 
-    @Override
-    public int getItemCount() {
-        return data.size();
-    }
 
-    public interface AdapterActions {
-        void onClick(int position);
 
-        void onSwipe(int position);
-    }
+
+
 
     /***
      * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -86,33 +78,33 @@ public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapte
      * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      * */
     public class ItemView extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private ImageView imagen, flechita;
-        private TextView titulo, fecha_modificacion, contenido;
-        private LinearLayout layout_contenido;
+        private ImageView icon, arrow;
+        private TextView title, modificationDate, content;
+        private LinearLayout contentLayout;
 
         ItemView(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
-            imagen = (ImageView) itemView.findViewById(R.id.foto);
-            flechita = (ImageView) itemView.findViewById(R.id.expand);
-            titulo = (TextView) itemView.findViewById(R.id.titulo);
-            fecha_modificacion = (TextView) itemView.findViewById(R.id.fecha_modificacion);
-            contenido = (TextView) itemView.findViewById(R.id.contenido);
+            icon = itemView.findViewById(R.id.foto);
+            arrow = itemView.findViewById(R.id.expand);
+            title = itemView.findViewById(R.id.title);
+            modificationDate = itemView.findViewById(R.id.modificationDate);
+            content = itemView.findViewById(R.id.content);
             //This is to make EditText not editable
-            contenido.setKeyListener(null);
-            layout_contenido = (LinearLayout) itemView.findViewById(R.id.layout_contenido);
-            layout_contenido.setVisibility(View.GONE);
-            flechita.setOnClickListener(new View.OnClickListener() {
+            content.setKeyListener(null);
+            contentLayout = itemView.findViewById(R.id.contentLayout);
+            contentLayout.setVisibility(View.GONE);
+            arrow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (expandedItems.get(getAdapterPosition())) {
-                        layout_contenido.setVisibility(View.GONE);
-                        flechita.setImageResource(R.drawable.chevron_down);
+                        contentLayout.setVisibility(View.GONE);
+                        arrow.setImageResource(R.drawable.chevron_down);
                         expandedItems.delete(getAdapterPosition());
                     } else {
-                        layout_contenido.setVisibility(View.VISIBLE);
+                        contentLayout.setVisibility(View.VISIBLE);
                         expandedItems.append(getAdapterPosition(), true);
-                        flechita.setImageResource(R.drawable.chevron_up);
+                        arrow.setImageResource(R.drawable.chevron_up);
                     }
                 }
             });

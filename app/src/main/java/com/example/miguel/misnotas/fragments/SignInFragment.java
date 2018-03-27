@@ -13,198 +13,127 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
-import android.view.KeyEvent;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.miguel.misnotas.Cache;
 import com.example.miguel.misnotas.Database;
-import com.example.miguel.misnotas.VolleySingleton;
-import com.example.miguel.misnotas.viewmodels.LoginActivityViewModel;
-import com.example.miguel.misnotas.activities.MainActivity;
+import com.example.miguel.misnotas.InputField;
 import com.example.miguel.misnotas.R;
-import com.example.miguel.misnotas.broadcasts.bootservices.TurnOnDatabaseSync;
+import com.example.miguel.misnotas.VolleySingleton;
+import com.example.miguel.misnotas.activities.MainActivity;
 import com.example.miguel.misnotas.broadcasts.SyncNotesService;
+import com.example.miguel.misnotas.broadcasts.bootservices.TurnOnDatabaseSync;
+import com.example.miguel.misnotas.models.SyncData;
+import com.example.miguel.misnotas.viewmodels.LoginActivityViewModel;
 
 import java.util.Calendar;
-import java.util.logging.LogManager;
 import java.util.regex.Pattern;
 
-public class SignInFragment extends Fragment implements View.OnClickListener, View.OnFocusChangeListener, VolleySingleton.LoginListener, VolleySingleton.NotesResponseListener{
+public class SignInFragment extends Fragment implements View.OnClickListener, VolleySingleton.LoginListener, VolleySingleton.NotesResponseListener {
 
-    private TextInputLayout label_email, label_password;
-    private EditText email, password;
-    private Button submit;
-    private Pattern regex_password;
-    private AlertDialog.Builder aBuilder;
+    private InputField email, password;
+    private AlertDialog.Builder message;
     private ProgressDialog progressDialog;
-    private SharedPreferences ShPrSync;
+    private Cache cache;
     private AlarmManager alarmManager;
-    private PendingIntent pendingIntent;
     private PackageManager packageManager;
     private ComponentName receiver;
     private LoginActivityViewModel loginActivityViewModel;
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_sign_in, container, false);
-        label_email=(TextInputLayout)rootView.findViewById(R.id.label_email);
-        label_password=(TextInputLayout) rootView.findViewById(R.id.label_password);
-        email=(EditText) rootView.findViewById(R.id.email);
-        password=(EditText) rootView.findViewById(R.id.password);
-        submit=(Button) rootView.findViewById(R.id.submit);
+        cache = Cache.getInstance(getActivity());
+        email = rootView.findViewById(R.id.email);
+        email.setRegex(Patterns.EMAIL_ADDRESS);
+        email.setErrorLabel(getString(R.string.activity_login_incorrect_email));
+
+        password = rootView.findViewById(R.id.password);
+        password.setRegex(Pattern.compile("^.{4,}$"));
+        password.setErrorLabel(getString(R.string.activity_login_incorrect_password));
+        password.setAsLastField();
+
+        Button submit = rootView.findViewById(R.id.submit_button);
         submit.setOnClickListener(this);
-        regex_password= Pattern.compile("^.{4,}$");
-        email.setOnFocusChangeListener(this);
-        password.setOnFocusChangeListener(this);
-        password.setOnEditorActionListener(new EditText.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE ||
-                        event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
 
-                        if (!ValidarPassword()){
-                            label_password.setError(getString(R.string.activity_login_incorrect_password));
-                        }
-                        else{
-                            label_password.setError(null);
-                            label_password.setErrorEnabled(false);
-                        }
 
-                }
-                return false; // pass on to other listeners.
-            }
-        });
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCancelable(false);
         progressDialog.setTitle(R.string.dialog_default_title);
-        aBuilder=new AlertDialog.Builder(getActivity()).setTitle(R.string.dialog_default_title).setCancelable(true);
-        ShPrSync= getActivity().getSharedPreferences("Sync", Context.MODE_PRIVATE);
-        alarmManager=(AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+        message = new AlertDialog.Builder(getActivity()).setTitle(R.string.dialog_default_title).setCancelable(true);
+
+        alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
         packageManager = getActivity().getPackageManager();
         receiver = new ComponentName(getActivity(), TurnOnDatabaseSync.class);
+
         loginActivityViewModel = ViewModelProviders.of(getActivity()).get(LoginActivityViewModel.class);
-        password.setText(loginActivityViewModel.getLoginFragmentViewModel().getPassword());
-        email.setText(loginActivityViewModel.getLoginFragmentViewModel().getUserName());
+        password.setText(loginActivityViewModel.getSignInFragmentViewModel().getPassword());
+        email.setText(loginActivityViewModel.getSignInFragmentViewModel().getEmail());
         return rootView;
     }
 
-    boolean ValidarEmail(){
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email.getText()).matches();
-    }
-    boolean ValidarPassword(){
-        return regex_password.matcher(password.getText()).matches();
-    }
+
     @Override
     public void onClick(View v) {
-
-        if (ValidarEmail() && ValidarPassword()){
+        if (email.validateField() && password.validateField()) {
             StartLogin();
-        }
-        else{
+        } else {
             Toast.makeText(getActivity(), R.string.activity_login_data_error, Toast.LENGTH_SHORT).show();
         }
 
     }
-    /*
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putString("email", email.getText().toString());
-        savedInstanceState.putString("password", password.getText().toString());
+
+
+    void StartLogin() {
+        progressDialog.setMessage(getString(R.string.fragment_sign_in_progress_dialog_label));
+        progressDialog.show();
+        VolleySingleton.getInstance(getActivity()).IniciarSesion(email.getText(), password.getText(), this);
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState!=null){
-            email.setText(savedInstanceState.getString("email"));
-            if (!ValidarEmail()){
-                label_email.setError("El correo electrónico es incorrecto");
-            }
-            else{
-                label_email.setError(null);
-                label_email.setErrorEnabled(false);
-            }
-            //email.setText(savedInstanceState.getString("email"));
-        }
-    }
-    */
-    void StartLogin(){
-        progressDialog.setMessage(getString(R.string.fragment_login_progress_dialog_label));
-        progressDialog.show();
-        VolleySingleton.getInstance(getActivity()).IniciarSesion(email.getText().toString(), password.getText().toString(),this);
-        Log.d("test", "Starting session");
-    }
-    void StartDatabaseSync(){
-        Log.d("test", "starting sync");
-        String NotasNoSync= Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='N'");
-        String NotasSync=Database.getInstance(getActivity()).crearJSON("SELECT * FROM notas WHERE subida='S'");
+    void StartDatabaseSync() {
         progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
-        VolleySingleton.getInstance(getActivity()).syncDBLocal_Remota(NotasSync,NotasNoSync,ShPrSync.getInt("userID", 1),ShPrSync.getInt("UltimoIDSync", 0), true, this);
-    }
-    @Override
-    public void onFocusChange(View v, boolean hasFocus) {
-        if (!hasFocus){
-            switch (v.getId()){
-                case R.id.email:
-                    if (!ValidarEmail()){
-                        label_email.setError(getString(R.string.activity_login_incorrect_email));
-                    }
-                    else{
-                        label_email.setError(null);
-                        label_email.setErrorEnabled(false);
-                    }
-                    break;
-                case R.id.password:
-                    if (!ValidarPassword()){
-                        label_password.setError(getString(R.string.activity_login_incorrect_password));
-                    }
-                    else{
-                        label_password.setError(null);
-                        label_password.setErrorEnabled(false);
-                    }
-                    break;
-            }
-        }
+        SyncData localSyncData = Database.getInstance(getActivity()).createLocalSyncData(cache.createMinimalSyncInfo());
+        VolleySingleton.getInstance(getActivity()).syncDatabases(localSyncData, this);
     }
 
     @Override
-    public void onLoginSuccess(int id_usuario, String username, String email, int sync_time) {
-        Log.d("test", "session started");
-        ShPrSync.edit().putInt("sync_time", sync_time).apply();
-        //activateAutoSync(sync_time);
+    public void onLoginSuccess(int userId, String username, String email, int syncTime) {
+        activateAutoSync(syncTime);
         progressDialog.dismiss();
-        ShPrSync.edit().putInt("userID",id_usuario).putString("username",username).putString("email",email).apply();
+        cache.getSyncInfo().edit().
+                putInt(Cache.SYNC_TIME, syncTime).
+                putInt(Cache.SYNC_USER_ID, userId).
+                putString(Cache.SYNC_USERNAME, username).
+                putString(Cache.SYNC_EMAIL, email).apply();
         StartDatabaseSync();
     }
 
     @Override
     public void onLoginError(String error) {
         progressDialog.dismiss();
-        aBuilder.setMessage(error);
-        aBuilder.show();
+        message.setMessage(error);
+        message.show();
     }
 
     @Override
     public void activateAutoSync(int time) {
         //Se genera un intent para acceder a la clase del servicio
-        Intent sync_service = new Intent(getActivity(), SyncNotesService.class);
+        Intent syncService = new Intent(getActivity(), SyncNotesService.class);
         //Se crea el pendingintent que se necesita para el alarmmanager
-        pendingIntent = PendingIntent.getBroadcast(getActivity(), 0, sync_service, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), 0, syncService, 0);
         //Se genera una instancia del calendario a una hora determinada
         Calendar calendar = Calendar.getInstance();
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), time, pendingIntent);
@@ -212,25 +141,26 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vi
     }
 
     @Override
-    public void onSyncSuccess(int UltimoIDSync, int TotalNumberOfNotes) {
+    public void onSyncSuccess(SyncData.SyncInfo syncInfo) {
         progressDialog.dismiss();
-        ShPrSync.edit().putInt("UltimoIDSync", UltimoIDSync).putInt("TotalNumberOfNotes", TotalNumberOfNotes).apply();
-        Intent i=new Intent(getActivity(), MainActivity.class);
+        cache.getSyncInfo().edit().putInt(Cache.SYNC_LAST_SYNCED_ID, syncInfo.getLastSyncedId()).apply();
+        Intent i = new Intent(getActivity(), MainActivity.class);
+        i.putExtra("dataShouldBeLoaded", true);
         getActivity().startActivity(i);
     }
 
     @Override
     public void onSyncError(String error) {
         progressDialog.dismiss();
-        aBuilder.setMessage(error);
-        aBuilder.show();
+        message.setMessage(error);
+        message.show();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        loginActivityViewModel.getLoginFragmentViewModel().setPassword(password.getText().toString());
-        loginActivityViewModel.getLoginFragmentViewModel().setUserName(email.getText().toString());
+        loginActivityViewModel.getSignInFragmentViewModel().setPassword(password.getText());
+        loginActivityViewModel.getSignInFragmentViewModel().setEmail(email.getText());
     }
 }
 

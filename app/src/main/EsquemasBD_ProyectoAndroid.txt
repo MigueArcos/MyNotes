@@ -1,15 +1,15 @@
 //Tabla de notas que existe en el servidor
 
-CREATE TABLE notas (id INTEGER PRIMARY KEY, id_usuario INTEGER, titulo VARCHAR(100), contenido TEXT, fecha_creacion VARCHAR(25), fecha_modificacion VARCHAR(25),fecha_modificacion_orden VARCHAR(20), eliminado CHAR(1), subida CHAR(1));
+CREATE TABLE notas (id INTEGER PRIMARY KEY, id_usuario INTEGER, title VARCHAR(100), content TEXT, creationDate VARCHAR(25), modificationDate VARCHAR(25),orderModificationDate VARCHAR(20), deleted CHAR(1), uploaded CHAR(1));
 ALTER TABLE `usuarios` CHANGE `id_usuario` `id_usuario` INT(11) NOT NULL;
 //Tabla de notas que existe localmente (solo difieren por el id_usuario)
-CREATE TABLE notas2 (id_nota INTEGER PRIMARY KEY, titulo VARCHAR(100), contenido TEXT, fecha_creacion VARCHAR(25), fecha_modificacion VARCHAR(25),fecha_modificacion_orden VARCHAR(20), eliminado CHAR(1), subida CHAR(1));
+CREATE TABLE notas2 (noteId INTEGER PRIMARY KEY, title VARCHAR(100), content TEXT, creationDate VARCHAR(25), modificationDate VARCHAR(25),orderModificationDate VARCHAR(20), deleted CHAR(1), uploaded CHAR(1));
 /***
 
 Metodos para rehacer una tabla y quitar indices en SQLite sin perder datos
 
 
-INSERT INTO notas2 (id_nota, titulo, contenido, fecha_creacion, fecha_modificacion,fecha_modificacion_orden, eliminado) SELECT id, titulo, contenido, fecha_creacion, fecha_modificacion,fecha_modificacion_orden, eliminado FROM notas;
+INSERT INTO notas2 (noteId, title, content, creationDate, modificationDate,orderModificationDate, deleted) SELECT id, title, content, creationDate, modificationDate,orderModificationDate, deleted FROM notas;
 
 ALTER TABLE notas RENAME TO notas_old; (Aqui se podria hacer un DROP)
 ALTER TABLE notas2 RENAME TO notas; 
