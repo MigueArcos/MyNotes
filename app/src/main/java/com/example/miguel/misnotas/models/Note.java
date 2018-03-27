@@ -5,12 +5,13 @@ import android.os.Parcelable;
 
 import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.R;
+import com.example.miguel.misnotas.adapters.FilterableRecyclerViewAdapter;
 import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by Miguel on 20/06/2016.
  */
-public class Note implements Parcelable{
+public class Note implements Parcelable, FilterableRecyclerViewAdapter.MyFilter{
     //Por el momento noteId es estático y por lo tanto no tiene sentido serializarlo para crear el objeto JSON
     /*Check this link to see properties of serialization wit Gson (First answer)
     https://stackoverflow.com/questions/14644860/why-static-fields-not-serialized-using-google-gson-gsonbuilder-json-parser*/
@@ -133,5 +134,12 @@ public class Note implements Parcelable{
         parcel.writeInt(deleted);
         parcel.writeInt(uploaded);
         parcel.writeInt(modified);
+    }
+
+    @Override
+    public boolean passFilter(String filter) {
+        String comparator = getTitle().concat(getContent()).toLowerCase();
+        filter = filter.toLowerCase();
+        return comparator.contains(filter);
     }
 }

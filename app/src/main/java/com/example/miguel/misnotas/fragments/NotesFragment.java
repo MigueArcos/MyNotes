@@ -42,7 +42,6 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
     private Snackbar snackbar;
     private TextView emptyListLabel;
     private boolean calledFromSearch;
-    private String text = "";
     private AlertDialog.Builder dialogDeleteNoteCompletely;
     public static final int CALL_EDITOR_ACTIVITY = 1;
 
@@ -261,7 +260,6 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
     }
 
     public void filterNotes(String text) {
-        this.text = text;
         adapter.filterResults(text);
     }
 

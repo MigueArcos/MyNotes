@@ -69,22 +69,7 @@ public class DeletedNotesAdapter extends FilterableRecyclerViewAdapter<Note, Del
 
 
 
-    @Override
-    public void filterResults(String filter) {
-        List<Note> filteredNotes = new ArrayList<>();
-        if (filter.isEmpty()){
-            setData(originalList);
-            return;
-        }
-        for (Note note : originalList){
-            String comparator = note.getTitle().concat(note.getContent()).toLowerCase();
-            filter = filter.toLowerCase();
-            if (comparator.contains(filter)){
-                filteredNotes.add(note);
-            }
-        }
-        setData(filteredNotes);
-    }
+
 
 
     /***

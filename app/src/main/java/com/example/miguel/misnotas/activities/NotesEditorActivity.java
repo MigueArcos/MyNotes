@@ -78,7 +78,7 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
                 break;
             //Esta es la flechita de back que se crea cuando una actividad es hija de otra
             case android.R.id.home:
-                InsertOrUpdate();
+                returnResult();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -86,8 +86,14 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
 
     @Override
     public void onBackPressed() {
-        //This line is to ensure that this activity will come back to MainActivity (This is useful when this activity is called from search, because in this way is not necessary to remain the query to still showing the coincidences in search activity)
+       returnResult();
+       NavUtils.navigateUpFromSameTask(this);
+       super.onBackPressed();
+       //this.finish();
+    }
 
+    private void returnResult(){
+        //This line is to ensure that this activity will come back to MainActivity (This is useful when this activity is called from search, because in this way is not necessary to remain the query to still showing the coincidences in search activity)
         String noteTitle = title.getText().toString();
         String noteContent = content.getText().toString();
         if ((!noteTitle.isEmpty() || !noteContent.isEmpty()) && changesCounter > 0) {
@@ -100,11 +106,7 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
         else{
             setResult(Activity.RESULT_CANCELED);
         }
-        NavUtils.navigateUpFromSameTask(this);
-        super.onBackPressed();
-        //this.finish();
     }
-
 
     void delete() {
         if (!(title.getText().toString().equals("") && content.getText().toString().equals(""))) {

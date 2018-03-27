@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by 79812 on 27/02/2018.
  */
-public abstract class FilterableRecyclerViewAdapter<DataModel, ViewHolder extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<ViewHolder> {
+public abstract class FilterableRecyclerViewAdapter<DataModel extends FilterableRecyclerViewAdapter.MyFilter, ViewHolder extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<ViewHolder> {
     protected List<DataModel> data;
     protected List<DataModel> originalList;
     protected DataObserver dataObserver;
@@ -31,6 +31,10 @@ public abstract class FilterableRecyclerViewAdapter<DataModel, ViewHolder extend
         void onChanged(int listSize);
     }
 
+    public interface MyFilter{
+        boolean passFilter(String filter);
+    }
+
     public FilterableRecyclerViewAdapter() {}
 
     public void setDataObserver(DataObserver dataObserver){
@@ -46,7 +50,19 @@ public abstract class FilterableRecyclerViewAdapter<DataModel, ViewHolder extend
         }
     }
 
-    public abstract void filterResults(String filter);
+    public void filterResults(String filter){
+        List<DataModel> filteredResults = new ArrayList<>();
+        if (filter.isEmpty()){
+            setData(originalList);
+            return;
+        }
+        for (DataModel dataModel : originalList){
+            if (dataModel.passFilter(filter)){
+                filteredResults.add(dataModel);
+            }
+        }
+        setData(filteredResults);
+    }
 
     //Sacado de aqui -> https://stackoverflow.com/questions/17341066/android-listview-does-not-update-onresume
     public void setData(List<DataModel> data) {
@@ -56,6 +72,7 @@ public abstract class FilterableRecyclerViewAdapter<DataModel, ViewHolder extend
             dataObserver.onChanged(data.size());
         }
     }
+
 
     @Override
     public int getItemCount() {

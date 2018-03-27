@@ -38,7 +38,6 @@ public class DeletedNotesFragment extends Fragment implements FilterableRecycler
     private AlertDialog.Builder dialogRecoverNote;
     private TextView emptyListLabel;
     private boolean calledFromSearch;
-    private String text = "";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -137,7 +136,6 @@ public class DeletedNotesFragment extends Fragment implements FilterableRecycler
     }
 
     public void filterNotes(String text) {
-        this.text = text;
         adapter.filterResults(text);
     }
 

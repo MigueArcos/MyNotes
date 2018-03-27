@@ -26,22 +26,7 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
 
     private NotesAdapterActions listener;
     private Context context;
-    @Override
-    public void filterResults(String filter) {
-        filter = filter.toLowerCase();
-        if (filter.isEmpty()) {
-            setData(originalList);
-            return;
-        }
-        List<Note> filteredNotes = new ArrayList<>();
-        for (Note note : originalList) {
-            String comparator = note.getTitle().concat(note.getContent()).toLowerCase();
-            if (comparator.contains(filter)) {
-                filteredNotes.add(note);
-            }
-        }
-        setData(filteredNotes);
-    }
+
 
 
     public NotesAdapter(NotesAdapterActions listener, Context context) {
