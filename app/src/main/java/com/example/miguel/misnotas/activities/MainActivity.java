@@ -1,6 +1,7 @@
 package com.example.miguel.misnotas.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -67,13 +68,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DeletedNotesFragment deletedNotesFragment;
     private WeeklyExpensesFragment weeklyExpensesFragment;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        cache = Cache.getInstance(this);
+        /*Este paquete sirve para que si la llamada a esta actividad es desde la notificacion, siempre inicie en el
+        fragmento de gastos */
+        if (getIntent().hasExtra("CalledFromNotification")) {
+            cache.getSettings().edit().putInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 1).apply();
+        }
+        setTheme(R.style.AppTheme_NoActionBar);
+        //All the lines above were added to try delaying the app boot as much as it can
         super.onCreate(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkPermissions();
         }
-        cache = Cache.getInstance(this);
+
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -87,11 +102,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        /*Este paquete sirve para que si la llamada a esta actividad es desde la notificacion, siempre inicie en el
-        fragmento de gastos */
-        if (getIntent().hasExtra("CalledFromNotification")) {
-            cache.getSettings().edit().putInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 1).apply();
-        }
+
         LoadUserData();
 
         initializeFragments();
