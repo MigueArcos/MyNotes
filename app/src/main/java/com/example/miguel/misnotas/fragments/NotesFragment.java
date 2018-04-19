@@ -2,11 +2,16 @@ package com.example.miguel.misnotas.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
+import android.support.v7.view.ActionMode.Callback;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -33,7 +38,7 @@ import static com.example.miguel.misnotas.activities.SearchNotesActivity.NOTES;
 /**
  * Created by Miguel on 20/06/2016.
  */
-public class NotesFragment extends Fragment implements View.OnClickListener, FilterableRecyclerViewAdapter.NotesAdapterActions {
+public class NotesFragment extends Fragment implements View.OnClickListener, FilterableRecyclerViewAdapter.NotesAdapterActions, ActionMode.Callback {
     private RecyclerView list;
     private NotesAdapter adapter;
     private List<Note> data;
@@ -44,7 +49,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
     private boolean calledFromSearch;
     private AlertDialog.Builder dialogDeleteNoteCompletely;
     public static final int CALL_EDITOR_ACTIVITY = 1;
-
+    private ActionMode actionMode;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -162,8 +167,86 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
         super.onStop();
     }
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CALL_EDITOR_ACTIVITY) {
+            if (resultCode == Activity.RESULT_OK) {
+                //Since we don't know the real position of the result when it return from searchActivity, the best way to keep data consistency is to reload the data from database
+                if (data.getBooleanExtra("calledFromSearch", false)){
+                    updateFromDatabase();
+                    return;
+                }
+                Note resultNote = data.getParcelableExtra("resultNote");
+                if (data.getBooleanExtra("isNewNote", true)) {
+                    adapter.insertItem(resultNote);
+                    list.scrollToPosition(0);
+                } else {
+                    adapter.modifyItem(data.getIntExtra("position", -1), resultNote);
+                    list.scrollToPosition(0);
+                }
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
+        }
+    }
+
+    @Override
+    public void onItemClick(View v, int position) {
+        if (actionMode != null){
+            v.findViewById(R.id.foto).performClick();
+            updateActionMode();
+            return;
+        }
+        dismissSnackBar();
+        Note note = adapter.getCurrentData().get(position);
+        Intent intent = new Intent(getActivity(), NotesEditorActivity.class);
+        Bundle packageData = new Bundle();
+        //Add your data from getFactualResults method to bundle
+        packageData.putBoolean("isNewNote", false);
+        packageData.putString("content", note.getContent());
+        packageData.putString("title", note.getTitle());
+        packageData.putInt("noteToModifyId", note.getNoteId());
+        packageData.putInt("position", position);
+        packageData.putBoolean("calledFromSearch", calledFromSearch);
+        //Add the bundle to the intent
+        intent.putExtras(packageData);
+
+        if (calledFromSearch){
+            intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+            startActivity(intent);
+        }
+        else{
+            startActivityForResult(intent, CALL_EDITOR_ACTIVITY);
+        }
+    }
+
+
+    @Override
+    public void onLongClick(View v, int position) {
+        if (actionMode != null){
+            v.findViewById(R.id.foto).performClick();
+            updateActionMode();
+            return;
+        }
+        dismissSnackBar();
+        dialogDeleteNoteCompletely.setPositiveButton(R.string.positive_button_label, (dialog, which) -> DeleteNoteCompletely(position)).show();
+    }
+
+    @Override
+    public void onIconClick(View v, int position) {
+        if (actionMode == null){
+            //assert ((AppCompatActivity) getActivity()) != null;
+            actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(NotesFragment.this);
+        }
+        updateActionMode();
+    }
+
     @Override
     public void onSwipe(final int position) {
+        if (actionMode != null) return;
         final Note selectedNote = adapter.getCurrentData().get(position);
         final int selectedNoteID = adapter.getCurrentData().get(position).getNoteId();
 
@@ -198,60 +281,14 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
         snackbar.show();
     }
 
-    @Override
-    public void onClick(int position) {
-        dismissSnackBar();
-        Note note = adapter.getCurrentData().get(position);
-        Intent intent = new Intent(getActivity(), NotesEditorActivity.class);
-        Bundle packageData = new Bundle();
-        //Add your data from getFactualResults method to bundle
-        packageData.putBoolean("isNewNote", false);
-        packageData.putString("content", note.getContent());
-        packageData.putString("title", note.getTitle());
-        packageData.putInt("noteToModifyId", note.getNoteId());
-        packageData.putInt("position", position);
-        packageData.putBoolean("calledFromSearch", calledFromSearch);
-        //Add the bundle to the intent
-        intent.putExtras(packageData);
-
-        if (calledFromSearch){
-            intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
-            startActivity(intent);
+    private void updateActionMode(){
+        if (adapter.getSelectedCount() == 0){
+            //destroy action mode
+            actionMode.finish();
+            adapter.clearSelections();
+            return;
         }
-        else{
-            startActivityForResult(intent, CALL_EDITOR_ACTIVITY);
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CALL_EDITOR_ACTIVITY) {
-            if (resultCode == Activity.RESULT_OK) {
-                //Since we don't know the real position of the result when it return from searchActivity, the best way to keep data consistency is to reload the data from database
-                if (data.getBooleanExtra("calledFromSearch", false)){
-                    updateFromDatabase();
-                    return;
-                }
-                Note resultNote = data.getParcelableExtra("resultNote");
-                if (data.getBooleanExtra("isNewNote", true)) {
-                    adapter.insertItem(resultNote);
-                    list.scrollToPosition(0);
-                } else {
-                    adapter.modifyItem(data.getIntExtra("position", -1), resultNote);
-                    list.scrollToPosition(0);
-                }
-            }
-            if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
-            }
-        }
-    }
-
-    @Override
-    public void onLongClick(int position) {
-        dismissSnackBar();
-        dialogDeleteNoteCompletely.setPositiveButton(R.string.positive_button_label, (dialog, which) -> DeleteNoteCompletely(position)).show();
+        actionMode.setTitle(getString(R.string.action_mode_selected_items, adapter.getSelectedCount()));
     }
 
     private void DeleteNoteCompletely(int position) {
@@ -267,6 +304,40 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
         if (adapter == null) return;
         adapter.loadData(Database.getInstance(getActivity()).getNotes(false));
         adapter.notifyDataSetChanged();
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+        actionMode.getMenuInflater().inflate(R.menu.action_mode_menu, menu);
+        getActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.background_dark));
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+        menu.findItem(R.id.action_delete).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode actionMode, MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_delete:
+                //actionModeViewCallbacks.onDeleteActionClicked();
+                actionMode.finish();
+                return true;
+        }
+        return false;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public void onDestroyActionMode(ActionMode actionMode) {
+        adapter.clearSelections();
+        this.actionMode = null;
+        getActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
     }
 }
 

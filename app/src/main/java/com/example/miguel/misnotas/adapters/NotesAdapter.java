@@ -6,9 +6,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,16 +25,44 @@ import java.util.List;
 /**
  * Created by Miguel on 20/06/2016.
  */
-public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapter.ItemView> {
+public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapter.ItemView> implements FilterableRecyclerViewAdapter.ActionModeAdapterCallbacks<Note>{
 
     private NotesAdapterActions listener;
     private Context context;
-
-
-
+    private SparseBooleanArray selectedItemsIds;
     public NotesAdapter(NotesAdapterActions listener, Context context) {
         this.context = context;
         this.listener = listener;
+        selectedItemsIds = new SparseBooleanArray();
+    }
+
+    @Override
+    public void toggleSelection(int position) {
+        if (selectedItemsIds.get(position)) {
+            selectedItemsIds.delete(position);
+        } else {
+            selectedItemsIds.put(position, true);
+        }
+    }
+
+    @Override
+    public void clearSelections() {
+        selectedItemsIds.clear();
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public int getSelectedCount() {
+        return selectedItemsIds.size();
+    }
+
+    @Override
+    public List<Note> getSelectedItems() {
+        final List<Note> selectedItemList = new ArrayList<>();
+        for (int i = 0; i < selectedItemsIds.size(); i++) {
+            selectedItemList.add(data.get(selectedItemsIds.keyAt(i)));
+        }
+        return selectedItemList;
     }
 
     /***
@@ -50,17 +81,49 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
             noteImage = itemView.findViewById(R.id.foto);
             title = itemView.findViewById(R.id.title);
             modificationDate = itemView.findViewById(R.id.modificationDate);
+
+            noteImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_out);
+                    noteImage.startAnimation(animation);
+                    animation.setAnimationListener(new Animation.AnimationListener() {
+
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+
+                            Animation animation2 = AnimationUtils.loadAnimation(context, R.anim.scale_in);
+                            noteImage.startAnimation(animation2);
+                            toggleSelection(getAdapterPosition());
+                            listener.onIconClick(view, getAdapterPosition());
+                            boolean isSelected = selectedItemsIds.get(getAdapterPosition());
+                            
+                            noteImage.setImageResource(isSelected? R.drawable.ok : R.drawable.note);
+                            itemView.setActivated(isSelected);
+                        }
+                    });
+                }
+            });
         }
 
         @Override
         public void onClick(View v) {
             //Create intent to access the other activity with note data
-            listener.onClick(getAdapterPosition());
+            listener.onItemClick(v, getAdapterPosition());
         }
 
         @Override
         public boolean onLongClick(View v) {
-            listener.onLongClick(getAdapterPosition());
+            listener.onLongClick(v, getAdapterPosition());
             //Return true to indicate that this event has been consumed, if we don't do this then both events will be called
             return true;
         }
@@ -81,9 +144,10 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
 
     @Override
     public void onBindViewHolder(ItemView holder, int position) {
-        holder.noteImage.setImageResource(Note.imageId);
+        holder.noteImage.setImageResource(selectedItemsIds.get(position) ? R.drawable.ok : R.drawable.note);
         holder.title.setText(data.get(position).getTitle());
         holder.modificationDate.setText(String.format("Última modificación: %s", MyUtils.getTime12HoursFormat(data.get(position).getModificationDate(), context.getResources().getString(R.string.date_format))));
+        holder.itemView.setActivated(selectedItemsIds.get(position));
     }
 
 

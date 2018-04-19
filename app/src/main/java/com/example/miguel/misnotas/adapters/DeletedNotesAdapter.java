@@ -16,9 +16,6 @@ import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.models.Note;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by Miguel on 20/06/2016.
  */
@@ -112,7 +109,7 @@ public class DeletedNotesAdapter extends FilterableRecyclerViewAdapter<Note, Del
 
         @Override
         public void onClick(View v) {
-            listener.onClick(getAdapterPosition());
+            listener.onItemClick(getAdapterPosition());
         }
     }
 

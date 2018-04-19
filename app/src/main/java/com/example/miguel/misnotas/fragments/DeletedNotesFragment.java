@@ -118,7 +118,7 @@ public class DeletedNotesFragment extends Fragment implements FilterableRecycler
     }
 
     @Override
-    public void onClick(int position) {
+    public void onItemClick(int position) {
         dialogRecoverNote.setPositiveButton(R.string.positive_button_label, (dialog, which) -> RecoverNote(position, adapter.getCurrentData().get(position))).show();
     }
 

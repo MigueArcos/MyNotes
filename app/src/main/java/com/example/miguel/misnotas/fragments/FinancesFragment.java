@@ -9,6 +9,9 @@ import android.content.DialogInterface;
 
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -31,7 +34,7 @@ import com.example.miguel.misnotas.adapters.FinancesAdapter;
 import com.example.miguel.misnotas.models.Finance;
 
 import java.util.ArrayList;
-public class FinancesFragment extends Fragment implements MenuItem.OnMenuItemClickListener,AdapterView.OnItemLongClickListener,AdapterView.OnItemClickListener {
+public class FinancesFragment extends Fragment implements MenuItem.OnMenuItemClickListener,AdapterView.OnItemLongClickListener,AdapterView.OnItemClickListener, ActionMode.Callback {
     private ListView lista;
     private FinancesAdapter adaptador;
     private ArrayList<Finance> items;
@@ -40,6 +43,7 @@ public class FinancesFragment extends Fragment implements MenuItem.OnMenuItemCli
     private int contar_cambios = 0;
     private AlertDialog.Builder builder;
     private AlertDialog mensaje;
+    private ActionMode actionMode;
     public FinancesFragment(){
 
     }
@@ -174,6 +178,29 @@ public class FinancesFragment extends Fragment implements MenuItem.OnMenuItemCli
     }
     @Override
     public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+        if (adaptador.needsActionMode()){
+            if (actionMode == null){
+                //assert ((AppCompatActivity) getActivity()) != null;
+                actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(FinancesFragment.this);
+
+            }
+            else{
+                if (adaptador.getSelectedCount() == 0){
+                    //destroy action mode
+                    actionMode.finish();
+                    adaptador.clearSelections();
+                    return;
+                }
+            }
+            actionMode.setTitle(getString(R.string.action_mode_selected_items, adaptador.getSelectedCount()));
+        }
+        else{
+            itemClickDefaultAction(position);
+        }
+
+    }
+
+    private void itemClickDefaultAction(int position){
         builder.setTitle(R.string.fragment_my_money_modify_label);
         //Contenedor
         final int i = adaptador.getItem(position).getidbase();
@@ -250,5 +277,33 @@ public class FinancesFragment extends Fragment implements MenuItem.OnMenuItemCli
         builder=new AlertDialog.Builder(this.getActivity());
     }
 
+    @Override
+    public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+        actionMode.getMenuInflater().inflate(R.menu.action_mode_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+        menu.findItem(R.id.action_delete).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode actionMode, MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_delete:
+                //actionModeViewCallbacks.onDeleteActionClicked();
+                actionMode.finish();
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode actionMode) {
+        adaptador.clearSelections();
+        this.actionMode = null;
+    }
 }
 

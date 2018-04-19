@@ -1,6 +1,7 @@
 package com.example.miguel.misnotas.adapters;
 
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,17 +15,20 @@ public abstract class FilterableRecyclerViewAdapter<DataModel extends Filterable
     protected DataObserver dataObserver;
 
     public interface DeletedNotesAdapterActions {
-        void onClick(int position);
+        void onItemClick(int position);
 
         void onSwipe(int position);
+
     }
 
     public interface NotesAdapterActions {
         void onSwipe(int position);
 
-        void onClick(int position);
+        void onItemClick(View v, int position);
 
-        void onLongClick(int position);
+        void onLongClick(View v, int position);
+
+        void onIconClick(View v, int position);
     }
 
     public interface DataObserver {
@@ -34,6 +38,14 @@ public abstract class FilterableRecyclerViewAdapter<DataModel extends Filterable
     public interface MyFilter{
         boolean passFilter(String filter);
     }
+
+    public interface ActionModeAdapterCallbacks<T> {
+        void toggleSelection(int position);
+        void clearSelections();
+        int getSelectedCount();
+        List<T> getSelectedItems();
+    }
+
 
     public FilterableRecyclerViewAdapter() {}
 
