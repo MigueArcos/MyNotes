@@ -3,6 +3,7 @@ package com.example.miguel.misnotas;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Build;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
@@ -40,5 +41,11 @@ public class MyUtils {
     public static String getTime12HoursFormat(long timeMillis, String format) {
         Date date = new Date(timeMillis);
         return new SimpleDateFormat(format, Locale.US).format(date);
+    }
+
+    public static void changeStatusBarColor(Activity activity, int colorResId){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            activity.getWindow().setStatusBarColor(activity.getResources().getColor(colorResId));
+        }
     }
 }

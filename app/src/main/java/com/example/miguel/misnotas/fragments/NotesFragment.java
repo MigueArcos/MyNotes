@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.miguel.misnotas.Database;
+import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.activities.NotesEditorActivity;
 import com.example.miguel.misnotas.activities.SearchNotesActivity;
@@ -307,11 +308,11 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+
     @Override
     public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
         actionMode.getMenuInflater().inflate(R.menu.action_mode_menu, menu);
-        getActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.background_dark));
+        MyUtils.changeStatusBarColor(getActivity(), R.color.background_dark);
         return true;
     }
 
@@ -332,12 +333,12 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
         return false;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+
     @Override
     public void onDestroyActionMode(ActionMode actionMode) {
         adapter.clearSelections();
         this.actionMode = null;
-        getActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+        MyUtils.changeStatusBarColor(getActivity(), R.color.colorPrimaryDark);
     }
 }
 

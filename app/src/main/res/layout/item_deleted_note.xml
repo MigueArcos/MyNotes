@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:orientation="vertical"
-  android:layout_width="match_parent"
-  android:layout_height="wrap_content"
-  android:clickable="true"
-  android:focusable="true"
-  android:padding="8dp"
-  android:background="?attr/selectableItemBackground">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:padding="8dp"
+    android:background="?attr/selectableItemBackground">
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -34,7 +36,8 @@
                 android:id="@+id/modificationDate"
                 android:layout_width="wrap_content"
                 android:textSize="11sp"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                tools:ignore="SmallSp" />
         </LinearLayout>
 
         <ImageView
@@ -44,7 +47,7 @@
             android:layout_weight="15"
             android:clickable="true"
             android:focusable="true"
-            android:src="@drawable/chevron_down" />
+            app:srcCompat="@drawable/chevron_down" />
     </LinearLayout>
     <LinearLayout
         android:orientation="vertical"

@@ -106,7 +106,7 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
                             toggleSelection(getAdapterPosition());
                             listener.onIconClick(view, getAdapterPosition());
                             boolean isSelected = selectedItemsIds.get(getAdapterPosition());
-                            
+
                             noteImage.setImageResource(isSelected? R.drawable.ok : R.drawable.note);
                             itemView.setActivated(isSelected);
                         }

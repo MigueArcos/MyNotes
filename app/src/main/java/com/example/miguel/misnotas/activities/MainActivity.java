@@ -70,7 +70,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private WeeklyExpensesFragment weeklyExpensesFragment;
 
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         setTheme(R.style.AppTheme_NoActionBar);
 
-        getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+
         //All the lines above were added to try delaying the app boot as much as it can
         super.onCreate(savedInstanceState);
 
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             checkPermissions();
         }
 
+        MyUtils.changeStatusBarColor(this, R.color.colorPrimaryDark);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
