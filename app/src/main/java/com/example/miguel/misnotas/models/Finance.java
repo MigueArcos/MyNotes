@@ -7,7 +7,7 @@ public class Finance {
     private String nombre;
     private int drawableImageID, id, value, idaux;
     public boolean sel=false;
-    //idaux siempre va a tener el valor de la imgen origianl
+    //idaux siempre va a tener el value de la imgen origianl
     //private String descripcion;
     public Finance(String nombre, int value, int drawableImageID, int id) {
         this.nombre = nombre;
@@ -15,7 +15,9 @@ public class Finance {
         this.value=value;
         this.id=id;
     }
+    public Finance(){
 
+    }
     public String getNombre() {
         return nombre;
     }

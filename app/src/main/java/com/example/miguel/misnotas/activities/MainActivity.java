@@ -44,6 +44,7 @@ import com.example.miguel.misnotas.fragments.FinancesFragment;
 import com.example.miguel.misnotas.fragments.NotesFragment;
 import com.example.miguel.misnotas.fragments.WeeklyExpensesFragment;
 import com.example.miguel.misnotas.models.SyncData;
+import com.example.miguel.misnotas.mymoney.MyMoneyFragment;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, VolleySingleton.NotesResponseListener {
@@ -256,6 +257,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fragment = financesFragment;
                 cache.getSettings().edit().putInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 2).apply();
                 currentFragmentId = item.getItemId();
+                break;
+            case R.id.test:
+                fragment = new MyMoneyFragment();
                 break;
             case R.id.it3:
                 fragment = notesFragment;

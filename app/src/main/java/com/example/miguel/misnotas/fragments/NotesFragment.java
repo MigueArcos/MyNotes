@@ -2,16 +2,13 @@ package com.example.miguel.misnotas.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
-import android.support.v7.view.ActionMode.Callback;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -27,7 +24,6 @@ import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.activities.NotesEditorActivity;
 import com.example.miguel.misnotas.activities.SearchNotesActivity;
-import com.example.miguel.misnotas.adapters.FilterableRecyclerViewAdapter;
 import com.example.miguel.misnotas.adapters.NotesAdapter;
 import com.example.miguel.misnotas.models.Note;
 
@@ -39,7 +35,10 @@ import static com.example.miguel.misnotas.activities.SearchNotesActivity.NOTES;
 /**
  * Created by Miguel on 20/06/2016.
  */
-public class NotesFragment extends Fragment implements View.OnClickListener, FilterableRecyclerViewAdapter.NotesAdapterActions, ActionMode.Callback {
+
+
+
+public class NotesFragment extends Fragment implements View.OnClickListener, NotesAdapter.NotesAdapterActions, ActionMode.Callback {
     private RecyclerView list;
     private NotesAdapter adapter;
     private List<Note> data;
@@ -51,6 +50,8 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
     private AlertDialog.Builder dialogDeleteNoteCompletely;
     public static final int CALL_EDITOR_ACTIVITY = 1;
     private ActionMode actionMode;
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -76,7 +77,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
 
         adapter.setDataObserver(listSize -> emptyListLabel.setVisibility(listSize == 0 ? View.VISIBLE : View.GONE));
 
-        adapter.loadData(data);
+        adapter.loadDataSet(data);
 
         list.setAdapter(adapter);
         //Esta linea es para mejorar el desempeño de esta recyclerview (lista)
@@ -303,7 +304,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Fil
 
     public void updateFromDatabase(){
         if (adapter == null) return;
-        adapter.loadData(Database.getInstance(getActivity()).getNotes(false));
+        adapter.loadDataSet(Database.getInstance(getActivity()).getNotes(false));
         adapter.notifyDataSetChanged();
     }
 

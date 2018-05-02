@@ -1,7 +1,6 @@
 package com.example.miguel.misnotas.adapters;
 
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,22 +13,6 @@ public abstract class FilterableRecyclerViewAdapter<DataModel extends Filterable
     protected List<DataModel> originalList;
     protected DataObserver dataObserver;
 
-    public interface DeletedNotesAdapterActions {
-        void onItemClick(int position);
-
-        void onSwipe(int position);
-
-    }
-
-    public interface NotesAdapterActions {
-        void onSwipe(int position);
-
-        void onItemClick(View v, int position);
-
-        void onLongClick(View v, int position);
-
-        void onIconClick(View v, int position);
-    }
 
     public interface DataObserver {
         void onChanged(int listSize);
@@ -53,7 +36,7 @@ public abstract class FilterableRecyclerViewAdapter<DataModel extends Filterable
         this.dataObserver = dataObserver;
     }
 
-    public void loadData(List<DataModel> data) {
+    public void loadDataSet(List<DataModel> data) {
         this.originalList = data;
         this.data = new ArrayList<>(data);
 
@@ -65,7 +48,7 @@ public abstract class FilterableRecyclerViewAdapter<DataModel extends Filterable
     public void filterResults(String filter){
         List<DataModel> filteredResults = new ArrayList<>();
         if (filter.isEmpty()){
-            setData(originalList);
+            updateDataSet(originalList);
             return;
         }
         for (DataModel dataModel : originalList){
@@ -73,11 +56,11 @@ public abstract class FilterableRecyclerViewAdapter<DataModel extends Filterable
                 filteredResults.add(dataModel);
             }
         }
-        setData(filteredResults);
+        updateDataSet(filteredResults);
     }
 
     //Sacado de aqui -> https://stackoverflow.com/questions/17341066/android-listview-does-not-update-onresume
-    public void setData(List<DataModel> data) {
+    public void updateDataSet(List<DataModel> data) {
         this.data = data;
         notifyDataSetChanged();
         if (dataObserver != null){

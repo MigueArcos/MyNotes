@@ -26,7 +26,15 @@ import java.util.List;
  * Created by Miguel on 20/06/2016.
  */
 public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapter.ItemView> implements FilterableRecyclerViewAdapter.ActionModeAdapterCallbacks<Note>{
+    public interface NotesAdapterActions {
+        void onSwipe(int position);
 
+        void onItemClick(View v, int position);
+
+        void onLongClick(View v, int position);
+
+        void onIconClick(View v, int position);
+    }
     private NotesAdapterActions listener;
     private Context context;
     private SparseBooleanArray selectedItemsIds;

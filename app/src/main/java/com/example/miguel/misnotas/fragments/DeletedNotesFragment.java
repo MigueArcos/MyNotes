@@ -19,7 +19,6 @@ import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.activities.SearchNotesActivity;
 import com.example.miguel.misnotas.adapters.DeletedNotesAdapter;
-import com.example.miguel.misnotas.adapters.FilterableRecyclerViewAdapter;
 import com.example.miguel.misnotas.models.Note;
 
 import java.util.List;
@@ -30,7 +29,7 @@ import static com.example.miguel.misnotas.activities.SearchNotesActivity.DELETED
 /**
  * Created by Miguel on 19/07/2017.
  */
-public class DeletedNotesFragment extends Fragment implements FilterableRecyclerViewAdapter.DeletedNotesAdapterActions {
+public class DeletedNotesFragment extends Fragment implements DeletedNotesAdapter.DeletedNotesAdapterActions {
     private RecyclerView list;
     private DeletedNotesAdapter adapter;
     private List<Note> data;
@@ -59,7 +58,7 @@ public class DeletedNotesFragment extends Fragment implements FilterableRecycler
 
         adapter.setDataObserver(listSize -> emptyListLabel.setVisibility(listSize == 0 ? View.VISIBLE : View.GONE));
 
-        adapter.loadData(data);
+        adapter.loadDataSet(data);
         list.setAdapter(adapter);
 
         dialogDeleteNote = new AlertDialog.Builder(getActivity());
@@ -141,7 +140,7 @@ public class DeletedNotesFragment extends Fragment implements FilterableRecycler
 
     public void updateFromDatabase(){
         if (adapter == null) return;
-        adapter.loadData(Database.getInstance(getActivity()).getNotes(true));
+        adapter.loadDataSet(Database.getInstance(getActivity()).getNotes(true));
         adapter.notifyDataSetChanged();
     }
 

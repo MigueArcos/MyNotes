@@ -149,7 +149,7 @@
           if (data=="No encontrado"){
             $.sweetModal({
               title: 'Notas de MigueLópez :D',
-              content: 'No se encontraron datos :(',
+              content: 'No se encontraron data :(',
               icon: $.sweetModal.ICON_WARNING,
               theme: $.sweetModal.THEME_DARK
             });

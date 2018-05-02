@@ -12,6 +12,11 @@
             android:title="@string/fragment_my_money_title" />
 
         <item
+            android:id="@+id/test"
+            android:icon="@drawable/ic_attach_money_grey"
+            android:title="Money test" />
+
+        <item
             android:id="@+id/it3"
             android:icon="@drawable/ic_assignment_grey"
             android:title="@string/fragment_notepad_title" />

@@ -73,6 +73,10 @@ public class Database extends SQLiteOpenHelper {
         return Instance;
     }
 
+    public static Database getInstance() {
+        return Instance;
+    }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         //Crear la tabla activos
@@ -149,6 +153,25 @@ public class Database extends SQLiteOpenHelper {
         return result;
     }
 
+    public List<Finance> getFinances() {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT id, recurso, valor FROM activos", null);
+//result.add("hijueputa");
+        List<Finance> finances = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            int id, value;
+            String name;
+            id = cursor.getInt(0);
+            name = cursor.getString(1);
+            value = cursor.getInt(2);
+            finances.add(new Finance(name, value, R.drawable.mercedes_benz_logo, id));
+        }
+
+        cursor.close();
+        db.close();
+        return finances;
+    }
+
     public int guardar_y_mandar_id(String recurso, int valor) {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("INSERT INTO activos VALUES (null, '" + recurso + "', " + valor + ")");
@@ -160,6 +183,21 @@ public class Database extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return id;
+    }
+
+    public Finance saveFinance(String name, int value) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("INSERT INTO activos VALUES (null, '" + name + "', " + value + ")");
+        Finance finance = new Finance();
+        Cursor cursor = db.rawQuery("SELECT * FROM activos WHERE id = (SELECT max(id) from activos)", null);
+        while (cursor.moveToNext()) {
+            finance.setNombre(name);
+            finance.setValor(value);
+            finance.setDrawableImageID(R.drawable.mercedes_benz_logo);
+        }
+        cursor.close();
+        db.close();
+        return finance;
     }
 
     public void eliminarrecurso(int id) {
@@ -175,6 +213,8 @@ public class Database extends SQLiteOpenHelper {
         db.execSQL("update activos set recurso='" + rec + "',valor=" + value + " where id=" + id);
         db.close();
     }
+
+
 
     public String sumatoria() {
         String suma = "";
