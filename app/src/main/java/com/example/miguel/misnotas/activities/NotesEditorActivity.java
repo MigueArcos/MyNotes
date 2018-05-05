@@ -55,7 +55,6 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
     @Override
     protected void onStop() {
         super.onStop();
-        InsertOrUpdate();
         //Toast.makeText(this, "Se ejecuto onStop de actividad", Toast.LENGTH_SHORT).show();
         //Se va a guardar la note si la bandera_guardar esta activa y ademas el campo de contenio o el de title ya tienen algo
     }
@@ -90,17 +89,18 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
     @Override
     public void onBackPressed() {
        returnResult();
+        //This line is to ensure that this activity will come back to MainActivity (This is useful when this activity is called from search, because in this way is not necessary to remain the query to still showing the coincidences in search activity)
        NavUtils.navigateUpFromSameTask(this);
        super.onBackPressed();
        //this.finish();
     }
 
     private void returnResult(){
-        //This line is to ensure that this activity will come back to MainActivity (This is useful when this activity is called from search, because in this way is not necessary to remain the query to still showing the coincidences in search activity)
         String noteTitle = title.getText().toString();
         String noteContent = content.getText().toString();
         if (!noteTitle.equals(originalTitle) || !noteContent.equals(originalContent)) {
             //Log.d(MyUtils.GLOBAL_LOG_TAG, "Trying to find data");
+            InsertOrUpdate();
             Intent returnIntent = getIntent();
             returnIntent.putExtra("resultNote", new Note(noteToModifyId, noteTitle, noteContent, System.currentTimeMillis()));
             setResult(Activity.RESULT_OK, returnIntent);

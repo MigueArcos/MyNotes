@@ -1,6 +1,8 @@
 package com.example.miguel.misnotas.fragments;
 
 import android.app.AlertDialog;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,7 +31,7 @@ public class WeeklyExpensesFragment extends Fragment implements View.OnClickList
     private SharedPreferences.Editor Editor;
     private int cambios=0;
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_weekly_expenses, container, false);
@@ -52,6 +54,14 @@ public class WeeklyExpensesFragment extends Fragment implements View.OnClickList
             array[i].addTextChangedListener(this);
         }
         return rootView;
+    }
+
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        cambios = 0;
     }
 
     void leer() {

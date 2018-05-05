@@ -113,7 +113,7 @@
     <string name="negative_button_label">No</string>
     <string name="positive_button_finish_action">Si</string>
     <string name="negative_button_cancel_action">No</string>
-    <string name="no_data_to_delete">No hay data que borrar :(</string>
+    <string name="no_data_to_delete">No hay nada que borrar :(</string>
     <string name="saved_label">¡Guardado!</string>
     <string name="delete_item_confirmation">¿Estás seguro de que deseas borrar esto?</string>
     <string name="delete_all_confirmation">¿Estás seguro de que deseas borrar todo?</string>

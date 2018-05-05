@@ -1,7 +1,6 @@
 package com.example.miguel.misnotas.activities;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -9,12 +8,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -36,6 +33,7 @@ import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.Cache;
+import com.example.miguel.misnotas.FlipTest;
 import com.example.miguel.misnotas.VolleySingleton;
 import com.example.miguel.misnotas.broadcasts.SyncNotesService;
 import com.example.miguel.misnotas.broadcasts.bootservices.TurnOnDatabaseSync;

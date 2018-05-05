@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
 
@@ -40,7 +41,8 @@ public class MyMoneyFragment extends Fragment implements MenuItem.OnMenuItemClic
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_my_money, container, false);
         presenter = new MyMoneyPresenter(this);
-
+        //With this line we ensure that database will be initiated since this fragment needs to retrieve data from it
+        Database.getInstance(getContext());
         totalText = rootView.findViewById(R.id.total);
         lastUpdateText = rootView.findViewById(R.id.last);
         list = rootView.findViewById(R.id.list);
