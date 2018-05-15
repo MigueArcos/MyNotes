@@ -127,6 +127,8 @@
     <string name="notification_title">Control de tu dinero</string>
     <string name="notification_message_fuck_up">Ya escribe tus gastos pendejo</string>
     <string name="notification_message">Es hora de escribir tus gastos diarios.</string>
-    <string name="action_mode_selected_items">%1$d selected</string>
+
+
+    <string name="action_mode_selected_items">%1$d seleccionado(s)</string>
 
 </resources>
