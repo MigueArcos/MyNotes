@@ -17,7 +17,6 @@ import com.android.volley.toolbox.Volley;
 import com.example.miguel.misnotas.models.SyncData;
 import com.google.gson.Gson;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -77,6 +76,10 @@ public class VolleySingleton {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        if (response != null && response.charAt(0) != '{') {
+                            listener.onSyncError(getVolleyError(null));
+                            return;
+                        }
                         SyncData remoteSyncData = new Gson().fromJson(response, SyncData.class);
                         SyncData.SyncInfo syncInfo = Database.getInstance(AppContext).updateLocalDatabase(localSyncData, remoteSyncData);
                         String localJson = new Gson().toJson(localSyncData);
@@ -182,6 +185,9 @@ public class VolleySingleton {
 
     private String getVolleyError(VolleyError error) {
         String message = "Unknown error";
+        if (error == null){
+            return message;
+        }
         if (error instanceof NetworkError) {
             message = "Cannot connect to Internet...Please check your connection!";
         } else if (error instanceof ServerError) {

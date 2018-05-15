@@ -198,7 +198,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
     @Override
     public void onItemClick(View v, int position) {
         if (actionMode != null){
-            v.findViewById(R.id.foto).performClick();
+            v.findViewById(R.id.icon).performClick();
             updateActionMode();
             return;
         }
@@ -229,7 +229,7 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
     @Override
     public void onLongClick(View v, int position) {
         if (actionMode != null){
-            v.findViewById(R.id.foto).performClick();
+            v.findViewById(R.id.icon).performClick();
             updateActionMode();
             return;
         }

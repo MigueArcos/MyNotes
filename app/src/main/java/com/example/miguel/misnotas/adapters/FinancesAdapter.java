@@ -84,9 +84,9 @@ public class FinancesAdapter extends ArrayAdapter<Finance> implements Filterable
         if (item == null) {
             item = LayoutInflater.from(context).inflate(R.layout.item_finance, null);
             holder = new vista_item();
-            holder.foto = (ImageView) item.findViewById(R.id.foto);
-            holder.nombre = (TextView) item.findViewById(R.id.nombre);
-            holder.valor = (TextView) item.findViewById(R.id.valor);
+            holder.foto = (ImageView) item.findViewById(R.id.icon);
+            holder.nombre = (TextView) item.findViewById(R.id.name);
+            holder.valor = (TextView) item.findViewById(R.id.value);
             item.setTag(holder);
         }
         else {

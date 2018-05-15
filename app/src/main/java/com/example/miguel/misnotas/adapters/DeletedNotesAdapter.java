@@ -2,6 +2,7 @@ package com.example.miguel.misnotas.adapters;
 
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.SparseBooleanArray;
@@ -90,14 +91,14 @@ public class DeletedNotesAdapter extends FilterableRecyclerViewAdapter<Note, Del
         ItemView(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
-            icon = itemView.findViewById(R.id.foto);
+            icon = itemView.findViewById(R.id.icon);
             arrow = itemView.findViewById(R.id.expand);
             title = itemView.findViewById(R.id.title);
-            modificationDate = itemView.findViewById(R.id.modificationDate);
+            modificationDate = itemView.findViewById(R.id.modification_date);
             content = itemView.findViewById(R.id.content);
             //This is to make EditText not editable
             content.setKeyListener(null);
-            contentLayout = itemView.findViewById(R.id.contentLayout);
+            contentLayout = itemView.findViewById(R.id.content_layout);
             contentLayout.setVisibility(View.GONE);
             arrow.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -86,9 +86,9 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
             super(itemView);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
-            noteImage = itemView.findViewById(R.id.foto);
+            noteImage = itemView.findViewById(R.id.icon);
             title = itemView.findViewById(R.id.title);
-            modificationDate = itemView.findViewById(R.id.modificationDate);
+            modificationDate = itemView.findViewById(R.id.modification_date);
 
             noteImage.setOnClickListener(new View.OnClickListener() {
                 @Override

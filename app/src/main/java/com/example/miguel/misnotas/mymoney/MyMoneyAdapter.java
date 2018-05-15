@@ -101,9 +101,9 @@ public class MyMoneyAdapter extends RecyclerView.Adapter<MyMoneyAdapter.ItemView
 
         public ItemView(View itemView) {
             super(itemView);
-            icon = itemView.findViewById(R.id.foto);
-            nameText = itemView.findViewById(R.id.nombre);
-            valueText = itemView.findViewById(R.id.valor);
+            icon = itemView.findViewById(R.id.icon);
+            nameText = itemView.findViewById(R.id.name);
+            valueText = itemView.findViewById(R.id.value);
             icon.setOnClickListener(view -> listener.onIconClick(view, getAdapterPosition()));
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);

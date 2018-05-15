@@ -67,20 +67,19 @@ public class FlipTest extends Fragment {
         Paint paint = new Paint();
 
         private void initializeStuff() {
-
+            /*
             originalPolygon.add(new Point3D(100, 300, 0));
             originalPolygon.add(new Point3D(300, 100, 0));
             originalPolygon.add(new Point3D(700, 300, 0));
             originalPolygon.add(new Point3D(300, 500, 0));
-
-            /*
+            */
             originalPolygon.add(new Point3D(100, 300, 0));
             originalPolygon.add(new Point3D(200, 150, 0));
             originalPolygon.add(new Point3D(300, 220, 0));
             originalPolygon.add(new Point3D(500, 130, 0));
             originalPolygon.add(new Point3D(420, 550, 0));
             originalPolygon.add(new Point3D(270, 260, 0));
-            */
+
             polygon = originalPolygon;
 
             pivot = calculatePolygonCenter(polygon);
@@ -89,7 +88,7 @@ public class FlipTest extends Fragment {
 
             handlerCallback = new Runnable() {
                 private double angle = 0;
-                private int degreesDelta = 1;
+                private int degreesDelta = 6;
                 private int degrees;
                 private double delta = Math.PI / (180 / degreesDelta);
 

@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -98,7 +99,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close){
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                MyUtils.changeStatusBarColor(MainActivity.this, R.color.colorPrimaryDark);
+                super.onDrawerClosed(drawerView);
+            }
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                MyUtils.changeStatusBarColor(MainActivity.this, android.R.color.transparent);
+                Log.d("PUñetas", "puto");
+                super.onDrawerSlide(drawerView, slideOffset);
+            }
+        };
+
+
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -236,6 +251,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -258,6 +274,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.test:
                 fragment = new MyMoneyFragment();
+                cache.getSettings().edit().putInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 2).apply();
+                currentFragmentId = item.getItemId();
                 break;
             case R.id.it3:
                 fragment = notesFragment;
