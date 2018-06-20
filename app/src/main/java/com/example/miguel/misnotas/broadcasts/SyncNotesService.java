@@ -24,7 +24,7 @@ public class SyncNotesService extends BroadcastReceiver implements VolleySinglet
     public void onReceive(Context context, Intent intent) {
         cache = Cache.getInstance(context);
         SyncData localSyncData = Database.getInstance(context).createLocalSyncData(cache.createMinimalSyncInfo());
-        VolleySingleton.getInstance(context).syncDatabases(localSyncData,  this);
+        VolleySingleton.getInstance(context).syncAzureDatabases(localSyncData,  this);
         MyTxtLogger.getInstance().writeToSD("Starting databases automatic sync...");
     }
 

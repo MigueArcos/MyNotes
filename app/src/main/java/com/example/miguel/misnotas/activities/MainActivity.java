@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -34,7 +33,6 @@ import com.example.miguel.misnotas.Database;
 import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.Cache;
-import com.example.miguel.misnotas.FlipTest;
 import com.example.miguel.misnotas.VolleySingleton;
 import com.example.miguel.misnotas.broadcasts.SyncNotesService;
 import com.example.miguel.misnotas.broadcasts.bootservices.TurnOnDatabaseSync;
@@ -143,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView email = header.findViewById(R.id.header_email);
         username.setText(cache.getSyncInfo().getString(Cache.SYNC_USERNAME, ""));
         email.setText(cache.getSyncInfo().getString(Cache.SYNC_EMAIL, getString(R.string.activity_login_sign_in_label)));
-        if (cache.getSyncInfo().getInt(Cache.SYNC_USER_ID, 0) == 0) {
+        if (!cache.getSyncInfo().contains(Cache.SYNC_USER_ID)) {
             email.setTextSize(25);
             navigationView.getMenu().findItem(R.id.sync).setVisible(false);
             navigationView.getMenu().findItem(R.id.close_session).setVisible(false);
@@ -298,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 message.show();
                 return false;
             case R.id.sync:
-                StartDatabaseSync();
+                startDatabaseSync();
                 drawer.closeDrawer(GravityCompat.START);
                 return false;
             case R.id.close_session:
@@ -335,12 +333,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         updateFragments();
     }
 
-    void StartDatabaseSync() {
+    void startDatabaseSync() {
         progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
         SyncData localSyncData = Database.getInstance(this).createLocalSyncData(cache.createMinimalSyncInfo());
 
-        VolleySingleton.getInstance(this).syncDatabases(localSyncData, this);
+        VolleySingleton.getInstance(this).syncAzureDatabases(localSyncData, this);
     }
     private void updateFragments(){
         notesFragment.updateFromDatabase();

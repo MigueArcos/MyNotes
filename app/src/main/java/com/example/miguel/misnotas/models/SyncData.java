@@ -1,5 +1,7 @@
 package com.example.miguel.misnotas.models;
 
+import com.google.gson.Gson;
+
 import java.util.List;
 
 /**
@@ -44,11 +46,14 @@ public class SyncData {
         this.idsToDelete = idsToDelete;
     }
 
+    public String toJson() {
+        return new Gson().toJson(this);
+    }
     public static class SyncInfo{
-        private int userId;
+        private String userId;
         private int lastSyncedId;
 
-        public SyncInfo(int userId, int lastSyncedId) {
+        public SyncInfo(String userId, int lastSyncedId) {
             this.userId = userId;
             this.lastSyncedId = lastSyncedId;
         }
@@ -57,11 +62,11 @@ public class SyncData {
             this.lastSyncedId = lastSyncedId;
         }
 
-        public int getUserId() {
+        public String getUserId() {
             return userId;
         }
 
-        public void setUserId(int userId) {
+        public void setUserId(String userId) {
             this.userId = userId;
         }
 
