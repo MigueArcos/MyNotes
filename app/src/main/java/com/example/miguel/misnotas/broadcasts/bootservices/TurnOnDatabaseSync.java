@@ -20,7 +20,7 @@ public class TurnOnDatabaseSync extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences shPrSync = context.getSharedPreferences(Cache.SYNC, Context.MODE_PRIVATE);
-        if (shPrSync.getInt(Cache.SYNC_USER_ID, 0) != 0) {
+        if (shPrSync.contains(Cache.SYNC_USER_ID)) {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             //Se genera un intent para acceder a la clase del servicio
             Intent sync_service = new Intent(context, SyncNotesService.class);
