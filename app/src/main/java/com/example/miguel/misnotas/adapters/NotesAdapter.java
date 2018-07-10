@@ -4,8 +4,12 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -166,6 +170,8 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
      */
     public class TripItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback {
 
+        private static final float buttonWidth = 300;
+        private RecyclerView.ViewHolder selectedViewHolder;
         public TripItemTouchHelperCallback(NotesAdapter mAdapter, RecyclerView mRecyclerView) {
             super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT);
         }
@@ -181,29 +187,58 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
             listener.onSwipe(viewHolder.getAdapterPosition());
         }
 
+
+
         @Override
         public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+
             if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
                 // Get RecyclerView item from the ViewHolder
                 View itemView = viewHolder.itemView;
                 Paint p = new Paint();
-                p.setColor(Color.rgb(96, 125, 139));
-                if (dX > 0) {
-            /* Set your color for positive displacement */
+                p.setColor(Color.parseColor("#f44336"));
+                Drawable deleteIcon = ContextCompat.getDrawable(context, R.drawable.delete_icon);
 
+
+                if (dX > 0) {
+                    /* Set your color for positive displacement */
                     // Draw Rect with varying right side, equal to displacement dX
+
                     c.drawRect((float) itemView.getLeft(), (float) itemView.getTop(), dX,
                             (float) itemView.getBottom(), p);
-                } else {
-            /* Set your color for negative displacement */
+                    int deleteIconTop = itemView.getTop() + (itemView.getHeight() - deleteIcon.getIntrinsicHeight()) / 2;
+                    int deleteIconMargin = (itemView.getHeight() - deleteIcon.getIntrinsicHeight()) / 2;
+                    int deleteIconLeft = itemView.getLeft() + deleteIconMargin;
+                    int deleteIconRight = itemView.getLeft() + deleteIconMargin + deleteIcon.getIntrinsicWidth();
+                    int deleteIconBottom = deleteIconTop + deleteIcon.getIntrinsicHeight();
+                    deleteIcon.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom);
+                    deleteIcon.draw(c);
 
+                } else {
+                    /* Set your color for negative displacement */
                     // Draw Rect with varying left side, equal to the item's right side plus negative displacement dX
                     c.drawRect((float) itemView.getRight() + dX, (float) itemView.getTop(),
                             (float) itemView.getRight(), (float) itemView.getBottom(), p);
+
+                    int deleteIconTop = itemView.getTop() + (itemView.getHeight() - deleteIcon.getIntrinsicHeight()) / 2;
+                    int deleteIconMargin = (itemView.getHeight() - deleteIcon.getIntrinsicHeight()) / 2;
+                    int deleteIconLeft = itemView.getRight() - deleteIconMargin - deleteIcon.getIntrinsicWidth();
+                    int deleteIconRight = itemView.getRight() - deleteIconMargin;
+                    int deleteIconBottom = deleteIconTop + deleteIcon.getIntrinsicHeight();
+
+                    deleteIcon.setBounds(deleteIconLeft, deleteIconTop, deleteIconRight, deleteIconBottom);
+                    deleteIcon.draw(c);
                 }
+
+                //dX = (dX > 0) ? Math.min(dX, buttonWidth) : Math.max(dX, -buttonWidth);
 
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
+        }
+
+        private void clearCanvas(Canvas c) {
+            Paint p = new Paint();
+            c.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         }
     }
 }
