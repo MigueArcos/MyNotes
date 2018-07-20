@@ -18,4 +18,5 @@
         android:text="@string/fragment_deleted_notes_no_content_label"
         android:visibility="gone"/>
 
+
 </android.support.design.widget.CoordinatorLayout>

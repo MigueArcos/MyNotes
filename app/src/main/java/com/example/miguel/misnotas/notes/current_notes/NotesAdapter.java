@@ -1,4 +1,4 @@
-package com.example.miguel.misnotas.adapters;
+package com.example.miguel.misnotas.notes.current_notes;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -6,10 +6,10 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,9 +19,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.models.Note;
+import com.example.miguel.misnotas.notes.NotesContract;
+import com.example.miguel.misnotas.utilities.ActionModeAdapterCallbacks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +30,9 @@ import java.util.List;
 /**
  * Created by Miguel on 20/06/2016.
  */
-public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapter.ItemView> implements FilterableRecyclerViewAdapter.ActionModeAdapterCallbacks<Note>{
-    public interface NotesAdapterActions {
+public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ItemView> implements ActionModeAdapterCallbacks<Note> {
+
+    public interface AdapterActions {
         void onSwipe(int position);
 
         void onItemClick(View v, int position);
@@ -39,13 +41,65 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
 
         void onIconClick(View v, int position);
     }
-    private NotesAdapterActions listener;
-    private Context context;
+
+    public interface DataObserver{
+        void onChanged(int listSize);
+    }
+
+
+    private AdapterActions listener;
     private SparseBooleanArray selectedItemsIds;
-    public NotesAdapter(NotesAdapterActions listener, Context context) {
+    private NotesContract.Presenter presenter;
+    private Context context;
+    private DataObserver dataObserver;
+
+
+    public NotesAdapter(Context context) {
         this.context = context;
-        this.listener = listener;
         selectedItemsIds = new SparseBooleanArray();
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new TripItemTouchHelperCallback(this, recyclerView));
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+        super.onAttachedToRecyclerView(recyclerView);
+    }
+
+    @NonNull
+    @Override
+    public ItemView onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_note, parent, false);
+        return new ItemView(v);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ItemView holder, int position) {
+        presenter.bindHolderData(holder, position);
+        holder.itemView.setActivated(selectedItemsIds.get(position));
+    }
+
+    @Override
+    public int getItemCount() {
+        return presenter.getItemCount();
+    }
+
+    public void setListener(AdapterActions listener) {
+        this.listener = listener;
+    }
+
+    public void setPresenter(NotesContract.Presenter presenter) {
+        this.presenter = presenter;
+    }
+
+    public void setDataObserver(DataObserver dataObserver) {
+        this.dataObserver = dataObserver;
+    }
+
+    public void observeData(){
+        if (dataObserver != null){
+            dataObserver.onChanged(presenter.getItemCount());
+        }
     }
 
     @Override
@@ -72,7 +126,7 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
     public List<Note> getSelectedItems() {
         final List<Note> selectedItemList = new ArrayList<>();
         for (int i = 0; i < selectedItemsIds.size(); i++) {
-            selectedItemList.add(data.get(selectedItemsIds.keyAt(i)));
+            selectedItemList.add(presenter.getItem(selectedItemsIds.keyAt(i)));
         }
         return selectedItemList;
     }
@@ -82,23 +136,23 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
      * |                    Clase Holder que contiene la vista de cada item                        |
      * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      * */
-    public class ItemView extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
-        private ImageView noteImage;
-        private TextView title, modificationDate;
+    public class ItemView extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, NotesContract.ItemView {
+        private ImageView noteIcon;
+        private TextView titleText, modificationDateText;
 
         ItemView(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
-            noteImage = itemView.findViewById(R.id.icon);
-            title = itemView.findViewById(R.id.title);
-            modificationDate = itemView.findViewById(R.id.modification_date);
+            noteIcon = itemView.findViewById(R.id.icon);
+            titleText = itemView.findViewById(R.id.title);
+            modificationDateText = itemView.findViewById(R.id.modification_date);
 
-            noteImage.setOnClickListener(new View.OnClickListener() {
+            noteIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_out);
-                    noteImage.startAnimation(animation);
+                    noteIcon.startAnimation(animation);
                     animation.setAnimationListener(new Animation.AnimationListener() {
 
                         @Override
@@ -114,12 +168,12 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
                         public void onAnimationEnd(Animation animation) {
 
                             Animation animation2 = AnimationUtils.loadAnimation(context, R.anim.scale_in);
-                            noteImage.startAnimation(animation2);
+                            noteIcon.startAnimation(animation2);
                             toggleSelection(getAdapterPosition());
                             listener.onIconClick(view, getAdapterPosition());
                             boolean isSelected = selectedItemsIds.get(getAdapterPosition());
 
-                            noteImage.setImageResource(isSelected? R.drawable.ok : R.drawable.note);
+                            noteIcon.setImageResource(isSelected? R.drawable.ok : R.drawable.note);
                             itemView.setActivated(isSelected);
                         }
                     });
@@ -136,30 +190,30 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
         @Override
         public boolean onLongClick(View v) {
             listener.onLongClick(v, getAdapterPosition());
-            //Return true to indicate that this event has been consumed, if we don't do this then both events will be called
-            return true;
+            //Return false to indicate that this event has been consumed, if we don't do this then both events will be fired
+            return false;
         }
-    }
 
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new TripItemTouchHelperCallback(this, recyclerView));
-        itemTouchHelper.attachToRecyclerView(recyclerView);
-        super.onAttachedToRecyclerView(recyclerView);
-    }
+        @Override
+        public void showTitle(String title) {
+            titleText.setText(title);
+        }
 
-    @Override
-    public ItemView onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_note, parent, false);
-        return new ItemView(v);
-    }
+        @Override
+        public void showContent(String content) {
 
-    @Override
-    public void onBindViewHolder(ItemView holder, int position) {
-        holder.noteImage.setImageResource(selectedItemsIds.get(position) ? R.drawable.ok : R.drawable.note);
-        holder.title.setText(data.get(position).getTitle());
-        holder.modificationDate.setText(String.format("Última modificación: %s", MyUtils.getTime12HoursFormat(data.get(position).getModificationDate(), context.getResources().getString(R.string.date_format))));
-        holder.itemView.setActivated(selectedItemsIds.get(position));
+        }
+
+
+        @Override
+        public void showModificationDate(String modificationDate) {
+            modificationDateText.setText(modificationDate);
+        }
+
+        @Override
+        public void showImageResource(int resourceId) {
+            noteIcon.setImageResource(resourceId);
+        }
     }
 
 
@@ -172,6 +226,7 @@ public class NotesAdapter extends FilterableRecyclerViewAdapter<Note, NotesAdapt
 
         private static final float buttonWidth = 300;
         private RecyclerView.ViewHolder selectedViewHolder;
+
         public TripItemTouchHelperCallback(NotesAdapter mAdapter, RecyclerView mRecyclerView) {
             super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT);
         }

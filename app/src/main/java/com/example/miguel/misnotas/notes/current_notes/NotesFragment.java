@@ -1,11 +1,10 @@
-package com.example.miguel.misnotas.fragments;
+package com.example.miguel.misnotas.notes.current_notes;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
@@ -13,7 +12,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,10 +22,9 @@ import com.example.miguel.misnotas.MyUtils;
 import com.example.miguel.misnotas.R;
 import com.example.miguel.misnotas.activities.NotesEditorActivity;
 import com.example.miguel.misnotas.activities.SearchNotesActivity;
-import com.example.miguel.misnotas.adapters.NotesAdapter;
 import com.example.miguel.misnotas.models.Note;
-
-import java.util.List;
+import com.example.miguel.misnotas.notes.NotesBaseFragment;
+import com.example.miguel.misnotas.notes.NotesContract;
 
 import static com.example.miguel.misnotas.activities.SearchNotesActivity.NOTES;
 
@@ -37,50 +34,49 @@ import static com.example.miguel.misnotas.activities.SearchNotesActivity.NOTES;
  */
 
 
-
-public class NotesFragment extends Fragment implements View.OnClickListener, NotesAdapter.NotesAdapterActions, ActionMode.Callback {
+public class NotesFragment extends NotesBaseFragment implements View.OnClickListener, ActionMode.Callback, NotesContract.View, NotesAdapter.AdapterActions {
     private RecyclerView list;
-    private NotesAdapter adapter;
-    private List<Note> data;
     private FloatingActionButton create;
     //private GestureDetectorCompat mDetector;
     private Snackbar snackbar;
     private TextView emptyListLabel;
     private boolean calledFromSearch;
     private AlertDialog.Builder dialogDeleteNoteCompletely;
-    public static final int CALL_EDITOR_ACTIVITY = 1;
     private ActionMode actionMode;
 
+    private NotesAdapter adapter;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Se accede al layout (interfaz) de este fragmento
         View rootView = inflater.inflate(R.layout.fragment_notes, container, false);
-        if (getArguments() != null) {
-            calledFromSearch = getArguments().getBoolean("calledFromSearch", false);
-        }
+        Database.getInstance(getContext());
+        presenter = new NotesPresenter(this, false);
 
         emptyListLabel = rootView.findViewById(R.id.empty_list_label);
-        create = rootView.findViewById(R.id.crear);
+        create = rootView.findViewById(R.id.create_new_fab);
         list = rootView.findViewById(R.id.list);
 
         LinearLayoutManager llm = new LinearLayoutManager(this.getActivity());
         list.setLayoutManager(llm);
         list.setHasFixedSize(true);
 
-
-        adapter = new NotesAdapter(this, getContext());
-
-        data = Database.getInstance(getActivity()).getNotes(false);
-
-
+        adapter = new NotesAdapter(getContext());
+        adapter.setListener(this);
         adapter.setDataObserver(listSize -> emptyListLabel.setVisibility(listSize == 0 ? View.VISIBLE : View.GONE));
-
-        adapter.loadDataSet(data);
-
+        adapter.setPresenter(presenter);
         list.setAdapter(adapter);
-        //Esta linea es para mejorar el desempeño de esta recyclerview (lista)
+
+
+        dialogDeleteNoteCompletely = new AlertDialog.Builder(getActivity());
+        dialogDeleteNoteCompletely.setTitle(R.string.dialog_default_title).setMessage(getString(R.string.delete_note_completely));
+        dialogDeleteNoteCompletely.setNegativeButton(R.string.negative_button_label, (dialog, which) -> {
+        });
+
+        if (getArguments() != null) {
+            calledFromSearch = getArguments().getBoolean("calledFromSearch", false);
+        }
 
         if (!calledFromSearch) {
             //Se añade el evento para cuando se presiona el boton de crear
@@ -89,13 +85,11 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
             emptyListLabel.setText(R.string.empty_list_default_text);
         } else {
             create.setVisibility(View.GONE);
+            presenter.filterResults("");
             emptyListLabel.setText(R.string.empty_list_search_text);
         }
 
-        dialogDeleteNoteCompletely = new AlertDialog.Builder(getActivity());
-        dialogDeleteNoteCompletely.setTitle(R.string.dialog_default_title).setMessage(getString(R.string.delete_note_completely));
-        dialogDeleteNoteCompletely.setNegativeButton(R.string.negative_button_label, (dialog, which) -> {
-        });
+        adapter.observeData();
         return rootView;
     }
 
@@ -106,11 +100,6 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
         }
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_fragment_notes, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -119,33 +108,22 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
                 Intent intent = new Intent(getActivity(), SearchNotesActivity.class);
                 intent.putExtra("calledFromSearch", true);
                 intent.putExtra("type", NOTES);
-                startActivityForResult(intent, CALL_EDITOR_ACTIVITY);
+                startActivityForResult(intent, CALL_SEARCH_ACTIVITY);
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
 
-    private void CreateNewNote() {
-        Intent intent = new Intent(getActivity(), NotesEditorActivity.class);
-        Bundle packageData = new Bundle();
-        //Add your data from getFactualResults method to bundle
-        packageData.putBoolean("isNewNote", true);
-        //Add the bundle to the intent
-        intent.putExtras(packageData);
-        if (calledFromSearch){
-            intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
-            startActivity(intent);
-        }
-        else{
-            startActivityForResult(intent, CALL_EDITOR_ACTIVITY);
-        }
-    }
-
     @Override
     public void onClick(View v) {
         //Remove snackbar if exists
-        CreateNewNote();
+        Intent intent = new Intent(getActivity(), NotesEditorActivity.class);
+        Bundle packageData = new Bundle();
+        packageData.putBoolean("isNewNote", true);
+        //Add the bundle to the intent
+        intent.putExtras(packageData);
+        startActivityForResult(intent, CALL_EDITOR_ACTIVITY);
     }
 
     /*Para hacer esto, es indispensable saber que el ciclo de vida de la actividad fragmento va asi:
@@ -157,7 +135,6 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
      */
     @Override
     public void onResume() {
-
         //adapter.filterResults(text);
         //Toast.makeText(this.getActivity(), "Se ejecuto onResume de fragmento", Toast.LENGTH_SHORT).show();
         super.onResume();
@@ -169,41 +146,15 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
         super.onStop();
     }
 
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CALL_EDITOR_ACTIVITY) {
-            if (resultCode == Activity.RESULT_OK) {
-                //Since we don't know the real position of the result when it return from searchActivity, the best way to keep data consistency is to reload the data from database
-                if (data.getBooleanExtra("calledFromSearch", false)){
-                    updateFromDatabase();
-                    return;
-                }
-                Note resultNote = data.getParcelableExtra("resultNote");
-                if (data.getBooleanExtra("isNewNote", true)) {
-                    adapter.insertItem(resultNote);
-                    list.scrollToPosition(0);
-                } else {
-                    adapter.modifyItem(data.getIntExtra("position", -1), resultNote);
-                    list.scrollToPosition(0);
-                }
-            }
-            if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
-            }
-        }
-    }
-
     @Override
     public void onItemClick(View v, int position) {
-        if (actionMode != null){
+        if (actionMode != null) {
             v.findViewById(R.id.icon).performClick();
             updateActionMode();
             return;
         }
         dismissSnackBar();
-        Note note = adapter.getCurrentData().get(position);
+        Note note = presenter.getItem(position);
         Intent intent = new Intent(getActivity(), NotesEditorActivity.class);
         Bundle packageData = new Bundle();
         //Add your data from getFactualResults method to bundle
@@ -216,11 +167,10 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
         //Add the bundle to the intent
         intent.putExtras(packageData);
 
-        if (calledFromSearch){
+        if (calledFromSearch) {
             intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
             startActivity(intent);
-        }
-        else{
+        } else {
             startActivityForResult(intent, CALL_EDITOR_ACTIVITY);
         }
     }
@@ -228,18 +178,21 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
 
     @Override
     public void onLongClick(View v, int position) {
-        if (actionMode != null){
+        if (actionMode != null) {
             v.findViewById(R.id.icon).performClick();
             updateActionMode();
             return;
         }
         dismissSnackBar();
-        dialogDeleteNoteCompletely.setPositiveButton(R.string.positive_button_label, (dialog, which) -> DeleteNoteCompletely(position)).show();
+        dialogDeleteNoteCompletely.setPositiveButton(R.string.positive_button_label, (dialog, which) -> {
+            presenter.deleteNote(presenter.getItem(position).getNoteId(), true);
+            presenter.deleteItem(position, true);
+        }).show();
     }
 
     @Override
     public void onIconClick(View v, int position) {
-        if (actionMode == null){
+        if (actionMode == null) {
             //assert ((AppCompatActivity) getActivity()) != null;
             actionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(NotesFragment.this);
         }
@@ -249,25 +202,22 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
     @Override
     public void onSwipe(final int position) {
         if (actionMode != null) return;
-        final Note selectedNote = adapter.getCurrentData().get(position);
-        final int selectedNoteID = adapter.getCurrentData().get(position).getNoteId();
+        final Note selectedNote = presenter.getItem(position);
+        final int selectedNoteID = presenter.getItem(position).getNoteId();
 
         snackbar = Snackbar.make(list, R.string.fragment_notes_snackbar_label, 10000).
                 setAction(R.string.fragment_notes_snackbar_action_label, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // Toast.makeText(recyclerView.getContext(),""+adapterPosition, Toast.LENGTH_SHORT).show();
-                        adapter.insertItem(position, selectedNote);
-                        list.scrollToPosition(position);
-
+                        presenter.cancelItemDeletion(selectedNote, position);
                     }
                 }).
-                setCallback(new Snackbar.Callback() {
-
+                addCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
                         if (event != DISMISS_EVENT_ACTION) {
-                            Database.getInstance(getActivity()).deleteNote(selectedNoteID);
+                            presenter.deleteNote(selectedNoteID, false);
+                            presenter.deleteItemForever(selectedNote);
                         }
                         //Si hubiera sido por DISMISS_EVENT_ACTION significa que el usuario presiono deshacer y por lo tanto no quiere que se
                         //elimine de la base de datos
@@ -279,12 +229,12 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
 
                 });
 
-        adapter.deleteItem(position);
+        presenter.deleteItem(position, false);
         snackbar.show();
     }
 
-    private void updateActionMode(){
-        if (adapter.getSelectedCount() == 0){
+    private void updateActionMode() {
+        if (adapter.getSelectedCount() == 0) {
             //destroy action mode
             actionMode.finish();
             adapter.clearSelections();
@@ -293,21 +243,34 @@ public class NotesFragment extends Fragment implements View.OnClickListener, Not
         actionMode.setTitle(getString(R.string.action_mode_selected_items, adapter.getSelectedCount()));
     }
 
-    private void DeleteNoteCompletely(int position) {
-        Database.getInstance(getActivity()).deleteNoteCompletely(adapter.getCurrentData().get(position).getNoteId());
-        adapter.deleteItem(position);
+
+    @Override
+    public void notifyItemCreated() {
+        adapter.notifyItemInserted(0);
     }
 
-    public void filterNotes(String text) {
-        adapter.filterResults(text);
+    @Override
+    public void notifyItemCreated(int position) {
+        adapter.notifyItemInserted(position);
+        list.scrollToPosition(position);
     }
 
-    public void updateFromDatabase(){
-        if (adapter == null) return;
-        adapter.loadDataSet(Database.getInstance(getActivity()).getNotes(false));
+    @Override
+    public void notifyItemUpdated(int position) {
+        adapter.notifyItemChanged(position);
+        list.scrollToPosition(position);
+    }
+
+    @Override
+    public void notifyItemDeleted(int position) {
+        adapter.notifyItemRemoved(position);
+    }
+
+    @Override
+    public void notifyChanges() {
         adapter.notifyDataSetChanged();
+        adapter.observeData();
     }
-
 
 
     @Override

@@ -91,8 +91,8 @@ public class VolleySingleton {
                         SyncData remoteSyncData = new Gson().fromJson(response, SyncData.class);
                         SyncData.SyncInfo syncInfo = Database.getInstance(AppContext).updateLocalDatabase(localSyncData, remoteSyncData);
                         String localJson = new Gson().toJson(localSyncData);
-                        Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Local" + localJson);
-                        Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Remote" + response);
+                        //Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Local" + localJson);
+                        //Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Remote" + response);
                         listener.onSyncSuccess(syncInfo);
                         MyTxtLogger.getInstance().writeToSD("Written " + (response.length() + localJson.length()) + " Bytes");
                     }
@@ -130,7 +130,8 @@ public class VolleySingleton {
                         String localJson = new Gson().toJson(localSyncData);
                         Log.d(MyUtils.GLOBAL_LOG_TAG, "Local payload : " + localJson);
                         Log.d(MyUtils.GLOBAL_LOG_TAG, "Remote payload : " + response);
-
+                        MyTxtLogger.getInstance().writeToSD("Local payload : \n\n\n" + localJson);
+                        MyTxtLogger.getInstance().writeToSD("Remote payload : \n\n\n" + response);
                         SyncData remoteSyncData = new Gson().fromJson(response, SyncData.class);
                         SyncData.SyncInfo syncInfo = Database.getInstance(AppContext).updateLocalDatabase(localSyncData, remoteSyncData);
 
