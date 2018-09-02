@@ -26,7 +26,7 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
     private AlertDialog message;
     private boolean isNewNote;
     private int noteToModifyId, changesCounter = 0;
-
+    private String originalTitle, originalContent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,10 +37,13 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
         noteToModifyId = packageData.getInt("noteToModifyId", -1);
         title = findViewById(R.id.title);
         content = findViewById(R.id.content);
-        title.setText(packageData.getString("title", ""));
-        content.setText(packageData.getString("content", ""));
+        originalTitle = packageData.getString("title", "");
+        originalContent = packageData.getString("content", "");
+        title.setText(originalTitle);
+        content.setText(originalContent);
         if (Linkify.addLinks(content, Linkify.ALL)) {
             content.append("\n");
+            originalContent += "\n";
         }
         title.addTextChangedListener(this);
         content.addTextChangedListener(this);
@@ -52,7 +55,6 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
     @Override
     protected void onStop() {
         super.onStop();
-        InsertOrUpdate();
         //Toast.makeText(this, "Se ejecuto onStop de actividad", Toast.LENGTH_SHORT).show();
         //Se va a guardar la note si la bandera_guardar esta activa y ademas el campo de contenio o el de title ya tienen algo
     }
@@ -87,18 +89,18 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
     @Override
     public void onBackPressed() {
        returnResult();
+        //This line is to ensure that this activity will come back to MainActivity (This is useful when this activity is called from search, because in this way is not necessary to remain the query to still showing the coincidences in search activity)
        NavUtils.navigateUpFromSameTask(this);
        super.onBackPressed();
        //this.finish();
     }
 
     private void returnResult(){
-        //This line is to ensure that this activity will come back to MainActivity (This is useful when this activity is called from search, because in this way is not necessary to remain the query to still showing the coincidences in search activity)
         String noteTitle = title.getText().toString();
         String noteContent = content.getText().toString();
-        if ((!noteTitle.isEmpty() || !noteContent.isEmpty()) && changesCounter > 0) {
+        if (!noteTitle.equals(originalTitle) || !noteContent.equals(originalContent)) {
+            //Log.d(MyUtils.GLOBAL_LOG_TAG, "Trying to find data");
             InsertOrUpdate();
-            //Log.d(MyUtils.GLOBAL_LOG_TAG, "TRying to find data");
             Intent returnIntent = getIntent();
             returnIntent.putExtra("resultNote", new Note(noteToModifyId, noteTitle, noteContent, System.currentTimeMillis()));
             setResult(Activity.RESULT_OK, returnIntent);
@@ -137,13 +139,11 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
         noteToModifyId = Database.getInstance(NotesEditorActivity.this).saveNote(title.getText().toString(), content.getText().toString());
         isNewNote = false;
         Toast.makeText(this.getBaseContext(), R.string.saved_label, Toast.LENGTH_SHORT).show();
-        changesCounter = 0;
     }
 
     void modify() {
         Database.getInstance(NotesEditorActivity.this).modifyNote(title.getText().toString(), content.getText().toString(), noteToModifyId);
         Toast.makeText(this.getBaseContext(), getString(R.string.saved_label), Toast.LENGTH_SHORT).show();
-        changesCounter = 0;
     }
 
     void InsertOrUpdate() {
@@ -152,7 +152,7 @@ public class NotesEditorActivity extends AppCompatActivity implements TextWatche
         } else if (changesCounter > 0) {
             modify();
         }
-
+        changesCounter = 0;
     }
 
     @Override

@@ -2,38 +2,32 @@ package com.example.miguel.misnotas.adapters;
 
 import android.support.v7.widget.RecyclerView;
 
+import com.example.miguel.misnotas.utilities.MyFilterable;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by 79812 on 27/02/2018.
  */
-public abstract class FilterableRecyclerViewAdapter<DataModel extends FilterableRecyclerViewAdapter.MyFilter, ViewHolder extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<ViewHolder> {
+public abstract class FilterableRecyclerViewAdapter<DataModel extends MyFilterable, ViewHolder extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<ViewHolder> {
     protected List<DataModel> data;
     protected List<DataModel> originalList;
     protected DataObserver dataObserver;
 
-    public interface DeletedNotesAdapterActions {
-        void onClick(int position);
-
-        void onSwipe(int position);
-    }
-
-    public interface NotesAdapterActions {
-        void onSwipe(int position);
-
-        void onClick(int position);
-
-        void onLongClick(int position);
-    }
 
     public interface DataObserver {
         void onChanged(int listSize);
     }
 
-    public interface MyFilter{
-        boolean passFilter(String filter);
+
+    public interface ActionModeAdapterCallbacks<T> {
+        void toggleSelection(int position);
+        void clearSelections();
+        int getSelectedCount();
+        List<T> getSelectedItems();
     }
+
 
     public FilterableRecyclerViewAdapter() {}
 
@@ -41,7 +35,7 @@ public abstract class FilterableRecyclerViewAdapter<DataModel extends Filterable
         this.dataObserver = dataObserver;
     }
 
-    public void loadData(List<DataModel> data) {
+    public void loadDataSet(List<DataModel> data) {
         this.originalList = data;
         this.data = new ArrayList<>(data);
 
@@ -53,7 +47,7 @@ public abstract class FilterableRecyclerViewAdapter<DataModel extends Filterable
     public void filterResults(String filter){
         List<DataModel> filteredResults = new ArrayList<>();
         if (filter.isEmpty()){
-            setData(originalList);
+            updateDataSet(originalList);
             return;
         }
         for (DataModel dataModel : originalList){
@@ -61,11 +55,11 @@ public abstract class FilterableRecyclerViewAdapter<DataModel extends Filterable
                 filteredResults.add(dataModel);
             }
         }
-        setData(filteredResults);
+        updateDataSet(filteredResults);
     }
 
     //Sacado de aqui -> https://stackoverflow.com/questions/17341066/android-listview-does-not-update-onresume
-    public void setData(List<DataModel> data) {
+    public void updateDataSet(List<DataModel> data) {
         this.data = data;
         notifyDataSetChanged();
         if (dataObserver != null){

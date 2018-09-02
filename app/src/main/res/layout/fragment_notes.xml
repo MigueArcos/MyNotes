@@ -15,7 +15,7 @@
         android:text="@string/fragment_notes_no_content_label" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/crear"
+        android:id="@+id/create_new_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"

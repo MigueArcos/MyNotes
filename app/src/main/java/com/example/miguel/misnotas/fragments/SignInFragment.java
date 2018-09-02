@@ -11,7 +11,6 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -33,6 +32,7 @@ import com.example.miguel.misnotas.activities.MainActivity;
 import com.example.miguel.misnotas.broadcasts.SyncNotesService;
 import com.example.miguel.misnotas.broadcasts.bootservices.TurnOnDatabaseSync;
 import com.example.miguel.misnotas.models.SyncData;
+import com.example.miguel.misnotas.models.UserInfo;
 import com.example.miguel.misnotas.viewmodels.LoginActivityViewModel;
 
 import java.util.Calendar;
@@ -88,7 +88,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vo
     @Override
     public void onClick(View v) {
         if (email.validateField() && password.validateField()) {
-            StartLogin();
+            startLogin();
         } else {
             Toast.makeText(getActivity(), R.string.activity_login_data_error, Toast.LENGTH_SHORT).show();
         }
@@ -96,29 +96,46 @@ public class SignInFragment extends Fragment implements View.OnClickListener, Vo
     }
 
 
-    void StartLogin() {
+    void startLogin() {
         progressDialog.setMessage(getString(R.string.fragment_sign_in_progress_dialog_label));
         progressDialog.show();
-        VolleySingleton.getInstance(getActivity()).IniciarSesion(email.getText(), password.getText(), this);
+        //VolleySingleton.getInstance(getActivity()).IniciarSesion(email.getText(), password.getText(), this);
+        UserInfo userInfo = new UserInfo();
+        userInfo.setEmail(email.getText());
+        userInfo.setPassword(password.getText());
+        VolleySingleton.getInstance(getActivity()).Login(userInfo, this, false);
     }
 
-    void StartDatabaseSync() {
+    void startDatabaseSync() {
         progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
         SyncData localSyncData = Database.getInstance(getActivity()).createLocalSyncData(cache.createMinimalSyncInfo());
-        VolleySingleton.getInstance(getActivity()).syncDatabases(localSyncData, this);
+        VolleySingleton.getInstance(getActivity()).syncAzureDatabases(localSyncData, this);
     }
 
     @Override
     public void onLoginSuccess(int userId, String username, String email, int syncTime) {
-        activateAutoSync(syncTime);
+        /*activateAutoSync(syncTime);
         progressDialog.dismiss();
         cache.getSyncInfo().edit().
                 putInt(Cache.SYNC_TIME, syncTime).
                 putInt(Cache.SYNC_USER_ID, userId).
                 putString(Cache.SYNC_USERNAME, username).
                 putString(Cache.SYNC_EMAIL, email).apply();
-        StartDatabaseSync();
+
+        startDatabaseSync();*/
+    }
+
+    @Override
+    public void onLoginSuccess(UserInfo userInfo, int syncTime) {
+        activateAutoSync(syncTime);
+        progressDialog.dismiss();
+        cache.getSyncInfo().edit().
+                putInt(Cache.SYNC_TIME, syncTime).
+                putString(Cache.SYNC_USER_ID, userInfo.getUserId()).
+                putString(Cache.SYNC_USERNAME, userInfo.getUsername()).
+                putString(Cache.SYNC_EMAIL, userInfo.getEmail()).apply();
+        startDatabaseSync();
     }
 
     @Override

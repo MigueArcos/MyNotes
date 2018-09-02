@@ -1,0 +1,53 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:id="@+id/list"
+        android:layout_alignParentTop="true"
+        android:choiceMode="singleChoice"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/fragment_my_money_default_value"
+        android:textSize="30sp"
+        android:gravity="center"
+        android:id="@+id/total"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/list"
+        android:layout_alignEnd="@+id/list" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/fragment_my_money_default_label"
+        android:textSize="30sp"
+        android:gravity="center"
+        android:id="@+id/textView11"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="20dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text=""
+        android:layout_marginTop="10dp"
+        android:textSize="14sp"
+        android:id="@+id/last"
+        android:layout_below="@+id/list"
+        android:gravity="center_horizontal"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/textView11" />
+
+</RelativeLayout>

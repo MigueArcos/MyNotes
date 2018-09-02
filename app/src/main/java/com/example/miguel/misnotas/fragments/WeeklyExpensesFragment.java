@@ -1,6 +1,8 @@
 package com.example.miguel.misnotas.fragments;
 
 import android.app.AlertDialog;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,6 +19,17 @@ import android.widget.Toast;
 
 import com.example.miguel.misnotas.R;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+
+
+
 /**
  * Created by Miguel on 13/06/2016.
  */
@@ -28,8 +41,34 @@ public class WeeklyExpensesFragment extends Fragment implements View.OnClickList
     private SharedPreferences Semana;
     private SharedPreferences.Editor Editor;
     private int cambios=0;
+
+    private void testingWeeks(){
+        Date d1 = new Date();
+        GregorianCalendar c = new GregorianCalendar(Locale.US);
+        c.setTime(d1);
+
+        int firstDay = c.get(Calendar.DAY_OF_YEAR) - c.get(Calendar.DAY_OF_WEEK) + c.getFirstDayOfWeek();
+        int lastDay = firstDay + 6;
+
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
+        Calendar c1 = Calendar.getInstance();
+        Calendar c2 = Calendar.getInstance();
+        c1.set(Calendar.DAY_OF_YEAR, firstDay);
+        c2.set(Calendar.DAY_OF_YEAR, lastDay);
+        StringBuilder dates = new StringBuilder();
+        int days = c.isLeapYear(c.get(Calendar.YEAR)) ? 366 : 365;
+        for (int i = 0; i < 54; i++) {
+            dates.append(c2.get(Calendar.YEAR)).append(" - ").append(c2.get(Calendar.WEEK_OF_YEAR)).append(": ").append(df.format(c1.getTime())).append(" - ").append(df.format(c2.getTime())).append("\n");
+            c1.add(Calendar.WEEK_OF_YEAR, 1);
+            c2.add(Calendar.WEEK_OF_YEAR, 1);
+        }
+
+        mensaje.setMessage(dates.toString());
+        mensaje.show();
+    }
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_weekly_expenses, container, false);
@@ -51,7 +90,16 @@ public class WeeklyExpensesFragment extends Fragment implements View.OnClickList
         for (int i=0; i<7; i++){
             array[i].addTextChangedListener(this);
         }
+        testingWeeks();
         return rootView;
+    }
+
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        cambios = 0;
     }
 
     void leer() {

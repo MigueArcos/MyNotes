@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
+import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -12,12 +13,14 @@ import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.miguel.misnotas.models.SyncData;
+import com.example.miguel.misnotas.models.UserInfo;
 import com.google.gson.Gson;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,7 +33,8 @@ public class VolleySingleton {
     private static VolleySingleton mInstance;
     private RequestQueue mRequestQueue;
     private static Context AppContext;
-    private final String URL = "http://miguelarcos.x10.mx/android/movil";
+    //private final String URL = "http://miguelarcos.x10.mx/android/movil";
+    private final String URL = "http://miguelsnotes.azurewebsites.net";
     private final int SYNC_TIME = 7200000;
 
     public interface NotesResponseListener {
@@ -40,12 +44,15 @@ public class VolleySingleton {
     }
 
     public interface LoginListener {
-        void onLoginSuccess(int id_usuario, String username, String email, int sync_time);
+        void onLoginSuccess(int id_usuario, String username, String email, int syncTime);
+
+        void onLoginSuccess(UserInfo userInfo, int syncTime);
 
         void onLoginError(String error);
 
         void activateAutoSync(int time);
     }
+
 
     private VolleySingleton(Context context) {
         AppContext = context;
@@ -77,13 +84,17 @@ public class VolleySingleton {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        if (response != null && response.charAt(0) != '{') {
+                            listener.onSyncError(getVolleyError(null));
+                            return;
+                        }
                         SyncData remoteSyncData = new Gson().fromJson(response, SyncData.class);
                         SyncData.SyncInfo syncInfo = Database.getInstance(AppContext).updateLocalDatabase(localSyncData, remoteSyncData);
                         String localJson = new Gson().toJson(localSyncData);
-                        Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Local" + localJson);
-                        Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Remote" + response);
+                        //Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Local" + localJson);
+                        //Log.d(MyUtils.GLOBAL_LOG_TAG, "JSON Remote" + response);
                         listener.onSyncSuccess(syncInfo);
-                        MyTxtLogger.getInstance().writeToSD("Written " + (response.length() + localJson.length()) + "Bytes");
+                        MyTxtLogger.getInstance().writeToSD("Written " + (response.length() + localJson.length()) + " Bytes");
                     }
                 },
                 new Response.ErrorListener() {
@@ -104,6 +115,63 @@ public class VolleySingleton {
         };
         addToRequestQueue(MyRequest);
     }
+
+
+    public void syncAzureDatabases(final SyncData localSyncData, final NotesResponseListener listener) {
+        StringRequest MyRequest = new StringRequest(Request.Method.POST,
+                URL + "/Notes/SyncDatabases",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if (response != null && response.charAt(0) != '{') {
+                            listener.onSyncError(getVolleyError(null));
+                            return;
+                        }
+                        String localJson = new Gson().toJson(localSyncData);
+                        Log.d(MyUtils.GLOBAL_LOG_TAG, "Local payload : " + localJson);
+                        Log.d(MyUtils.GLOBAL_LOG_TAG, "Remote payload : " + response);
+                        SyncData remoteSyncData = new Gson().fromJson(response, SyncData.class);
+                        if (remoteSyncData.getSyncInfo().getLastSyncedId() != localSyncData.getSyncInfo().getLastSyncedId()){
+                            MyTxtLogger.getInstance().writeToSD("Local payload : \n\n\n" + localJson);
+                            MyTxtLogger.getInstance().writeToSD("Remote payload : \n\n\n" + response);
+                        }
+                        SyncData.SyncInfo syncInfo = Database.getInstance(AppContext).updateLocalDatabase(localSyncData, remoteSyncData);
+
+
+                        listener.onSyncSuccess(syncInfo);
+                        MyTxtLogger.getInstance().writeToSD("Written " + (response.length() + localJson.length()) + " Bytes");
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO Auto-generated method stub
+                        listener.onSyncError(getVolleyError(error));
+                    }
+                }
+        ) {
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                String payload = localSyncData.toJson();
+                Log.d("Sync payload", payload);
+                try {
+                    //Log.d("request", payload);
+                    return payload == null ? null : payload.getBytes("utf-8");
+                } catch (UnsupportedEncodingException uee) {
+                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", payload, "utf-8");
+                    return null;
+                }
+
+            }
+        };
+        addToRequestQueue(MyRequest);
+    }
+
 
     public void IniciarSesion(final String email, final String password, final LoginListener loginListener) {
         StringRequest MyRequest = new StringRequest(Request.Method.POST, URL + "/IniciarSesion.php",
@@ -141,6 +209,7 @@ public class VolleySingleton {
         };
         addToRequestQueue(MyRequest);
     }
+
 
     public void Registrar(final String username, final String email, final String password, final LoginListener loginListener) {
         StringRequest MyRequest = new StringRequest(Request.Method.POST, URL + "/Registrar.php",
@@ -180,8 +249,53 @@ public class VolleySingleton {
         addToRequestQueue(MyRequest);
     }
 
+    public void Login(final UserInfo userInfo, final LoginListener loginListener, final boolean isSignUp) {
+        String endPoint = isSignUp ? "SignUp" : "SignIn";
+        StringRequest MyRequest = new StringRequest(Request.Method.POST, URL + "/api/Login/" + endPoint,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        UserInfo allUserInfo = new Gson().fromJson(response, UserInfo.class);
+                        //Log.d("response", response);
+                        loginListener.onLoginSuccess(allUserInfo, SYNC_TIME);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO Auto-generated method stub
+                        loginListener.onLoginError(getVolleyError(error));
+                    }
+                }
+        ) {
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                String payload = userInfo.toJson();
+                Log.d("Payload Login", payload);
+                try {
+                    //Log.d("request", mRequestBody);
+                    return payload == null ? null : payload.getBytes("utf-8");
+                } catch (UnsupportedEncodingException uee) {
+                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", payload, "utf-8");
+                    return null;
+                }
+
+            }
+        };
+        addToRequestQueue(MyRequest);
+    }
+
+
     private String getVolleyError(VolleyError error) {
         String message = "Unknown error";
+        if (error == null){
+            return message;
+        }
         if (error instanceof NetworkError) {
             message = "Cannot connect to Internet...Please check your connection!";
         } else if (error instanceof ServerError) {
@@ -197,7 +311,7 @@ public class VolleySingleton {
         }
         if (error.networkResponse != null) {
             try {
-                message += "\n" + new String(error.networkResponse.data, "utf-8");
+                message = new String(error.networkResponse.data, "utf-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }

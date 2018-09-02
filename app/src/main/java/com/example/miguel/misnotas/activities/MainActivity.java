@@ -8,7 +8,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,11 +36,12 @@ import com.example.miguel.misnotas.Cache;
 import com.example.miguel.misnotas.VolleySingleton;
 import com.example.miguel.misnotas.broadcasts.SyncNotesService;
 import com.example.miguel.misnotas.broadcasts.bootservices.TurnOnDatabaseSync;
-import com.example.miguel.misnotas.fragments.DeletedNotesFragment;
+import com.example.miguel.misnotas.notes.deleted_notes.DeletedNotesFragment;
 import com.example.miguel.misnotas.fragments.FinancesFragment;
-import com.example.miguel.misnotas.fragments.NotesFragment;
+import com.example.miguel.misnotas.notes.current_notes.NotesFragment;
 import com.example.miguel.misnotas.fragments.WeeklyExpensesFragment;
 import com.example.miguel.misnotas.models.SyncData;
+import com.example.miguel.misnotas.mymoney.MyMoneyFragment;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, VolleySingleton.NotesResponseListener {
@@ -67,19 +67,51 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DeletedNotesFragment deletedNotesFragment;
     private WeeklyExpensesFragment weeklyExpensesFragment;
 
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        cache = Cache.getInstance(this);
+        /*Este paquete sirve para que si la llamada a esta actividad es desde la notificacion, siempre inicie en el
+        fragmento de gastos */
+        if (getIntent().hasExtra("CalledFromNotification")) {
+            cache.getSettings().edit().putInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 1).apply();
+        }
+
+
+        setTheme(R.style.AppTheme_NoActionBar);
+
+
+        //All the lines above were added to try delaying the app boot as much as it can
         super.onCreate(savedInstanceState);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkPermissions();
         }
-        cache = Cache.getInstance(this);
+
+        MyUtils.changeStatusBarColor(this, R.color.colorPrimaryDark);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close){
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                MyUtils.changeStatusBarColor(MainActivity.this, R.color.colorPrimaryDark);
+                super.onDrawerClosed(drawerView);
+            }
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                MyUtils.changeStatusBarColor(MainActivity.this, android.R.color.transparent);
+                Log.d("PUñetas", "puto");
+                super.onDrawerSlide(drawerView, slideOffset);
+            }
+        };
+
+
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -87,11 +119,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        /*Este paquete sirve para que si la llamada a esta actividad es desde la notificacion, siempre inicie en el
-        fragmento de gastos */
-        if (getIntent().hasExtra("CalledFromNotification")) {
-            cache.getSettings().edit().putInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 1).apply();
-        }
+
         LoadUserData();
 
         initializeFragments();
@@ -113,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView email = header.findViewById(R.id.header_email);
         username.setText(cache.getSyncInfo().getString(Cache.SYNC_USERNAME, ""));
         email.setText(cache.getSyncInfo().getString(Cache.SYNC_EMAIL, getString(R.string.activity_login_sign_in_label)));
-        if (cache.getSyncInfo().getInt(Cache.SYNC_USER_ID, 0) == 0) {
+        if (!cache.getSyncInfo().contains(Cache.SYNC_USER_ID)) {
             email.setTextSize(25);
             navigationView.getMenu().findItem(R.id.sync).setVisible(false);
             navigationView.getMenu().findItem(R.id.close_session).setVisible(false);
@@ -221,6 +249,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -238,6 +267,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.it2:
                 fragment = financesFragment;
+                cache.getSettings().edit().putInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 2).apply();
+                currentFragmentId = item.getItemId();
+                break;
+            case R.id.test:
+                fragment = new MyMoneyFragment();
                 cache.getSettings().edit().putInt(Cache.SETTINGS_LAST_SELECTED_FRAGMENT, 2).apply();
                 currentFragmentId = item.getItemId();
                 break;
@@ -262,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 message.show();
                 return false;
             case R.id.sync:
-                StartDatabaseSync();
+                startDatabaseSync();
                 drawer.closeDrawer(GravityCompat.START);
                 return false;
             case R.id.close_session:
@@ -299,12 +333,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         updateFragments();
     }
 
-    void StartDatabaseSync() {
+    void startDatabaseSync() {
         progressDialog.setMessage(getString(R.string.syncing_label));
         progressDialog.show();
         SyncData localSyncData = Database.getInstance(this).createLocalSyncData(cache.createMinimalSyncInfo());
 
-        VolleySingleton.getInstance(this).syncDatabases(localSyncData, this);
+        VolleySingleton.getInstance(this).syncAzureDatabases(localSyncData, this);
     }
     private void updateFragments(){
         notesFragment.updateFromDatabase();

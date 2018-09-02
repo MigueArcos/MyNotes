@@ -1,6 +1,7 @@
 package com.example.miguel.misnotas.activities;
 
 import android.app.AlarmManager;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -27,6 +28,7 @@ import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.util.Calendar;
+import java.util.Locale;
 
 public class SchedulerActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener, TimePickerDialog.OnTimeSetListener, CompoundButton.OnCheckedChangeListener {
     private TextView horario, ampm;
@@ -40,6 +42,9 @@ public class SchedulerActivity extends AppCompatActivity implements View.OnClick
     private int HOUR, MINUTE;
     private ComponentName receiver;
     private PackageManager pm;
+
+    public static String MY_NOTIFICATION_CHANNEL_ID = "chanel_id";// The id of the channel.
+    public static String MY_NOTIFICATION_CHANNEL_NAME = "My Chanel Name";// The user-visible name of the channel.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +83,7 @@ public class SchedulerActivity extends AppCompatActivity implements View.OnClick
         HOUR = opciones.getInt("Hour", 12);
         //Se lee el minuto
         MINUTE = opciones.getInt("Minute", 0);
-        horario.setText(((HOUR + 11) % 12 + 1) + ":".concat((MINUTE < 10) ? "0" + MINUTE : "" + MINUTE));
+        horario.setText(String.format(Locale.US, "%d:%s", (HOUR + 11) % 12 + 1, MINUTE < 10 ? "0" + MINUTE :  MINUTE));
         ampm.setText((HOUR >= 12) ? R.string.pm_format : R.string.am_format);
         for (int i = 0; i < lista.length; i++) {
             lista[i].setChecked(opciones.getBoolean("Day" + i, false));
@@ -133,13 +138,25 @@ public class SchedulerActivity extends AppCompatActivity implements View.OnClick
         intent.putExtras(paquete);
         PendingIntent activitynoti = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intent, 0);
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder minoti = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.app_logo);
-        minoti.setContentTitle(getString(R.string.notification_title));
-        minoti.setContentText(getString(R.string.notification_message_fuck_up));
-        minoti.setWhen(System.currentTimeMillis());
-        minoti.setContentIntent(activitynoti);
-        minoti.setAutoCancel(true);
-        minoti.setSound(alarmSound);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel mChannel = new NotificationChannel(
+                    MY_NOTIFICATION_CHANNEL_ID,
+                    MY_NOTIFICATION_CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            notificaciones.createNotificationChannel(mChannel);
+        }
+
+        NotificationCompat.Builder minoti = new NotificationCompat.Builder(this, MY_NOTIFICATION_CHANNEL_NAME)
+                .setSmallIcon(R.drawable.app_logo)
+                .setContentTitle(getString(R.string.notification_title))
+                .setContentText(getString(R.string.notification_message_fuck_up))
+                .setWhen(System.currentTimeMillis())
+                .setContentIntent(activitynoti)
+                .setAutoCancel(true)
+                .setChannelId(MY_NOTIFICATION_CHANNEL_ID)
+                .setSound(alarmSound);
+
         notificaciones.notify(0, minoti.build());
         return true;
     }
@@ -151,7 +168,7 @@ public class SchedulerActivity extends AppCompatActivity implements View.OnClick
         HOUR = hora;
         MINUTE = minuto;
         editor.commit();
-        horario.setText(((hora + 11) % 12 + 1) + ":".concat((minuto < 10) ? "0" + minuto : "" + minuto));
+        horario.setText(String.format(Locale.US, "%d:%s", (hora + 11) % 12 + 1, minuto < 10 ? "0" + minuto :  minuto));
         ampm.setText((hora >= 12) ? " p.m" : " a.m");
         //Toast.makeText(getBaseContext(),""+HOUR+"-"+MINUTE+"", Toast.LENGTH_SHORT).show();
         definir_alarmas();

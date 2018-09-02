@@ -9,7 +9,7 @@
 
     <!-- Activities titles -->
     <string name="title_activity_notes_editor">Editor</string>
-    <string name="title_activity_notes">Notas</string>
+    <string name="title_activity_main">Mis Notas</string>
     <string name="title_activity_scheduler">Horarios</string>
     <string name="title_activity_search">Busqueda…</string>
 
@@ -29,7 +29,7 @@
 
     <!-- LoginActivity Login Strings -->
     <string name="activity_login_switch_fragment_button_label">Crear una cuenta</string>
-    <string name="activity_login_data_error">Hay un error con los datos</string>
+    <string name="activity_login_data_error">Hay un error con los data</string>
     <string name="activity_login_incorrect_password">La contraseña es incorrecta, debe tener al menos 4 caracteres</string>
     <string name="activity_login_incorrect_email">El correo electrónico es incorrecto</string>
     <string name="activity_login_sign_in_label">Iniciar sesión</string>
@@ -52,13 +52,13 @@
     <string name="fragment_my_money_modify_label">Modificar…</string>
 
     <!-- Fragment notepad Strings -->
-    <string name="fragment_notes_no_content_label">No hay datos</string>
+    <string name="fragment_notes_no_content_label">No hay data</string>
     <string name="fragment_notepad_title">Bloc De Notas</string>
     <string name="fragment_notes_snackbar_label">Nota eliminada</string>
     <string name="fragment_notes_snackbar_action_label">Deshacer</string>
 
     <!-- Fragment deleted notes Strings -->
-    <string name="fragment_deleted_notes_no_content_label">No hay datos</string>
+    <string name="fragment_deleted_notes_no_content_label">No hay data</string>
     <string name="fragment_deleted_notes_title">Notas Eliminadas</string>
     <string name="fragment_deleted_notes_recover_note">¿Te gustaría recuperar esta nota?</string>
     <!-- Fragment Sign In Strings -->
@@ -113,7 +113,7 @@
     <string name="negative_button_label">No</string>
     <string name="positive_button_finish_action">Si</string>
     <string name="negative_button_cancel_action">No</string>
-    <string name="no_data_to_delete">No hay datos que borrar :(</string>
+    <string name="no_data_to_delete">No hay nada que borrar :(</string>
     <string name="saved_label">¡Guardado!</string>
     <string name="delete_item_confirmation">¿Estás seguro de que deseas borrar esto?</string>
     <string name="delete_all_confirmation">¿Estás seguro de que deseas borrar todo?</string>
@@ -127,5 +127,8 @@
     <string name="notification_title">Control de tu dinero</string>
     <string name="notification_message_fuck_up">Ya escribe tus gastos pendejo</string>
     <string name="notification_message">Es hora de escribir tus gastos diarios.</string>
+
+
+    <string name="action_mode_selected_items">%1$d seleccionado(s)</string>
 
 </resources>

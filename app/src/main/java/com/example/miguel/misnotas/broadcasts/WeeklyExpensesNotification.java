@@ -1,5 +1,6 @@
 package com.example.miguel.misnotas.broadcasts;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -17,17 +18,18 @@ import com.example.miguel.misnotas.R;
 
 import java.util.Calendar;
 
+import static com.example.miguel.misnotas.activities.SchedulerActivity.MY_NOTIFICATION_CHANNEL_ID;
+import static com.example.miguel.misnotas.activities.SchedulerActivity.MY_NOTIFICATION_CHANNEL_NAME;
+
 /**
  * Created by Miguel on 10/02/2016.
  */
 public class WeeklyExpensesNotification extends BroadcastReceiver {
-    private NotificationManager notificationManager;
-    private SharedPreferences settings;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         //Cuando se inicia el servicio (cada dia) se leen las settings para ver los dias que estan marcados para sonar.
-        settings = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        SharedPreferences settings = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
         boolean array[] = new boolean[7];
         for (int i = 0; i < 7; i++) {
             array[i] = settings.getBoolean("Day" + i, false);
@@ -51,7 +53,7 @@ public class WeeklyExpensesNotification extends BroadcastReceiver {
          */
         if (array[c.get(Calendar.DAY_OF_WEEK) - 1] && isInTolerance) {
             //Se crea el servicio para generar notificationManager
-            notificationManager = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             //Toast.makeText(context, "¡Guardado!", Toast.LENGTH_SHORT).show();
             //Se hace un intent para que la notificacion vaya a la actividad principal (gasto)
             Intent goToMainIntent = new Intent(context, MainActivity.class);
@@ -62,22 +64,25 @@ public class WeeklyExpensesNotification extends BroadcastReceiver {
             PendingIntent goToMainPendingIntent = PendingIntent.getActivity(context, 0, goToMainIntent, 0);
             //Esto solo obtiene la notificacion predeterminada del sistema
             Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            //Se crea la notificacion y se le define su icono
-            NotificationCompat.Builder notification = new NotificationCompat.Builder(context).setSmallIcon(R.drawable.app_logo);
-            //Se define el title de la notifiacion
-            notification.setContentTitle(context.getString(R.string.notification_title));
-            //Se define el content de la notificacion
-            notification.setContentText(context.getString(R.string.notification_message));
-            //Se le pone a la notificacion la hora actual
-            notification.setWhen(System.currentTimeMillis());
-            //Se define la actividad a la cual nos llevara la notificacion cuando la toquemos
-            notification.setContentIntent(goToMainPendingIntent);
-            //Esta linea sirve para que la notificacion desaparezca una vez clickeada
-            notification.setAutoCancel(true);
-            //Se define el sonido de la notificacion obtenido con Uri
-            notification.setSound(alarmSound);
 
-            notification.setLights(Color.WHITE, 5000, 5000);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                NotificationChannel mChannel = new NotificationChannel(
+                        MY_NOTIFICATION_CHANNEL_ID,
+                        MY_NOTIFICATION_CHANNEL_NAME,
+                        NotificationManager.IMPORTANCE_DEFAULT);
+                notificationManager.createNotificationChannel(mChannel);
+            }
+
+            NotificationCompat.Builder notification = new NotificationCompat.Builder(context, MY_NOTIFICATION_CHANNEL_NAME)
+                    .setSmallIcon(R.drawable.app_logo)
+                    .setContentTitle(context.getString(R.string.notification_title))
+                    .setContentText(context.getString(R.string.notification_message))
+                    .setWhen(System.currentTimeMillis())
+                    .setContentIntent(goToMainPendingIntent)
+                    .setAutoCancel(true)
+                    .setChannelId(MY_NOTIFICATION_CHANNEL_ID)
+                    .setSound(alarmSound)
+                    .setLights(Color.WHITE, 5000, 5000);
             //Se muestra la notificacion (Se le notifica al sistema)
             notificationManager.notify(0, notification.build());
         }

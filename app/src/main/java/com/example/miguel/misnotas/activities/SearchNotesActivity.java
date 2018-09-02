@@ -8,8 +8,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.miguel.misnotas.R;
-import com.example.miguel.misnotas.fragments.DeletedNotesFragment;
-import com.example.miguel.misnotas.fragments.NotesFragment;
+import com.example.miguel.misnotas.notes.deleted_notes.DeletedNotesFragment;
+import com.example.miguel.misnotas.notes.current_notes.NotesFragment;
 
 
 public class SearchNotesActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
@@ -17,7 +17,7 @@ public class SearchNotesActivity extends AppCompatActivity implements SearchView
     public static final int DELETED_NOTES = 2;
     private int type;
     private NotesFragment notesFragment;
-    private com.example.miguel.misnotas.fragments.DeletedNotesFragment deletedNotesFragment;
+    private DeletedNotesFragment deletedNotesFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
