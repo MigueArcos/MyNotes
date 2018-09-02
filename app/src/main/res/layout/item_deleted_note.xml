@@ -63,7 +63,8 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/content_layout">
+            android:id="@+id/content_layout"
+            android:visibility="gone">
             <com.example.miguel.misnotas.NiceEditText
                 android:id="@+id/content"
                 android:layout_width="match_parent"

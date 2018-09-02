@@ -31,7 +31,7 @@ public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapte
     private Context context;
     private NotesContract.Presenter presenter;
     private DataObserver dataObserver;
-    private SparseBooleanArray selectedItems;
+    private SparseBooleanArray expandedItems;
     public interface AdapterActions {
         void onItemClick(int position);
 
@@ -46,7 +46,7 @@ public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapte
 
     public DeletedNotesAdapter(Context context) {
         this.context = context;
-        selectedItems = new SparseBooleanArray();
+        expandedItems = new SparseBooleanArray();
     }
 
     public void setListener(AdapterActions listener) {
@@ -79,6 +79,12 @@ public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapte
     @Override
     public void onBindViewHolder(@NonNull ItemView holder, int position) {
         presenter.bindHolderData(holder, position);
+        if (expandedItems.get(position)){
+            holder.contentLayout.setVisibility(View.VISIBLE);
+            holder.arrow.animate().rotation(180).start();
+        }else{
+            holder.contentLayout.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -116,22 +122,28 @@ public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapte
             //This is to make EditText not editable
             contentText.setKeyListener(null);
             contentLayout = itemView.findViewById(R.id.content_layout);
-            contentLayout.setVisibility(View.GONE);
 
             arrow.setOnClickListener(v -> {
                 listener.onArrowClick(getAdapterPosition());
-                /*if (selectedItems.get(getAdapterPosition())){
-                    //TransitionManager.beginDelayedTransition((CardView) itemView);
+                if (expandedItems.get(getAdapterPosition())){
+                    TransitionManager.beginDelayedTransition((CardView) itemView);
                     contentLayout.setVisibility(View.GONE);
-                    arrow.setImageResource(R.drawable.chevron_down);
-                    selectedItems.delete(getAdapterPosition());
+                    arrow.animate().rotation(0).start();
+                    //arrow.setImageResource(R.drawable.chevron_down);
+                    expandedItems.delete(getAdapterPosition());
+
+                    //It's very important to notify changes to adapter since if we don't do it then the new height of the item could be very high and it could appear over other items
+                    notifyItemChanged(getAdapterPosition());
                 }
                 else{
-                    //TransitionManager.beginDelayedTransition((CardView) itemView);
+                    TransitionManager.beginDelayedTransition((CardView) itemView);
                     contentLayout.setVisibility(View.VISIBLE);
-                    arrow.setImageResource(R.drawable.chevron_up);
-                    selectedItems.put(getAdapterPosition(), true);
-                }*/
+                    arrow.animate().rotation(180).start();
+                    //arrow.setImageResource(R.drawable.chevron_up);
+                    expandedItems.put(getAdapterPosition(), true);
+                    //It's very important to notify changes to adapter since if we don't do it then the new height of the item could be very high and it could appear over other items
+                    notifyItemChanged(getAdapterPosition());
+                }
             });
 
             itemView.setOnClickListener(this);

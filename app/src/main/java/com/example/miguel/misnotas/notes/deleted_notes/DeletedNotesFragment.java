@@ -121,6 +121,7 @@ public class DeletedNotesFragment extends NotesBaseFragment implements DeletedNo
 
     @Override
     public void onArrowClick(int position) {
+        /*
         BottomSheetFragment bottomSheetDialogFragment = new BottomSheetFragment();
         Bundle selectedOne = new Bundle();
         selectedOne.putParcelable("selectedNote", presenter.getItem(position));
@@ -133,6 +134,7 @@ public class DeletedNotesFragment extends NotesBaseFragment implements DeletedNo
         });
 
         bottomSheetDialogFragment.show(getActivity().getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
+        */
     }
 
     @Override
