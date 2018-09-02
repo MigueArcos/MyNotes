@@ -76,7 +76,11 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ItemView> im
     @Override
     public void onBindViewHolder(@NonNull ItemView holder, int position) {
         presenter.bindHolderData(holder, position);
-        holder.itemView.setActivated(selectedItemsIds.get(position));
+        boolean itemIsSelected = selectedItemsIds.get(position);
+        holder.itemView.setActivated(itemIsSelected);
+        if (itemIsSelected){
+            holder.getNoteIcon().setImageResource(R.drawable.ok);
+        }
     }
 
     @Override
@@ -139,6 +143,10 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ItemView> im
     public class ItemView extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, NotesContract.ItemView {
         private ImageView noteIcon;
         private TextView titleText, modificationDateText;
+
+        public ImageView getNoteIcon() {
+            return noteIcon;
+        }
 
         ItemView(View itemView) {
             super(itemView);

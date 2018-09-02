@@ -130,9 +130,11 @@ public class VolleySingleton {
                         String localJson = new Gson().toJson(localSyncData);
                         Log.d(MyUtils.GLOBAL_LOG_TAG, "Local payload : " + localJson);
                         Log.d(MyUtils.GLOBAL_LOG_TAG, "Remote payload : " + response);
-                        MyTxtLogger.getInstance().writeToSD("Local payload : \n\n\n" + localJson);
-                        MyTxtLogger.getInstance().writeToSD("Remote payload : \n\n\n" + response);
                         SyncData remoteSyncData = new Gson().fromJson(response, SyncData.class);
+                        if (remoteSyncData.getSyncInfo().getLastSyncedId() != localSyncData.getSyncInfo().getLastSyncedId()){
+                            MyTxtLogger.getInstance().writeToSD("Local payload : \n\n\n" + localJson);
+                            MyTxtLogger.getInstance().writeToSD("Remote payload : \n\n\n" + response);
+                        }
                         SyncData.SyncInfo syncInfo = Database.getInstance(AppContext).updateLocalDatabase(localSyncData, remoteSyncData);
 
 

@@ -7,9 +7,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.transition.TransitionManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +31,7 @@ public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapte
     private Context context;
     private NotesContract.Presenter presenter;
     private DataObserver dataObserver;
-
+    private SparseBooleanArray selectedItems;
     public interface AdapterActions {
         void onItemClick(int position);
 
@@ -43,6 +46,7 @@ public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapte
 
     public DeletedNotesAdapter(Context context) {
         this.context = context;
+        selectedItems = new SparseBooleanArray();
     }
 
     public void setListener(AdapterActions listener) {
@@ -116,6 +120,18 @@ public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapte
 
             arrow.setOnClickListener(v -> {
                 listener.onArrowClick(getAdapterPosition());
+                /*if (selectedItems.get(getAdapterPosition())){
+                    //TransitionManager.beginDelayedTransition((CardView) itemView);
+                    contentLayout.setVisibility(View.GONE);
+                    arrow.setImageResource(R.drawable.chevron_down);
+                    selectedItems.delete(getAdapterPosition());
+                }
+                else{
+                    //TransitionManager.beginDelayedTransition((CardView) itemView);
+                    contentLayout.setVisibility(View.VISIBLE);
+                    arrow.setImageResource(R.drawable.chevron_up);
+                    selectedItems.put(getAdapterPosition(), true);
+                }*/
             });
 
             itemView.setOnClickListener(this);

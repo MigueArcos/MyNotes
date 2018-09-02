@@ -99,7 +99,6 @@ public class DeletedNotesFragment extends NotesBaseFragment implements DeletedNo
 
     @Override
     public void onItemClick(int position) {
-        Toast.makeText(getContext(), "peño", Toast.LENGTH_SHORT).show();
         dialogRecoverNote.setPositiveButton(R.string.positive_button_label,
                 (dialog, which) -> presenter.onItemClick(position)).show();
 

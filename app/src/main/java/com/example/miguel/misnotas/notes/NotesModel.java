@@ -12,6 +12,7 @@ import com.example.miguel.misnotas.utilities.FilterableAdapterModel;
 public class NotesModel extends FilterableAdapterModel<Note> implements NotesContract.Model {
     private NotesContract.Presenter presenter;
     private boolean deletedNotes;
+
     public NotesModel(NotesContract.Presenter presenter, boolean deletedNotes) {
         super(Database.getInstance().getNotes(deletedNotes));
         this.deletedNotes = deletedNotes;
@@ -23,6 +24,7 @@ public class NotesModel extends FilterableAdapterModel<Note> implements NotesCon
         itemView.showTitle(currentData.get(position).getTitle());
         itemView.showModificationDate(String.format("Última modificación: %s", MyUtils.getTime12HoursFormat(currentData.get(position).getModificationDate())));
         itemView.showImageResource(Note.imageId);
+        itemView.showContent(currentData.get(position).getContent());
     }
 
     @Override
