@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.example.miguel.misnotas.Database;
@@ -276,6 +277,9 @@ public class NotesFragment extends NotesBaseFragment implements View.OnClickList
     @Override
     public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
         actionMode.getMenuInflater().inflate(R.menu.action_mode_menu, menu);
+
+        //window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         MyUtils.changeStatusBarColor(getActivity(), R.color.background_dark);
         return true;
     }
@@ -302,7 +306,8 @@ public class NotesFragment extends NotesBaseFragment implements View.OnClickList
     public void onDestroyActionMode(ActionMode actionMode) {
         adapter.clearSelections();
         this.actionMode = null;
-        MyUtils.changeStatusBarColor(getActivity(), R.color.colorPrimaryDark);
+        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        //MyUtils.changeStatusBarColor(getActivity(), R.color.colorPrimaryDark);
     }
 }
 

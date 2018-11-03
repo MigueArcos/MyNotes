@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -97,19 +98,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close){
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                MyUtils.changeStatusBarColor(MainActivity.this, R.color.colorPrimaryDark);
-                super.onDrawerClosed(drawerView);
-            }
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
-                MyUtils.changeStatusBarColor(MainActivity.this, android.R.color.transparent);
-                Log.d("PUñetas", "puto");
-                super.onDrawerSlide(drawerView, slideOffset);
-            }
-        };
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
 
 
         drawer.addDrawerListener(toggle);

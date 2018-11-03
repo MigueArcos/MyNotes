@@ -44,7 +44,7 @@ public class SchedulerActivity extends AppCompatActivity implements View.OnClick
     private PackageManager pm;
 
     public static String MY_NOTIFICATION_CHANNEL_ID = "chanel_id";// The id of the channel.
-    public static String MY_NOTIFICATION_CHANNEL_NAME = "My Chanel Name";// The user-visible name of the channel.
+    public static String MY_NOTIFICATION_CHANNEL_NAME = "My Channel Name";// The user-visible name of the channel.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -90,7 +90,7 @@ public class WeeklyExpensesFragment extends Fragment implements View.OnClickList
         for (int i=0; i<7; i++){
             array[i].addTextChangedListener(this);
         }
-        testingWeeks();
+        //testingWeeks();
         return rootView;
     }
 

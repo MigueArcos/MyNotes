@@ -31,6 +31,7 @@ public class DeletedNotesAdapter extends RecyclerView.Adapter<DeletedNotesAdapte
     private Context context;
     private NotesContract.Presenter presenter;
     private DataObserver dataObserver;
+   //This should be implemented in presenter to be able to delete item when it is deleted from list
     private SparseBooleanArray expandedItems;
     public interface AdapterActions {
         void onItemClick(int position);
