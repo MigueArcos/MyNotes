@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            app:layout_collapseMode="pin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </com.google.android.material.appbar.AppBarLayout>
+    <LinearLayout
+        android:layout_marginTop="?android:actionBarSize"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <EditText
+            android:id="@+id/title"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:hint="@string/activity_notes_editor_title_placeholder"
+            android:singleLine="true"
+            android:textSize="25sp"
+            android:maxLength="40"
+            android:textColorLink="#2F66B4"
+            android:inputType="textCapWords|textFilter|textNoSuggestions"/>
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/dialog_scrollable_content"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:fillViewport="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <com.zeus.migue.notes.ui.shared.LinedEditText
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:fadingEdge="vertical"
+                android:gravity="top"
+                android:textColorLink="#2F66B4"
+                android:inputType="textMultiLine|textCapSentences|textNoSuggestions"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:scrollbars="vertical"
+                android:textSize="20sp" />
+
+        </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

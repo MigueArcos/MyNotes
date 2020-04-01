@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <com.zeus.migue.notes.ui.shared.InputField
+        android:id="@+id/username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapWords"
+            android:hint="@string/activity_login_fragment_sign_up_username"
+            android:maxLines="1"
+            android:singleLine="true" />
+
+    </com.zeus.migue.notes.ui.shared.InputField>
+
+    <com.zeus.migue.notes.ui.shared.InputField
+        android:id="@+id/email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:hint="@string/activity_login_fragment_sign_up_email"
+            android:maxLines="1"
+            android:singleLine="true" />
+    </com.zeus.migue.notes.ui.shared.InputField>
+
+
+    <com.zeus.migue.notes.ui.shared.InputField
+        android:id="@+id/password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:hint="@string/activity_login_fragment_sign_up_password"
+            android:maxLines="1"
+            android:singleLine="true" />
+    </com.zeus.migue.notes.ui.shared.InputField>
+
+    <com.zeus.migue.notes.ui.shared.InputField
+        android:id="@+id/confirm_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:hint="@string/activity_login_fragment_sign_up_confirm_password"
+            android:maxLines="1"
+            android:singleLine="true" />
+    </com.zeus.migue.notes.ui.shared.InputField>
+
+    <Button
+        android:id="@+id/submit_button"
+        style="?android:textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:focusable="true"
+        android:text="@string/activity_login_fragment_sign_up_sign_up_label"
+        android:textStyle="bold" />
+
+</LinearLayout>

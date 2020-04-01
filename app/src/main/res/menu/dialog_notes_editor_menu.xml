@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/copy_to_clipboard"
+        android:icon="@drawable/ic_copy"
+        android:title="@string/notes_editor_dialog_menu_copy_action"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/edit"
+        android:icon="@drawable/ic_edit_pencil"
+        android:title="@string/notes_editor_dialog_menu_edit_action"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/done"
+        android:icon="@drawable/ic_done"
+        android:title="@string/notes_editor_dialog_menu_done_action"
+        app:showAsAction="ifRoom"/>
+
+</menu>
