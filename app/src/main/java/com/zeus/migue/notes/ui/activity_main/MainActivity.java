@@ -20,6 +20,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.zeus.migue.notes.R;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
 import com.zeus.migue.notes.ui.activity_login.LoginActivity;
+import com.zeus.migue.notes.ui.activity_main.fragments.clipboard.ClipboardFragment;
 import com.zeus.migue.notes.ui.activity_main.fragments.notes.DeletedNotesFragment;
 import com.zeus.migue.notes.ui.activity_main.fragments.notes.NotesFragment;
 import com.zeus.migue.notes.ui.shared.BaseActivity;
@@ -69,6 +70,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             }else if (fragment instanceof DeletedNotesFragment){
                 item = navigationView.getMenu().findItem(R.id.deleted_notes);
             }
+            else if (fragment instanceof ClipboardFragment){
+                item = navigationView.getMenu().findItem(R.id.clipboard);
+            }
         }
         else{
             switch (mainActivityViewModel.getUserPreferences().getLastSelectedFragment()) {
@@ -79,6 +83,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 case 2:
                     item = navigationView.getMenu().findItem(R.id.deleted_notes);
                     fragment = DeletedNotesFragment.newInstance();
+                    break;
+                case 3:
+                    item = navigationView.getMenu().findItem(R.id.clipboard);
+                    fragment = ClipboardFragment.newInstance();
                     break;
             }
         }
@@ -120,6 +128,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             return false;
         }
         switch (item.getItemId()) {
+            case R.id.login:
+                Intent login = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(login);
+                return true;
             case R.id.notes:
                 currentFragment = NotesFragment.newInstance();
                 mainActivityViewModel.getUserPreferences().setLastSelectedFragment(1);
@@ -130,10 +142,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 mainActivityViewModel.getUserPreferences().setLastSelectedFragment(2);
                 currentFragmentId = item.getItemId();
                 break;
-            case R.id.login:
-                Intent login = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(login);
-                return true;
+            case R.id.clipboard:
+                currentFragment = ClipboardFragment.newInstance();
+                mainActivityViewModel.getUserPreferences().setLastSelectedFragment(3);
+                currentFragmentId = item.getItemId();
+                break;
             case R.id.logout:
                 new AlertDialog.Builder(this).setMessage(getString(R.string.main_activity_menu_logout_confirmation))
                         .setPositiveButton(R.string.dialog_ok_message, (dialog, id) -> {
@@ -152,7 +165,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     public void onBackPressed() {
-        if (((SimpleSearchView) findViewById(R.id.searchView)).onBackPressed() && (currentFragment instanceof NotesFragment || currentFragment instanceof DeletedNotesFragment)) {
+        if (((SimpleSearchView) findViewById(R.id.searchView)).onBackPressed() && (currentFragment instanceof NotesFragment || currentFragment instanceof DeletedNotesFragment || currentFragment instanceof ClipboardFragment)) {
             return;
         }
         super.onBackPressed();

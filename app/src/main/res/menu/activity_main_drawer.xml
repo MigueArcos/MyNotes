@@ -2,6 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/login"
+            android:icon="@drawable/ic_login"
+            android:title="@string/main_activity_menu_login" />
+    </group>
+
+    <group android:checkableBehavior="single">
+        <item
             android:id="@+id/notes"
             android:icon="@drawable/ic_note"
             android:title="@string/main_activity_menu_notes" />
@@ -10,14 +17,10 @@
             android:id="@+id/deleted_notes"
             android:icon="@drawable/ic_note"
             android:title="@string/main_activity_menu_deleted_notes" />
-
-    </group>
-
-    <group android:checkableBehavior="single">
         <item
-            android:id="@+id/login"
-            android:icon="@drawable/ic_login"
-            android:title="@string/main_activity_menu_login" />
+            android:id="@+id/clipboard"
+            android:icon="@drawable/ic_note"
+            android:title="@string/main_activity_menu_clipboard" />
     </group>
 
     <item android:title="@string/main_activity_menu_options">

@@ -1,8 +1,5 @@
 package com.zeus.migue.notes.infrastructure.repositories;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-
 import com.google.gson.Gson;
 import com.zeus.migue.notes.data.room.entities.BaseEntity;
 import com.zeus.migue.notes.data.room.entities.Note;
@@ -10,16 +7,14 @@ import com.zeus.migue.notes.infrastructure.contracts.IEntityConverter;
 import com.zeus.migue.notes.infrastructure.contracts.IFilterable;
 import com.zeus.migue.notes.infrastructure.dao.BaseDao;
 import com.zeus.migue.notes.infrastructure.errors.CustomError;
-import com.zeus.migue.notes.infrastructure.utils.Event;
 import com.zeus.migue.notes.infrastructure.services.contracts.ILogger;
-import com.zeus.migue.notes.infrastructure.utils.Utils;
+import com.zeus.migue.notes.infrastructure.utils.Event;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 public class GenericRepository<T extends BaseEntity, DTO extends IFilterable & IEntityConverter<T>> {
     private BaseDao<T> dao;
@@ -145,7 +140,7 @@ public class GenericRepository<T extends BaseEntity, DTO extends IFilterable & I
         addAnimals(list3);*/
     }
 
-    public class RawItem{
+    public class RawItem {
         public int Id;
         public String Name;
         public int ParentId;
@@ -156,10 +151,12 @@ public class GenericRepository<T extends BaseEntity, DTO extends IFilterable & I
             ParentId = parentId;
         }
     }
-    public interface WherePredicate<T>{
+
+    public interface WherePredicate<T> {
         boolean pass(T item);
     }
-    public class Item{
+
+    public class Item {
         public int Id;
         public String Name;
         public List<Item> SubItems;
@@ -169,8 +166,9 @@ public class GenericRepository<T extends BaseEntity, DTO extends IFilterable & I
             Name = name;
         }
     }
-    public void TestX(){
-        List<RawItem> rawItems = new ArrayList<RawItem>(){{
+
+    public void TestX() {
+        List<RawItem> rawItems = new ArrayList<RawItem>() {{
             int i = 0;
             add(new RawItem(++i, "Animales", 0));
             add(new RawItem(++i, "Plantas", 0));
@@ -193,17 +191,18 @@ public class GenericRepository<T extends BaseEntity, DTO extends IFilterable & I
         List<Item> filtered = findItems(rawItems, (rawItem) -> rawItem.ParentId == 0);
         String json = new Gson().toJson(filtered);
     }
-    public List<Item> findItems(List<RawItem> rawItems, WherePredicate<RawItem> predicate){
+
+    public List<Item> findItems(List<RawItem> rawItems, WherePredicate<RawItem> predicate) {
         List<Item> coincidences = new ArrayList<>();
         List<RawItem> coincidencesToDelete = new ArrayList<>();
-        for (RawItem item: rawItems){
-            if (predicate.pass(item)){
+        for (RawItem item : rawItems) {
+            if (predicate.pass(item)) {
                 coincidences.add(new Item(item.Id, item.Name));
                 coincidencesToDelete.add(item);
             }
         }
         rawItems.removeAll(coincidencesToDelete);
-        for (Item coincidence: coincidences){
+        for (Item coincidence : coincidences) {
             coincidence.SubItems = findItems(rawItems, item -> item.ParentId == coincidence.Id);
         }
         return coincidences;

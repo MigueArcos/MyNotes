@@ -21,25 +21,19 @@ public class DeletedNotesFragment extends BaseNotesFragment {
         return myFragment;
     }
 
-
     @Override
     public void handleItemSwipe(NoteDTO data, int position, int swipeDir) {
-        if (swipeDir == ItemTouchHelper.RIGHT){
+        if (swipeDir == ItemTouchHelper.RIGHT) {
             new AlertDialog.Builder(getActivity()).setTitle(R.string.dialog_info_title).setMessage(R.string.activity_main_fragment_deleted_notes_recover_note_text).setPositiveButton(R.string.dialog_ok_message, (dialog, which) -> {
                 data.setDeleted(false);
                 data.setModified(true);
                 data.setModificationDate(Utils.toIso8601(new Date(), true));
-                notesFragmentViewModel.updateNote(data);
-            }).setNegativeButton(R.string.dialog_cancel_message, (dialog, which) -> {
-                recoverDataAtPosition(data, position);
-            }).show();
+                viewModel.updateItem(data);
+            }).setNegativeButton(R.string.dialog_cancel_message, (dialog, which) -> recoverDataAtPosition(data, position)).setCancelable(false).show();
+        } else if (swipeDir == ItemTouchHelper.LEFT) {
+            new AlertDialog.Builder(getActivity()).setTitle(R.string.dialog_warning_title).setMessage(R.string.activity_main_fragment_deleted_notes_cannot_recover_notes_warning).setPositiveButton(R.string.dialog_ok_message, (dialog, which) -> viewModel.deleteItem(data)).setNegativeButton(R.string.dialog_cancel_message, (dialog, which) -> recoverDataAtPosition(data, position)).setCancelable(false).show();
         }
-        else if (swipeDir == ItemTouchHelper.LEFT){
-            new AlertDialog.Builder(getActivity()).setTitle(R.string.dialog_warning_title).setMessage(R.string.activity_main_fragment_deleted_notes_cannot_recover_notes_warning).setPositiveButton(R.string.dialog_ok_message, (dialog, which) -> notesFragmentViewModel.deleteNote(data)).setNegativeButton(R.string.dialog_cancel_message, (dialog, which) -> {
-                recoverDataAtPosition(data, position);
-            }).show();
-        }
-        adapter.getNotes().remove(position);
+        adapter.getItems().remove(position);
         adapter.notifyItemRemoved(position);
     }
 }

@@ -33,13 +33,13 @@ public class NotesFragment extends BaseNotesFragment {
                             data.setDeleted(true);
                             data.setModified(true);
                             data.setModificationDate(Utils.toIso8601(new Date(), true));
-                            notesFragmentViewModel.updateNote(data);
+                            viewModel.updateItem(data);
                         }
                     }
 
                     @Override
                     public void onShown(Snackbar snackbar) {
-                        adapter.getNotes().remove(position);
+                        adapter.getItems().remove(position);
                         adapter.notifyItemRemoved(position);
                     }
 

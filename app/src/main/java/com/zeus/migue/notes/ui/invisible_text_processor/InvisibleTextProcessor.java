@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import com.zeus.migue.notes.R;
+import com.zeus.migue.notes.data.DTO.ClipItemDTO;
 import com.zeus.migue.notes.data.DTO.NoteDTO;
 import com.zeus.migue.notes.data.room.AppDatabase;
+import com.zeus.migue.notes.infrastructure.dao.ClipsDao;
 import com.zeus.migue.notes.infrastructure.dao.NotesDao;
 import com.zeus.migue.notes.infrastructure.errors.CustomError;
+import com.zeus.migue.notes.infrastructure.repositories.ClipsRepository;
 import com.zeus.migue.notes.infrastructure.repositories.NotesRepository;
 import com.zeus.migue.notes.infrastructure.services.contracts.ILogger;
 import com.zeus.migue.notes.infrastructure.services.implementations.Logger;
@@ -31,13 +34,13 @@ public class InvisibleTextProcessor extends BaseActivity {
         CharSequence text = getIntent()
                 .getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT);
         if (text != null){
-            NotesDao notesDao = AppDatabase.getInstance(this).notesDao();
+            ClipsDao clipsDao = AppDatabase.getInstance(this).clipsDao();
             ILogger logger = Logger.getInstance(this);
-            NotesRepository notesRepository = NotesRepository.getInstance(notesDao, logger);
+            ClipsRepository clipsRepository = ClipsRepository.getInstance(clipsDao, logger);
             String isoDate = Utils.toIso8601(new Date(), true);
-            NoteDTO note = new NoteDTO(isoDate, text.toString(), isoDate, isoDate, false);
+            ClipItemDTO note = new ClipItemDTO(text.toString(), isoDate, isoDate);
             try {
-                notesRepository.insert(note);
+                clipsRepository.insert(note);
             } catch (CustomError customError) {
                 logger.log("(InsertDB) " + customError.getEvent().getMessage());
             }
