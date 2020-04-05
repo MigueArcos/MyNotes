@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.github.ivbaranov.mli.MaterialLetterIcon;
 import com.zeus.migue.notes.R;
 import com.zeus.migue.notes.data.DTO.NoteDTO;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
@@ -41,17 +42,21 @@ public class BaseNotesFragmentAdapter extends GenericRecyclerViewAdapter<NoteDTO
 
     public class NoteViewHolder extends CustomViewHolder<NoteDTO> {
         private TextView titleText, modificationDateText;
-
+        private MaterialLetterIcon materialLetterIcon;
         NoteViewHolder(View itemView) {
             super(itemView, itemClickListener);
             titleText = itemView.findViewById(R.id.title_text);
             modificationDateText = itemView.findViewById(R.id.modification_date_text);
+            materialLetterIcon = itemView.findViewById(R.id.letter);
+            materialLetterIcon.setShapeColor(Utils.pickRandomColor(itemView.getContext()));
             itemView.setOnClickListener(this);
         }
 
         @Override
         public void renderItem(NoteDTO item) {
-            titleText.setText(Utils.stringIsNullOrEmpty(item.getTitle()) ? "Nota sin título" : item.getTitle());
+            String text = Utils.stringIsNullOrEmpty(item.getTitle()) ? "Nota sin título" : item.getTitle();
+            materialLetterIcon.setLetter("" + text.charAt(0));
+            titleText.setText(text);
             modificationDateText.setText(Utils.niceDateFormat(Utils.fromIso8601(item.getModificationDate(), true)));
         }
 

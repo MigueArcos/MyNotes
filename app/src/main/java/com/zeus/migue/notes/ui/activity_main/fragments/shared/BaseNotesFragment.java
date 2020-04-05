@@ -1,6 +1,7 @@
 package com.zeus.migue.notes.ui.activity_main.fragments.shared;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -9,6 +10,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.zeus.migue.notes.R;
@@ -16,12 +18,12 @@ import com.zeus.migue.notes.data.DTO.NoteDTO;
 import com.zeus.migue.notes.data.room.entities.Note;
 import com.zeus.migue.notes.ui.activity_main.fragments.notes.NotesViewModel;
 import com.zeus.migue.notes.ui.activity_notes_editor.BottomSheetNotesEditor;
-import com.zeus.migue.notes.ui.shared.BaseListFragment;
+import com.zeus.migue.notes.ui.shared.recyclerview.BaseListFragment;
 
 public abstract class BaseNotesFragment extends BaseListFragment<Note, NoteDTO, NotesViewModel> {
     protected Snackbar snackbar;
     private boolean showDeleted = false;
-
+    protected FloatingActionButton create;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,9 +36,8 @@ public abstract class BaseNotesFragment extends BaseListFragment<Note, NoteDTO, 
         emptyListLabel = rootView.findViewById(R.id.empty_list_label);
         loader = rootView.findViewById(R.id.loader);
         loader.setOnRefreshListener(() -> {
-            if (isLoading) {
-                loader.setRefreshing(true);
-            }
+            loader.setRefreshing(true);
+            new Handler().postDelayed(() -> loader.setRefreshing(false), 1500);
         });
         loader.setRefreshing(false);
 
@@ -92,5 +93,22 @@ public abstract class BaseNotesFragment extends BaseListFragment<Note, NoteDTO, 
     @Override
     public BaseNotesFragmentAdapter getAdapter() {
         return new BaseNotesFragmentAdapter(showDeleted, this::handleItemSwipe);
+    }
+
+    protected void dismissSnackBar() {
+        if (snackbar != null) {
+            snackbar.dismiss();
+        }
+    }
+
+    @Override
+    public int getViewResId() {
+        return R.layout.activity_main_fragment_notes;
+    }
+
+    @Override
+    public void onChangeSearchViewState(boolean isShown) {
+        dismissSnackBar();
+        create.setVisibility(isShown ? View.GONE : showDeleted ? View.GONE : View.VISIBLE);
     }
 }

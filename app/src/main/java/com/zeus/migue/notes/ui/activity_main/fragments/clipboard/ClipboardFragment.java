@@ -1,17 +1,19 @@
 package com.zeus.migue.notes.ui.activity_main.fragments.clipboard;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.zeus.migue.notes.R;
 import com.zeus.migue.notes.data.DTO.ClipItemDTO;
 import com.zeus.migue.notes.data.room.entities.ClipItem;
-import com.zeus.migue.notes.ui.shared.BaseListFragment;
 import com.zeus.migue.notes.ui.activity_notes_editor.BottomSheetNotesEditor;
+import com.zeus.migue.notes.ui.shared.recyclerview.BaseListFragment;
 import com.zeus.migue.notes.ui.shared.recyclerview.GenericRecyclerViewAdapter;
 
 public class ClipboardFragment extends BaseListFragment<ClipItem, ClipItemDTO, ClipboardViewModel> {
@@ -46,26 +48,35 @@ public class ClipboardFragment extends BaseListFragment<ClipItem, ClipItemDTO, C
     }
 
     @Override
+    public int getViewResId() {
+        return R.layout.activity_main_fragment_notes;
+    }
+
+    @Override
+    public void onChangeSearchViewState(boolean isShown) {
+
+    }
+
+    @Override
     protected void initializeViews(View rootView) {
         emptyListLabel = rootView.findViewById(R.id.empty_list_label);
         loader = rootView.findViewById(R.id.loader);
         loader.setOnRefreshListener(() -> {
-            if (isLoading) {
-                loader.setRefreshing(true);
-            }
+            loader.setRefreshing(true);
+            new Handler().postDelayed(() -> loader.setRefreshing(false), 1500);
         });
         loader.setRefreshing(false);
 
-        create = rootView.findViewById(R.id.create_new_fab);
+        FloatingActionButton create = rootView.findViewById(R.id.create_new_fab);
         create.setVisibility(View.GONE);
 
         list = rootView.findViewById(R.id.list);
         adapter = getAdapter();
         adapter.setItemClickListener((data, position) -> {
-            dismissSnackBar();
             BottomSheetNotesEditor dialog = new BottomSheetNotesEditor();
             Bundle packageData = new Bundle();
             packageData.putString("payload", new Gson().toJson(data));
+            packageData.putBoolean("isClipItem", true);
             dialog.setArguments(packageData);
             dialog.show(getActivity().getSupportFragmentManager(), dialog.getTag());
         });

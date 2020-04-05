@@ -29,6 +29,7 @@ public class UserPreferences {
         private static final String preferencesName = "appSettings";
         private static final String lastSelectedFragment = "lastSelectedFragment";
         private static final String lastSyncTime = "lastSyncTime";
+        private static final String clipboardMaxItems = "clipboardMaxItems";
     }
 
 
@@ -78,9 +79,11 @@ public class UserPreferences {
     public long getLastSyncTime(){
         return appSettings.getLong(AppSettingsKeys.lastSelectedFragment, 0);
     }
-
-    public void setLastSyncTime(long timeStamp){
-        appSettings.edit().putLong(AppSettingsKeys.lastSyncTime, timeStamp).apply();
+    public int getClipboardMaxItems(){
+        return appSettings.getInt(AppSettingsKeys.clipboardMaxItems, 50);
+    }
+    public void setClipboardMaxItems(int items){
+        appSettings.edit().putInt(AppSettingsKeys.clipboardMaxItems, items).apply();
     }
 
     public void setLastSelectedFragment(int lastSelectedFragmentId){

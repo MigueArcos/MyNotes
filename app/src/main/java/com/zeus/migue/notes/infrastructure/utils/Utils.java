@@ -5,6 +5,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.provider.Settings;
 import android.view.View;
@@ -13,13 +14,17 @@ import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.zeus.migue.notes.R;
+import com.zeus.migue.notes.infrastructure.network.HttpClient;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.TimeZone;
 
 public class Utils {
@@ -27,6 +32,8 @@ public class Utils {
     public static SimpleDateFormat FORMAT = new SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.US);
     public static final String EMPTY_STRING = "";
     public static final String GLOBAL_LOG_TAG = "Log Tag";
+    public static final Gson NETWORK_SERIALIZER = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    public static final Gson LOCAL_SERIALIZER = new GsonBuilder().create();
     public static void hideKeyboard(Activity activity) {
         View view = activity.getCurrentFocus();
         if (view == null) {
@@ -36,6 +43,11 @@ public class Utils {
         assert imm != null;
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
+    public static int pickRandomColor(Context context){
+        String[] allColors = context.getResources().getStringArray(R.array.material_colors);
+        return Color.parseColor(allColors[new Random().nextInt(allColors.length)]);
+    }
+
     //Useful when dialog won't hide it with original hideKeyboard Method
     public static void hideKeyboardFromView(View view) {
         InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -62,7 +74,10 @@ public class Utils {
         clipboard.setPrimaryClip(clip);
         Toast.makeText(context, context.getText(R.string.text_copied), Toast.LENGTH_SHORT).show();
     }
-
+    public static <T> T fromJson(String json, Class<T> clazz, boolean useNetworkSerializer) {
+        if (useNetworkSerializer) return NETWORK_SERIALIZER.fromJson(json, clazz);
+        return LOCAL_SERIALIZER.fromJson(json, clazz);
+    }
     public static Date fromIso8601(String isoDate, boolean useUTC) {
         try {
             ISO_8601_FORMAT.setTimeZone(useUTC ? TimeZone.getTimeZone("UTC") : TimeZone.getDefault());

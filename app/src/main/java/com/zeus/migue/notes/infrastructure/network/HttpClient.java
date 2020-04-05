@@ -15,6 +15,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.zeus.migue.notes.data.DTO.ErrorCode;
+import com.zeus.migue.notes.infrastructure.utils.Utils;
 
 import java.nio.charset.StandardCharsets;
 
@@ -24,7 +25,6 @@ public class HttpClient {
     private static Context AppContext;
     public static final String URL = "https://mynotes-731ba.firebaseapp.com/api/v1";
     public static final int SYNC_TIME = 7200000;
-    public static final Gson JSON_SERIALIZER = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     private final DefaultRetryPolicy requestPolicy = new DefaultRetryPolicy(0, -1, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
 
@@ -61,7 +61,7 @@ public class HttpClient {
                 return new ErrorCode(4000, message, true);
             }
             if (error.networkResponse != null) {
-                return ErrorCode.fromJson(new String(error.networkResponse.data, StandardCharsets.UTF_8), ErrorCode.class);
+                return Utils.fromJson(new String(error.networkResponse.data, StandardCharsets.UTF_8), ErrorCode.class, true);
             }
             if (error instanceof NetworkError) {
                 message = "Cannot connect to Internet...Please check your connection!";

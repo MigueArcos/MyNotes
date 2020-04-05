@@ -9,4 +9,5 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="item_default_margin">8dp</dimen>
     <dimen name="minimal_padding">4dp</dimen>
+    <dimen name="letter_icon_size">48dp</dimen>
 </resources>

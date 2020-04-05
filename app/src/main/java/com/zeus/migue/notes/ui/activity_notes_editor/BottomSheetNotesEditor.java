@@ -19,21 +19,21 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.gson.Gson;
 import com.zeus.migue.notes.R;
+import com.zeus.migue.notes.data.DTO.ClipItemDTO;
 import com.zeus.migue.notes.data.DTO.NoteDTO;
 import com.zeus.migue.notes.infrastructure.utils.Event;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
 
 import java.util.Date;
 
-public class BottomSheetNotesEditor extends BottomSheetDialogFragment {
+public class BottomSheetNotesEditor<T> extends BottomSheetDialogFragment {
     private String originalTitle = Utils.EMPTY_STRING;
     private String originalContent = Utils.EMPTY_STRING;
     private TextView contentEdit, titleEdit;
     private Toolbar toolbar;
-    private boolean editModeEnabled = false, isNewNote = true;
-    private NoteDTO note;
+    private boolean editModeEnabled = false, isNewNote = true, isClipItem = false;
+    private NoteDTO noteDTO;
     private NotesEditorViewModel notesEditorViewModel;
 
     @Override
@@ -52,14 +52,25 @@ public class BottomSheetNotesEditor extends BottomSheetDialogFragment {
         Bundle packageData = getArguments();
         if (packageData != null) {
             isNewNote = false;
-            note = new Gson().fromJson(packageData.getString("payload", "{}"), NoteDTO.class);
-            originalTitle = note.getTitle();
-            originalContent = note.getContent();
-            contentEdit.setText(originalContent);
-            titleEdit.setText(originalTitle);
-            setEditable(titleEdit, false);
-            setEditable(contentEdit, false);
-            toolbar.getMenu().findItem(R.id.edit).setVisible(true);
+            isClipItem = packageData.getBoolean("isClipItem", false);
+            if (isClipItem){
+                ClipItemDTO dto = Utils.fromJson(packageData.getString("payload", "{}"), ClipItemDTO.class, false);
+                originalContent = dto.getContent();
+                contentEdit.setText(originalContent);
+                titleEdit.setVisibility(View.GONE);
+                setEditable(contentEdit, false);
+                toolbar.getMenu().findItem(R.id.edit).setVisible(false);
+                toolbar.getMenu().findItem(R.id.done).setVisible(false);
+            }else{
+                noteDTO = Utils.fromJson(packageData.getString("payload", "{}"), NoteDTO.class, false);
+                originalTitle = noteDTO.getTitle();
+                originalContent = noteDTO.getContent();
+                contentEdit.setText(originalContent);
+                titleEdit.setText(originalTitle);
+                setEditable(titleEdit, false);
+                setEditable(contentEdit, false);
+                toolbar.getMenu().findItem(R.id.edit).setVisible(true);
+            }
         } else {
             editModeEnabled = true;
             toolbar.getMenu().findItem(R.id.edit).setVisible(false);
@@ -91,23 +102,27 @@ public class BottomSheetNotesEditor extends BottomSheetDialogFragment {
         toolbar.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case R.id.done:
+                    if (isClipItem) return true;
                     insertOrUpdate();
                     Utils.hideKeyboardFromView(v);
                     return true;
                 case R.id.edit:
+                    if (isClipItem) return true;
                     editModeEnabled = !editModeEnabled;
                     setEditable(titleEdit, editModeEnabled);
                     setEditable(contentEdit, editModeEnabled);
                     if (!editModeEnabled) Utils.hideKeyboardFromView(v);
                     return true;
                 case R.id.copy_to_clipboard:
-                    new AlertDialog.Builder(getActivity()).setTitle("Papu lince").setMessage("Pruebas").show();
+                    Utils.copyTextToClipboard(getContext(), contentEdit.getText().toString());
+                    Toast.makeText(getContext(), R.string.text_copied, Toast.LENGTH_SHORT).show();
                     return true;
                 default:
                     return false;
             }
         });
         toolbar.setNavigationOnClickListener(view -> {
+            if (isClipItem) this.dismiss();
             if (thereAreChanges()) {
                 new AlertDialog.Builder(getContext()).setTitle(R.string.dialog_warning_title).setMessage(R.string.notes_editor_dialog_confirm_loss_changes).setPositiveButton(R.string.dialog_ok_message, (dialog, which) -> {
                     this.dismiss();
@@ -122,7 +137,7 @@ public class BottomSheetNotesEditor extends BottomSheetDialogFragment {
         BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from((View) v.getParent());
         DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
         int screenHeight = displayMetrics.heightPixels;
-        int initialDialogHeight = (int) (screenHeight * 0.7);
+        int initialDialogHeight = (int) (screenHeight * 0.85);
         bottomSheetBehavior.setPeekHeight(initialDialogHeight, true);
 
         FrameLayout scrollableContent = v.findViewById(R.id.dialog_scrollable_content);
@@ -139,7 +154,7 @@ public class BottomSheetNotesEditor extends BottomSheetDialogFragment {
             textView.setTextColor(ColorUtils.setAlphaComponent(textView.getCurrentTextColor(), 255));
         } else {
             textView.setShowSoftInputOnFocus(false);
-            textView.setTextColor(ColorUtils.setAlphaComponent(textView.getCurrentTextColor(), 160));
+            textView.setTextColor(ColorUtils.setAlphaComponent(textView.getCurrentTextColor(), 96));
             Linkify.addLinks(textView, Linkify.WEB_URLS);
         }
     }
@@ -149,16 +164,16 @@ public class BottomSheetNotesEditor extends BottomSheetDialogFragment {
         String date = Utils.toIso8601(new Date(), true);
         if (thereAreChanges()) {
             if (isNewNote) {
-                note = new NoteDTO(currentTitle, currentContent, date, date, false);
+                noteDTO = new NoteDTO(currentTitle, currentContent, date, date, false);
                 isNewNote = false;
                 toolbar.getMenu().findItem(R.id.edit).setVisible(true);
-                long id = notesEditorViewModel.insertNote(note);
-                note.setId(id);
+                long id = notesEditorViewModel.insertNote(noteDTO);
+                noteDTO.setId(id);
             } else {
-                note.setTitle(currentTitle);
-                note.setContent(currentContent);
-                note.setModificationDate(date);
-                notesEditorViewModel.updateNote(note);
+                noteDTO.setTitle(currentTitle);
+                noteDTO.setContent(currentContent);
+                noteDTO.setModificationDate(date);
+                notesEditorViewModel.updateNote(noteDTO);
             }
             originalContent = currentContent;
             originalTitle = currentTitle;

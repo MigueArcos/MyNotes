@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:focusable="true"
     android:clickable="true"
     android:layout_margin="4dp">
@@ -14,19 +15,19 @@
         android:layout_height="wrap_content"
         android:background="@drawable/item_background">
 
-        <ImageView
-            android:id="@+id/icon"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_weight="20"
-            android:src="@drawable/ic_man" />
-
+        <com.github.ivbaranov.mli.MaterialLetterIcon
+            android:id="@+id/letter"
+            android:layout_width="@dimen/letter_icon_size"
+            android:layout_height="@dimen/letter_icon_size"
+            app:mli_letter_color="@android:color/white"
+            app:mli_letter_size="26"
+            app:mli_shape_type="circle" />
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="0dp"
+            android:layout_marginStart="12dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/data_layout"
-            android:layout_weight="80"
             android:layout_gravity="center_vertical">
             <TextView
                 android:id="@+id/title_text"

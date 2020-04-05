@@ -1,4 +1,4 @@
-package com.zeus.migue.notes.ui.shared;
+package com.zeus.migue.notes.ui.shared.recyclerview;
 
 import android.graphics.Point;
 import android.os.Bundle;
@@ -19,15 +19,13 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.ferfalk.simplesearchview.SimpleSearchView;
 import com.ferfalk.simplesearchview.utils.DimensUtils;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.zeus.migue.notes.R;
 import com.zeus.migue.notes.data.room.entities.BaseEntity;
 import com.zeus.migue.notes.infrastructure.contracts.IEntityConverter;
 import com.zeus.migue.notes.infrastructure.contracts.IFilterable;
 import com.zeus.migue.notes.infrastructure.utils.Event;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
-import com.zeus.migue.notes.ui.shared.recyclerview.GenericRecyclerViewAdapter;
+import com.zeus.migue.notes.ui.shared.BaseFragment;
 
 import java.util.ArrayList;
 
@@ -39,13 +37,19 @@ public abstract class BaseListFragment<Entity extends BaseEntity, DTO extends IF
     protected GenericRecyclerViewAdapter<DTO, ?> adapter;
     protected ViewModel viewModel;
     private SimpleSearchView searchView;
-    private Snackbar snackbar;
-    protected FloatingActionButton create;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+        boolean hasOptionsMenu = args != null && args.getBoolean("hasOptionsMenu", true);
+        setHasOptionsMenu(args == null || hasOptionsMenu);
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.activity_main_base_list_fragment, container, false);
+        View rootView = inflater.inflate(getViewResId(), container, false);
         initializeViews(rootView);
         //ViewModel observers
         if (getActivity() != null) {
@@ -62,18 +66,12 @@ public abstract class BaseListFragment<Entity extends BaseEntity, DTO extends IF
                 }
             });
             searchView = getActivity().findViewById(R.id.searchView);
-            setHasOptionsMenu(true);
             //viewModel.update();
         }
 
         return rootView;
     }
 
-    protected void dismissSnackBar() {
-        if (snackbar != null) {
-            snackbar.dismiss();
-        }
-    }
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
@@ -114,14 +112,13 @@ public abstract class BaseListFragment<Entity extends BaseEntity, DTO extends IF
         searchView.setOnSearchViewListener(new SimpleSearchView.SearchViewListener() {
             @Override
             public void onSearchViewShown() {
-                handleFab(false);
-                dismissSnackBar();
+                onChangeSearchViewState(true);
                 filterWithEmpty();
             }
 
             @Override
             public void onSearchViewClosed() {
-                handleFab(true);
+                onChangeSearchViewState(false);
                 viewModel.filterNotes(Utils.EMPTY_STRING);
             }
 
@@ -147,10 +144,6 @@ public abstract class BaseListFragment<Entity extends BaseEntity, DTO extends IF
         adapter.notifyItemInserted(position);
     }
 
-    private void handleFab(boolean isVisible) {
-        create.setVisibility(isVisible ? View.VISIBLE : View.GONE);
-    }
-
     public abstract void handleItemSwipe(DTO dto, int position, int swipeDir);
 
     public abstract ViewModel initializeViewModel();
@@ -158,4 +151,8 @@ public abstract class BaseListFragment<Entity extends BaseEntity, DTO extends IF
     public abstract void observeItems();
 
     public abstract GenericRecyclerViewAdapter<DTO, ?> getAdapter();
+
+    public abstract int getViewResId();
+
+    public abstract void onChangeSearchViewState(boolean isShown);
 }

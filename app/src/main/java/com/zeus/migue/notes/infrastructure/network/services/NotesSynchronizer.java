@@ -32,7 +32,7 @@ public class NotesSynchronizer implements INotesSynchronizer {
         StringRequest tRequest = new StringRequest(Request.Method.POST, HttpClient.URL + "/sync",
                 response -> {
                     Log.d(Utils.GLOBAL_LOG_TAG, response);
-                    SyncResponse remoteSyncDTO = SyncResponse.fromJson(response, SyncResponse.class);
+                    SyncResponse remoteSyncDTO = Utils.fromJson(response, SyncResponse.class, true);
                     //Log.d("response", response);
                     //MyTxtLogger.getInstance(AppContext).writeToSD("Response payload byte count: " + response.length() +" Bytes");
                     successListener.onResponse(remoteSyncDTO);
@@ -49,7 +49,7 @@ public class NotesSynchronizer implements INotesSynchronizer {
 
             @Override
             public byte[] getBody() {
-                String payload = syncRequest.toJson();
+                String payload = syncRequest.toJson(true);
                 Log.d("Sync payload", payload);
                 //Log.d("request", payload);
                 //MyTxtLogger.getInstance(AppContext).writeToSD("Request payload byte count: " + payload.length() +" Bytes");
@@ -73,7 +73,7 @@ public class NotesSynchronizer implements INotesSynchronizer {
         StringRequest tRequest = new StringRequest(Request.Method.GET, HttpClient.URL + "/notes",
                 response -> {
                     Log.d(Utils.GLOBAL_LOG_TAG, response);
-                    List<NoteDTO> remoteSyncDTO = HttpClient.JSON_SERIALIZER.fromJson(response, new TypeToken<List<NoteDTO>>() {
+                    List<NoteDTO> remoteSyncDTO = Utils.NETWORK_SERIALIZER.fromJson(response, new TypeToken<List<NoteDTO>>() {
                     }.getType());
                     successListener.onResponse(remoteSyncDTO);
                 },

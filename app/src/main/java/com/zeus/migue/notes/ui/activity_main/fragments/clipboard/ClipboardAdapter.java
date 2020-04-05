@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.github.ivbaranov.mli.MaterialLetterIcon;
 import com.zeus.migue.notes.R;
 import com.zeus.migue.notes.data.DTO.ClipItemDTO;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
@@ -30,17 +31,21 @@ public class ClipboardAdapter extends GenericRecyclerViewAdapter<ClipItemDTO, Cl
 
     public class ClipItemViewHolder extends CustomViewHolder<ClipItemDTO> {
         private TextView contentText, modificationDateText;
-
+        private MaterialLetterIcon materialLetterIcon;
         ClipItemViewHolder(View itemView) {
             super(itemView, itemClickListener);
             contentText = itemView.findViewById(R.id.title_text);
             modificationDateText = itemView.findViewById(R.id.modification_date_text);
+            materialLetterIcon = itemView.findViewById(R.id.letter);
+            materialLetterIcon.setShapeColor(Utils.pickRandomColor(itemView.getContext()));
             itemView.setOnClickListener(this);
         }
 
         @Override
         public void renderItem(ClipItemDTO item) {
-            contentText.setText(item.getContent());
+            String text = item.getContent();
+            materialLetterIcon.setLetter("" + text.charAt(0));
+            contentText.setText(text);
             modificationDateText.setText(Utils.niceDateFormat(Utils.fromIso8601(item.getModificationDate(), true)));
         }
 

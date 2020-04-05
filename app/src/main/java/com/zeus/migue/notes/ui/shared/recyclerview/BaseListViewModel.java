@@ -1,4 +1,4 @@
-package com.zeus.migue.notes.ui.shared;
+package com.zeus.migue.notes.ui.shared.recyclerview;
 
 import android.app.Application;
 

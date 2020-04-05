@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="material_colors">
+        <item>#b0120a</item>
+        <item>#f50057</item>
+        <item>#8e24aa</item>
+        <item>#512da8</item>
+        <item>#3f51b5</item>
+        <item>#5677fc</item>
+        <item>#29b6f6</item>
+        <item>#00acc1</item>
+        <item>#4db6ac</item>
+        <item>#42bd41</item>
+        <item>#8bc34a</item>
+        <item>#ffeb3b</item>
+        <item>#ffca28</item>
+        <item>#ff9800</item>
+        <item>#ff7043</item>
+        <item>#795548</item>
+        <item>#bdbdbd</item>
+        <item>#78909c</item>
+    </string-array>
+</resources>

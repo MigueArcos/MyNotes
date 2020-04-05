@@ -12,6 +12,7 @@ import com.zeus.migue.notes.data.DTO.SignInResponse;
 import com.zeus.migue.notes.data.DTO.SignUpRequest;
 import com.zeus.migue.notes.infrastructure.network.HttpClient;
 import com.zeus.migue.notes.infrastructure.network.IResponseListener;
+import com.zeus.migue.notes.infrastructure.utils.Utils;
 
 import java.nio.charset.StandardCharsets;
 
@@ -26,7 +27,7 @@ public class AuthorizationService implements IAuthorizationService {
         final SignInRequest signInDTO = new SignInRequest(email, password);
         StringRequest tRequest = new StringRequest(Request.Method.POST, HttpClient.URL + "/sign-in",
                 response -> {
-                    SignInResponse signInResponse = SignInResponse.fromJson(response, SignInResponse.class);
+                    SignInResponse signInResponse = Utils.fromJson(response, SignInResponse.class, true);
                     //Log.d("response", response);
                     successListener.onResponse(signInResponse);
                 },
@@ -42,7 +43,7 @@ public class AuthorizationService implements IAuthorizationService {
 
             @Override
             public byte[] getBody() {
-                String payload = signInDTO.toJson();
+                String payload = signInDTO.toJson(true);
                 Log.d("Authorization payload", payload);
                 //Log.d("request", payload);
                 return payload.getBytes(StandardCharsets.UTF_8);
@@ -56,7 +57,7 @@ public class AuthorizationService implements IAuthorizationService {
         final SignUpRequest signUpDTO = new SignUpRequest(email, userName, password);
         StringRequest tRequest = new StringRequest(Request.Method.POST, HttpClient.URL + "/sign-up",
                 response -> {
-                    SignInResponse signInResponse = SignInResponse.fromJson(response, SignInResponse.class);
+                    SignInResponse signInResponse = Utils.fromJson(response, SignInResponse.class, true);
                     //Log.d("response", response);
                     successListener.onResponse(signInResponse);
                 },
@@ -72,7 +73,7 @@ public class AuthorizationService implements IAuthorizationService {
 
             @Override
             public byte[] getBody() {
-                String payload = signUpDTO.toJson();
+                String payload = signUpDTO.toJson(true);
                 Log.d("Authorization payload", payload);
                 //Log.d("request", payload);
                 return payload.getBytes(StandardCharsets.UTF_8);
@@ -86,7 +87,7 @@ public class AuthorizationService implements IAuthorizationService {
         RefreshTokenRequest refreshTokenDTO = new RefreshTokenRequest(refreshToken);
         StringRequest tRequest = new StringRequest(Request.Method.POST, HttpClient.URL + "/refresh-token",
                 response -> {
-                    SignInResponse signInResponse = SignInResponse.fromJson(response, SignInResponse.class);
+                    SignInResponse signInResponse = Utils.fromJson(response, SignInResponse.class, true);
                     //Log.d("response", response);
                     successListener.onResponse(signInResponse);
                 },
@@ -102,7 +103,7 @@ public class AuthorizationService implements IAuthorizationService {
 
             @Override
             public byte[] getBody() {
-                String payload = refreshTokenDTO.toJson();
+                String payload = refreshTokenDTO.toJson(true);
                 Log.d("RefreshToken payload", payload);
                 //Log.d("request", payload);
                 return payload.getBytes(StandardCharsets.UTF_8);

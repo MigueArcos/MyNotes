@@ -13,7 +13,7 @@ import com.zeus.migue.notes.infrastructure.dao.ClipsDao;
 import com.zeus.migue.notes.infrastructure.repositories.ClipsRepository;
 import com.zeus.migue.notes.infrastructure.services.implementations.Logger;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
-import com.zeus.migue.notes.ui.shared.BaseListViewModel;
+import com.zeus.migue.notes.ui.shared.recyclerview.BaseListViewModel;
 
 import java.util.List;
 
