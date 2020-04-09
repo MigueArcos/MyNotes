@@ -51,6 +51,11 @@ public abstract class BaseListFragment<Entity extends BaseEntity, DTO extends IF
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(getViewResId(), container, false);
         initializeViews(rootView);
+        loader.setOnRefreshListener(() -> {
+            loader.setRefreshing(true);
+            startSynchronization();
+        });
+        loader.setRefreshing(false);
         //ViewModel observers
         if (getActivity() != null) {
             viewModel = initializeViewModel();
@@ -58,12 +63,16 @@ public abstract class BaseListFragment<Entity extends BaseEntity, DTO extends IF
             viewModel.getEventData().observe(getViewLifecycleOwner(), liveDataEvent -> {
                 Event event = liveDataEvent.getContentIfNotHandled();
                 if (event != null) {
+                    String message = Utils.stringIsNullOrEmpty(event.getMessage()) ? getString(R.string.sync_error) : event.getMessage();
                     if (event.getMessageType() == Event.MessageType.SHOW_IN_DIALOG) {
-                        new AlertDialog.Builder(getActivity()).setTitle(R.string.generic_error_title).setMessage(event.getLocalResId()).show();
+                        new AlertDialog.Builder(getActivity()).setTitle(R.string.generic_error_title).setMessage(message).show();
                     } else if (event.getMessageType() == Event.MessageType.SHOW_IN_TOAST) {
-                        Toast.makeText(getActivity(), getString(event.getLocalResId()), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
                     }
                 }
+            });
+            viewModel.getSyncResponse().observe(getViewLifecycleOwner(), syncPayload -> {
+                loader.setRefreshing(false);
             });
             searchView = getActivity().findViewById(R.id.searchView);
             //viewModel.update();
@@ -142,6 +151,10 @@ public abstract class BaseListFragment<Entity extends BaseEntity, DTO extends IF
     protected void recoverDataAtPosition(DTO data, int position) {
         adapter.getItems().add(position, data);
         adapter.notifyItemInserted(position);
+    }
+
+    protected void startSynchronization(){
+        viewModel.startSynchronization();
     }
 
     public abstract void handleItemSwipe(DTO dto, int position, int swipeDir);

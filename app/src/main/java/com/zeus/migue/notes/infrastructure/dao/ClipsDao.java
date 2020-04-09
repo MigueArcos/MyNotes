@@ -21,4 +21,11 @@ public interface ClipsDao extends BaseDao<ClipItem> {
 
     @Query("DELETE FROM ClipItems WHERE Content = :content")
     int deleteRepeated(String content);
+
+    @Query("SELECT * FROM ClipItems WHERE IsUploaded = 0 ORDER BY CreationDate DESC")
+    List<ClipItemDTO> getNewClipNotes();
+    @Query("SELECT * FROM ClipItems WHERE ModificationDate > :lastSync AND IsUploaded = 1 ORDER BY CreationDate DESC")
+    List<ClipItemDTO> getModifiedClipNotes(String lastSync);
+    @Query("DELETE FROM ClipItems WHERE IsUploaded = 0")
+    int deleteUnsynced();
 }

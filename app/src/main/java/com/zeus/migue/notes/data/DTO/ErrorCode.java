@@ -12,7 +12,7 @@ public class ErrorCode extends JsonConverter {
     private int statusCode;
     @SerializedName("Message")
     @Expose
-    private String message;
+    private String message = "Unknown error";
     private boolean IsUnknownError;
 
     public ErrorCode() {

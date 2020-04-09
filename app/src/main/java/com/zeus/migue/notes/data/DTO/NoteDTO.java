@@ -21,6 +21,7 @@ public class NoteDTO implements IEntityConverter<Note>, IFilterable {
     @ColumnInfo(name = "RemoteId")
     @Expose
     private String remoteId;
+
     @SerializedName("Title")
     @ColumnInfo(name = "Title")
     @Expose

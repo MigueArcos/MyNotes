@@ -7,13 +7,18 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.zeus.migue.notes.data.DTO.ErrorCode;
 import com.zeus.migue.notes.data.DTO.NoteDTO;
+import com.zeus.migue.notes.data.DTO.sync.SyncPayload;
 import com.zeus.migue.notes.data.room.AppDatabase;
 import com.zeus.migue.notes.data.room.entities.BaseEntity;
 import com.zeus.migue.notes.infrastructure.contracts.IEntityConverter;
 import com.zeus.migue.notes.infrastructure.contracts.IFilterable;
 import com.zeus.migue.notes.infrastructure.errors.CustomError;
+import com.zeus.migue.notes.infrastructure.network.services.ISynchronizer;
+import com.zeus.migue.notes.infrastructure.network.services.Synchronizer;
 import com.zeus.migue.notes.infrastructure.repositories.GenericRepository;
+import com.zeus.migue.notes.infrastructure.services.implementations.UserPreferences;
 import com.zeus.migue.notes.infrastructure.utils.Event;
 import com.zeus.migue.notes.infrastructure.repositories.NotesRepository;
 import com.zeus.migue.notes.infrastructure.services.implementations.Logger;
@@ -24,16 +29,22 @@ import java.util.List;
 
 public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends IFilterable & IEntityConverter<Entity>> extends AndroidViewModel {
     protected GenericRepository<Entity, DTO> repository;
-    protected MutableLiveData<LiveDataEvent<Event>> eventData;
+    private MutableLiveData<LiveDataEvent<Event>> eventData;
     protected MutableLiveData<String> filterLiveData;
-    protected LiveData<List<DTO>> itemsLiveData;
+    private LiveData<List<DTO>> itemsLiveData;
+    private MutableLiveData<SyncPayload> syncResponse;
+    private ISynchronizer synchronizer;
+    private UserPreferences userPreferences;
     public BaseListViewModel(@NonNull Application application) {
         super(application);
         repository = getRepository(application);
         eventData = new MutableLiveData<>();
         filterLiveData = new MutableLiveData<>();
+        syncResponse = new MutableLiveData<>();
         itemsLiveData = initItemsLiveData();
         filterLiveData.setValue(Utils.EMPTY_STRING);
+        synchronizer = new Synchronizer(application);
+        userPreferences = UserPreferences.getInstance(application);
     }
 
     public abstract LiveData<List<DTO>> initItemsLiveData();
@@ -42,6 +53,8 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
     public LiveData<List<DTO>> getItems() {
         return itemsLiveData;
     }
+
+    public LiveData<SyncPayload> getSyncResponse () { return syncResponse; }
 
     public LiveData<LiveDataEvent<Event>> getEventData() {
         return eventData;
@@ -58,6 +71,15 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
             customError.printStackTrace();
             eventData.setValue(new LiveDataEvent<>(customError.getEvent()));
         }
+    }
+    public void startSynchronization(){
+        synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), userPreferences.getRefreshToken(), userPreferences.getLastSyncDate(), syncPayload -> {
+            userPreferences.setLastSyncDate(syncPayload.getLastSync());
+            syncResponse.setValue(syncPayload);
+        }, errorCode -> {
+            eventData.setValue(new LiveDataEvent<>(errorCode.toEvent(Event.MessageType.SHOW_IN_DIALOG)));
+            syncResponse.setValue(null);
+        });
     }
 
     public void deleteItem(DTO dto){

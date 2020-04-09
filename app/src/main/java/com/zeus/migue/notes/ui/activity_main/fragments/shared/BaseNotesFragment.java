@@ -35,12 +35,6 @@ public abstract class BaseNotesFragment extends BaseListFragment<Note, NoteDTO, 
     protected void initializeViews(View rootView) {
         emptyListLabel = rootView.findViewById(R.id.empty_list_label);
         loader = rootView.findViewById(R.id.loader);
-        loader.setOnRefreshListener(() -> {
-            loader.setRefreshing(true);
-            new Handler().postDelayed(() -> loader.setRefreshing(false), 1500);
-        });
-        loader.setRefreshing(false);
-
         create = rootView.findViewById(R.id.create_new_fab);
         if (showDeleted){
             create.setVisibility(View.GONE);

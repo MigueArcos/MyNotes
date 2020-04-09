@@ -73,4 +73,5 @@
     <string name="dialog_info_title">Información</string>
     <string name="activity_main_fragment_deleted_notes_recover_note_text">¿Quieres recuperar esta nota?</string>
     <string name="main_activity_menu_clipboard">Portapapeples</string>
+    <string name="sync_error">Ocurrió un error durante el proceso de sincronización</string>
 </resources>

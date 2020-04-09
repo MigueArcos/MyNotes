@@ -15,4 +15,10 @@ public interface NotesDao extends BaseDao<Note> {
     LiveData<List<NoteDTO>> getAllNotes(boolean showDeleted);
     @Query("SELECT * FROM Notes WHERE IsDeleted=:showDeleted AND (Title || Content) LIKE :filter ORDER BY ModificationDate DESC")
     LiveData<List<NoteDTO>> getNotesByFilter(boolean showDeleted, String filter);
+    @Query("SELECT * FROM Notes WHERE IsUploaded = 0 ORDER BY CreationDate DESC")
+    List<NoteDTO> getNewNotes();
+    @Query("SELECT * FROM Notes WHERE ModificationDate > :lastSync AND IsUploaded = 1 ORDER BY CreationDate DESC")
+    List<NoteDTO> getModifiedNotes(String lastSync);
+    @Query("DELETE FROM Notes WHERE IsUploaded = 0")
+    int deleteUnsynced();
 }

@@ -7,13 +7,12 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.zeus.migue.notes.data.DTO.ErrorCode;
 import com.zeus.migue.notes.data.DTO.SignInResponse;
 import com.zeus.migue.notes.data.room.AppDatabase;
 import com.zeus.migue.notes.infrastructure.network.services.AuthorizationService;
 import com.zeus.migue.notes.infrastructure.network.services.IAuthorizationService;
-import com.zeus.migue.notes.infrastructure.network.services.INotesSynchronizer;
-import com.zeus.migue.notes.infrastructure.network.services.NotesSynchronizer;
+import com.zeus.migue.notes.infrastructure.network.services.ISynchronizer;
+import com.zeus.migue.notes.infrastructure.network.services.Synchronizer;
 import com.zeus.migue.notes.infrastructure.repositories.NotesRepository;
 import com.zeus.migue.notes.infrastructure.services.contracts.ILogger;
 import com.zeus.migue.notes.infrastructure.services.implementations.Logger;
@@ -39,7 +38,7 @@ public class LoginActivityViewModel extends AndroidViewModel {
         signInFragmentState = new SignInFragmentState();
         signUpFragmentState = new SignUpFragmentState();
 
-        INotesSynchronizer notesSynchronizer = new NotesSynchronizer(application);
+        ISynchronizer notesSynchronizer = new Synchronizer(application);
         authorizationService = new AuthorizationService(application);
         ILogger logger = Logger.getInstance(application);
         notesRepository = NotesRepository.getInstance(AppDatabase.getInstance(application).notesDao(), logger);

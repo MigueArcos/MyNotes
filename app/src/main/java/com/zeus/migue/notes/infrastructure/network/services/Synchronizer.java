@@ -9,10 +9,11 @@ import com.android.volley.toolbox.StringRequest;
 import com.google.gson.reflect.TypeToken;
 import com.zeus.migue.notes.data.DTO.ErrorCode;
 import com.zeus.migue.notes.data.DTO.NoteDTO;
-import com.zeus.migue.notes.data.DTO.SyncRequest;
-import com.zeus.migue.notes.data.DTO.SyncResponse;
+import com.zeus.migue.notes.data.DTO.sync.SyncPayload;
 import com.zeus.migue.notes.infrastructure.network.HttpClient;
 import com.zeus.migue.notes.infrastructure.network.IResponseListener;
+import com.zeus.migue.notes.infrastructure.services.contracts.IDatabaseSynchronizer;
+import com.zeus.migue.notes.infrastructure.services.implementations.DatabaseSynchronizer;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
 
 import java.nio.charset.StandardCharsets;
@@ -20,22 +21,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class NotesSynchronizer implements INotesSynchronizer {
+public class Synchronizer implements ISynchronizer {
     private HttpClient httpClient;
-
-    public NotesSynchronizer(Context context) {
+    private IDatabaseSynchronizer databaseSynchronizer;
+    public Synchronizer(Context context) {
         httpClient = HttpClient.getInstance(context);
+        databaseSynchronizer = new DatabaseSynchronizer(context);
     }
 
     @Override
-    public void syncDatabases(SyncRequest syncRequest, IResponseListener<SyncResponse> successListener, IResponseListener<ErrorCode> errorListener) {
+    public void syncDatabases(String token, String refreshToken, String lastSyncDate, IResponseListener<SyncPayload> successListener, IResponseListener<ErrorCode> errorListener) {
+        SyncPayload syncRequest = databaseSynchronizer.buildLocalPayload(lastSyncDate);
+        if (syncRequest == null) {
+            errorListener.onResponse(new ErrorCode(0, "", true));
+            return;
+        }
         StringRequest tRequest = new StringRequest(Request.Method.POST, HttpClient.URL + "/sync",
                 response -> {
                     Log.d(Utils.GLOBAL_LOG_TAG, response);
-                    SyncResponse remoteSyncDTO = Utils.fromJson(response, SyncResponse.class, true);
+                    SyncPayload syncResponse = Utils.fromJson(response, SyncPayload.class, true);
+                    boolean databaseStatus = databaseSynchronizer.synchronize(syncResponse);
                     //Log.d("response", response);
                     //MyTxtLogger.getInstance(AppContext).writeToSD("Response payload byte count: " + response.length() +" Bytes");
-                    successListener.onResponse(remoteSyncDTO);
+                    if (databaseStatus) successListener.onResponse(syncResponse);
+                    else errorListener.onResponse(new ErrorCode(0, "", true));
                 },
                 error -> {
                     // TODO Auto-generated method stub
@@ -59,9 +68,8 @@ public class NotesSynchronizer implements INotesSynchronizer {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return new HashMap<String, String>() {{
-                    /*put("is-first-time-sync", String.valueOf(isFirstTime));
                     put("refresh_token", refreshToken);
-                    put("authorization", token);*/
+                    put("authorization", token);
                 }};
             }
         };
