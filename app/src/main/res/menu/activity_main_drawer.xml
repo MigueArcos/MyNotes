@@ -2,13 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/login"
-            android:icon="@drawable/ic_login"
-            android:title="@string/main_activity_menu_login" />
-    </group>
-
-    <group android:checkableBehavior="single">
-        <item
             android:id="@+id/notes"
             android:icon="@drawable/ic_note"
             android:title="@string/main_activity_menu_notes" />
@@ -19,13 +12,20 @@
             android:title="@string/main_activity_menu_deleted_notes" />
         <item
             android:id="@+id/clipboard"
-            android:icon="@drawable/ic_note"
+            android:icon="@drawable/ic_copy"
             android:title="@string/main_activity_menu_clipboard" />
+        <item
+            android:id="@+id/accounts"
+            android:icon="@drawable/ic_dollar_sign"
+            android:title="@string/main_activity_menu_accounts" />
     </group>
 
     <item android:title="@string/main_activity_menu_options">
         <menu>
-
+            <item
+                android:id="@+id/login"
+                android:icon="@drawable/ic_login"
+                android:title="@string/main_activity_menu_login" />
             <item
                 android:id="@+id/logout"
                 android:icon="@drawable/ic_logout"

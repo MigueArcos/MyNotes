@@ -20,6 +20,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.zeus.migue.notes.R;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
 import com.zeus.migue.notes.ui.activity_login.LoginActivity;
+import com.zeus.migue.notes.ui.activity_main.fragments.accounts.AccountsFragment;
 import com.zeus.migue.notes.ui.activity_main.fragments.clipboard.ClipboardFragment;
 import com.zeus.migue.notes.ui.activity_main.fragments.notes.DeletedNotesFragment;
 import com.zeus.migue.notes.ui.activity_main.fragments.notes.NotesFragment;
@@ -73,6 +74,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             else if (fragment instanceof ClipboardFragment){
                 item = navigationView.getMenu().findItem(R.id.clipboard);
             }
+            else if (fragment instanceof AccountsFragment){
+                item = navigationView.getMenu().findItem(R.id.clipboard);
+            }
         }
         else{
             switch (mainActivityViewModel.getUserPreferences().getLastSelectedFragment()) {
@@ -87,6 +91,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 case 3:
                     item = navigationView.getMenu().findItem(R.id.clipboard);
                     fragment = ClipboardFragment.newInstance();
+                    break;
+                case 4:
+                    item = navigationView.getMenu().findItem(R.id.accounts);
+                    fragment = AccountsFragment.newInstance();
                     break;
             }
         }
@@ -145,6 +153,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             case R.id.clipboard:
                 currentFragment = ClipboardFragment.newInstance();
                 mainActivityViewModel.getUserPreferences().setLastSelectedFragment(3);
+                currentFragmentId = item.getItemId();
+                break;
+            case R.id.accounts:
+                currentFragment = AccountsFragment.newInstance();
+                mainActivityViewModel.getUserPreferences().setLastSelectedFragment(4);
                 currentFragmentId = item.getItemId();
                 break;
             case R.id.logout:

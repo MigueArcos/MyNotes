@@ -24,12 +24,12 @@ import com.zeus.migue.notes.infrastructure.repositories.NotesRepository;
 import com.zeus.migue.notes.infrastructure.services.implementations.Logger;
 import com.zeus.migue.notes.infrastructure.utils.LiveDataEvent;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
+import com.zeus.migue.notes.ui.shared.BasicViewModel;
 
 import java.util.List;
 
-public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends IFilterable & IEntityConverter<Entity>> extends AndroidViewModel {
+public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends IFilterable & IEntityConverter<Entity>> extends BasicViewModel {
     protected GenericRepository<Entity, DTO> repository;
-    private MutableLiveData<LiveDataEvent<Event>> eventData;
     protected MutableLiveData<String> filterLiveData;
     private LiveData<List<DTO>> itemsLiveData;
     private MutableLiveData<SyncPayload> syncResponse;
@@ -38,7 +38,6 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
     public BaseListViewModel(@NonNull Application application) {
         super(application);
         repository = getRepository(application);
-        eventData = new MutableLiveData<>();
         filterLiveData = new MutableLiveData<>();
         syncResponse = new MutableLiveData<>();
         itemsLiveData = initItemsLiveData();
@@ -55,10 +54,6 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
     }
 
     public LiveData<SyncPayload> getSyncResponse () { return syncResponse; }
-
-    public LiveData<LiveDataEvent<Event>> getEventData() {
-        return eventData;
-    }
 
     public void filterNotes(String filter){
         filterLiveData.setValue(filter);

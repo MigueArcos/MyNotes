@@ -15,17 +15,13 @@ import com.zeus.migue.notes.infrastructure.repositories.NotesRepository;
 import com.zeus.migue.notes.infrastructure.services.contracts.ILogger;
 import com.zeus.migue.notes.infrastructure.services.implementations.Logger;
 import com.zeus.migue.notes.infrastructure.utils.LiveDataEvent;
+import com.zeus.migue.notes.ui.shared.BasicViewModel;
 
-public class NotesEditorViewModel extends AndroidViewModel {
+public class NotesEditorViewModel extends BasicViewModel {
     private NotesRepository notesRepository;
-    private ILogger logger;
-
-    private MutableLiveData<LiveDataEvent<Event>> eventData;
 
     public NotesEditorViewModel(@NonNull Application application) {
         super(application);
-        eventData = new MutableLiveData<>();
-        logger = Logger.getInstance(application);
         notesRepository = NotesRepository.getInstance(AppDatabase.getInstance(application).notesDao(), logger);
     }
     public LiveData<LiveDataEvent<Event>> getEvent() {

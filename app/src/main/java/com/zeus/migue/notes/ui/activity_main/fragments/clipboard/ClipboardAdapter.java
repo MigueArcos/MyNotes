@@ -10,14 +10,14 @@ import androidx.annotation.NonNull;
 
 import com.github.ivbaranov.mli.MaterialLetterIcon;
 import com.zeus.migue.notes.R;
-import com.zeus.migue.notes.data.DTO.ClipItemDTO;
+import com.zeus.migue.notes.data.DTO.ClipNoteDTO;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
 import com.zeus.migue.notes.ui.shared.recyclerview.CustomViewHolder;
 import com.zeus.migue.notes.ui.shared.recyclerview.GenericRecyclerViewAdapter;
 import com.zeus.migue.notes.ui.shared.recyclerview.ItemTouchHelperCallback;
 
-public class ClipboardAdapter extends GenericRecyclerViewAdapter<ClipItemDTO, ClipboardAdapter.ClipItemViewHolder> {
-    public ClipboardAdapter(ItemSwipeListener<ClipItemDTO> itemSwipeListener) {
+public class ClipboardAdapter extends GenericRecyclerViewAdapter<ClipNoteDTO, ClipboardAdapter.ClipItemViewHolder> {
+    public ClipboardAdapter(ItemSwipeListener<ClipNoteDTO> itemSwipeListener) {
         super(new ItemTouchHelperCallback.ItemTouchHelperConfiguration(R.drawable.ic_delete_icon, R.drawable.ic_delete_icon, Color.parseColor("#f44336"), Color.parseColor("#f44336")));
         itemTouchHelperConfiguration.setItemSwipeListenerMin((pos, swipeDir) -> itemSwipeListener.onItemSwiped(items.get(pos), pos, swipeDir));
     }
@@ -29,7 +29,7 @@ public class ClipboardAdapter extends GenericRecyclerViewAdapter<ClipItemDTO, Cl
         return new ClipItemViewHolder(layoutView);
     }
 
-    public class ClipItemViewHolder extends CustomViewHolder<ClipItemDTO> {
+    public class ClipItemViewHolder extends CustomViewHolder<ClipNoteDTO> {
         private TextView contentText, modificationDateText;
         private MaterialLetterIcon materialLetterIcon;
         ClipItemViewHolder(View itemView) {
@@ -42,7 +42,7 @@ public class ClipboardAdapter extends GenericRecyclerViewAdapter<ClipItemDTO, Cl
         }
 
         @Override
-        public void renderItem(ClipItemDTO item) {
+        public void renderItem(ClipNoteDTO item) {
             String text = item.getContent();
             materialLetterIcon.setLetter("" + text.charAt(0));
             contentText.setText(text);
@@ -50,7 +50,7 @@ public class ClipboardAdapter extends GenericRecyclerViewAdapter<ClipItemDTO, Cl
         }
 
         @Override
-        public ClipItemDTO getItem() {
+        public ClipNoteDTO getItem() {
             return items.get(getAdapterPosition());
         }
     }

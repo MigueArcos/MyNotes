@@ -17,15 +17,29 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback {
         private int colorLeft;
         private int colorRight;
         private GenericRecyclerViewAdapter.ItemSwipeListenerMin itemSwipeListener;
-
+        private Class<?>[] holdersNotSwipeable;
         public ItemTouchHelperConfiguration(int iconLeft, int iconRight, int colorLeft, int colorRight) {
             this.iconLeft = iconLeft;
             this.iconRight = iconRight;
             this.colorLeft = colorLeft;
             this.colorRight = colorRight;
         }
+        public ItemTouchHelperConfiguration(int iconLeft, int iconRight, int colorLeft, int colorRight, Class<?>... classes) {
+            this.iconLeft = iconLeft;
+            this.iconRight = iconRight;
+            this.colorLeft = colorLeft;
+            this.colorRight = colorRight;
+            this.holdersNotSwipeable = classes;
+        }
         public void setItemSwipeListenerMin(GenericRecyclerViewAdapter.ItemSwipeListenerMin itemSwipeListener){
             this.itemSwipeListener = itemSwipeListener;
+        }
+        public <T extends RecyclerView.ViewHolder> boolean  holderIsSwipeable(T holder) {
+            if (holdersNotSwipeable == null || holdersNotSwipeable.length == 0) return false;
+            for (Class<?> clazz : holdersNotSwipeable){
+                if (clazz.isInstance(holder)) return false;
+            }
+            return true;
         }
     }
 
@@ -47,6 +61,12 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback {
             configuration.itemSwipeListener.onItemSwiped(viewHolder.getAdapterPosition(), swipeDir);
     }
 
+    @Override
+    public int getSwipeDirs(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+        //if (viewHolder.getAdapterPosition() == 0) return 0;
+        if (!configuration.holderIsSwipeable(viewHolder)) return 0;
+        return super.getSwipeDirs(recyclerView, viewHolder);
+    }
 
     @Override
     public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {

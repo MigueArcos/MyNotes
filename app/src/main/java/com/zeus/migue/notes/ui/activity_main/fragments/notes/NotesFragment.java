@@ -6,7 +6,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.zeus.migue.notes.R;
 import com.zeus.migue.notes.data.DTO.NoteDTO;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
-import com.zeus.migue.notes.ui.activity_main.fragments.shared.BaseNotesFragment;
+import com.zeus.migue.notes.ui.activity_main.fragments.notes.shared.BaseNotesFragment;
 
 import java.util.Date;
 
@@ -31,7 +31,6 @@ public class NotesFragment extends BaseNotesFragment {
                     public void onDismissed(Snackbar snackbar, int event) {
                         if (event != DISMISS_EVENT_ACTION) {
                             data.setDeleted(true);
-                            data.setModified(true);
                             data.setModificationDate(Utils.toIso8601(new Date(), true));
                             viewModel.updateItem(data);
                         }

@@ -9,8 +9,9 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.zeus.migue.notes.infrastructure.services.implementations.UserPreferences;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
+import com.zeus.migue.notes.ui.shared.BasicViewModel;
 
-public class MainActivityViewModel extends AndroidViewModel {
+public class MainActivityViewModel extends BasicViewModel {
     private UserPreferences userPreferences;
     private MutableLiveData<MinimalUserInfo> userIsLoggedIn;
 

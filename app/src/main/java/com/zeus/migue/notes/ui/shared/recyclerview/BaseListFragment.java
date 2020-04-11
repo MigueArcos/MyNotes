@@ -60,10 +60,10 @@ public abstract class BaseListFragment<Entity extends BaseEntity, DTO extends IF
         if (getActivity() != null) {
             viewModel = initializeViewModel();
             observeItems();
-            viewModel.getEventData().observe(getViewLifecycleOwner(), liveDataEvent -> {
+            viewModel.getEvent().observe(getViewLifecycleOwner(), liveDataEvent -> {
                 Event event = liveDataEvent.getContentIfNotHandled();
                 if (event != null) {
-                    String message = Utils.stringIsNullOrEmpty(event.getMessage()) ? getString(R.string.sync_error) : event.getMessage();
+                    String message = event.getLocalResId() == 0 ? Utils.stringIsNullOrEmpty(event.getMessage()) ? getString(R.string.sync_error) : event.getMessage() : getString(event.getLocalResId());
                     if (event.getMessageType() == Event.MessageType.SHOW_IN_DIALOG) {
                         new AlertDialog.Builder(getActivity()).setTitle(R.string.generic_error_title).setMessage(message).show();
                     } else if (event.getMessageType() == Event.MessageType.SHOW_IN_TOAST) {

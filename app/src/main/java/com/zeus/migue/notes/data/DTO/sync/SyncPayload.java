@@ -2,7 +2,7 @@ package com.zeus.migue.notes.data.DTO.sync;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.zeus.migue.notes.data.DTO.ClipItemDTO;
+import com.zeus.migue.notes.data.DTO.ClipNoteDTO;
 import com.zeus.migue.notes.data.DTO.NoteDTO;
 import com.zeus.migue.notes.infrastructure.contracts.JsonConverter;
 
@@ -12,7 +12,7 @@ public class SyncPayload extends JsonConverter {
     private EntityChanges<NoteDTO> notes;
     @SerializedName("ClipNotes")
     @Expose
-    private EntityChanges<ClipItemDTO> clipNotes;
+    private EntityChanges<ClipNoteDTO> clipNotes;
     @SerializedName("LastSync")
     @Expose
     private String lastSync;
@@ -28,11 +28,11 @@ public class SyncPayload extends JsonConverter {
         this.notes = notes;
     }
 
-    public EntityChanges<ClipItemDTO> getClipNotes() {
+    public EntityChanges<ClipNoteDTO> getClipNotes() {
         return clipNotes;
     }
 
-    public void setClipNotes(EntityChanges<ClipItemDTO> clipNotes) {
+    public void setClipNotes(EntityChanges<ClipNoteDTO> clipNotes) {
         this.clipNotes = clipNotes;
     }
 

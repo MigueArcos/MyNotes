@@ -2,23 +2,27 @@ package com.zeus.migue.notes.infrastructure.services.implementations;
 
 import android.content.Context;
 
-import com.zeus.migue.notes.data.DTO.ClipItemDTO;
+import com.zeus.migue.notes.data.DTO.ClipNoteDTO;
 import com.zeus.migue.notes.data.DTO.NoteDTO;
 import com.zeus.migue.notes.data.DTO.sync.EntityChanges;
 import com.zeus.migue.notes.data.DTO.sync.SyncPayload;
 import com.zeus.migue.notes.data.room.AppDatabase;
+import com.zeus.migue.notes.data.room.composite_entities.EntityIDs;
 import com.zeus.migue.notes.data.room.entities.BaseEntity;
-import com.zeus.migue.notes.data.room.entities.ClipItem;
+import com.zeus.migue.notes.data.room.entities.ClipNote;
 import com.zeus.migue.notes.data.room.entities.Note;
 import com.zeus.migue.notes.infrastructure.contracts.IEntityConverter;
 import com.zeus.migue.notes.infrastructure.services.contracts.IDatabaseSynchronizer;
 import com.zeus.migue.notes.infrastructure.services.contracts.ILogger;
+import com.zeus.migue.notes.infrastructure.utils.Utils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class DatabaseSynchronizer implements IDatabaseSynchronizer {
     private AppDatabase appDatabase;
@@ -38,7 +42,17 @@ public class DatabaseSynchronizer implements IDatabaseSynchronizer {
             return entity;
         };
     }
-
+    @SuppressWarnings("ConstantConditions")
+    private <Entity extends BaseEntity, DTO extends IEntityConverter<Entity>> Function<DTO, Entity> getMapperModifications(Map<String, Long> idsMap) {
+        return dto -> {
+            Entity entity = dto.toEntity();
+            entity.setIsUploaded(true);
+            if (Utils.stringIsNullOrEmpty(entity.getRemoteId()) && idsMap.containsKey(entity.getRemoteId())){
+                entity.setId(idsMap.get(entity.getRemoteId()));
+            }
+            return entity;
+        };
+    }
     @Override
     public SyncPayload buildLocalPayload(String lastSyncDate) {
         Future<SyncPayload> promise = executorService.submit(() -> {
@@ -46,7 +60,7 @@ public class DatabaseSynchronizer implements IDatabaseSynchronizer {
             EntityChanges<NoteDTO> notesChanges = new EntityChanges<>();
             notesChanges.setToAdd(appDatabase.notesDao().getNewNotes());
             notesChanges.setToModify(appDatabase.notesDao().getModifiedNotes(lastSyncDate));
-            EntityChanges<ClipItemDTO> clipNotesChanges = new EntityChanges<>();
+            EntityChanges<ClipNoteDTO> clipNotesChanges = new EntityChanges<>();
             clipNotesChanges.setToAdd(appDatabase.clipsDao().getNewClipNotes());
             clipNotesChanges.setToModify(appDatabase.clipsDao().getModifiedClipNotes(lastSyncDate));
             syncPayload.setLastSync(lastSyncDate);
@@ -76,21 +90,23 @@ public class DatabaseSynchronizer implements IDatabaseSynchronizer {
                     appDatabase.notesDao().insert(notesToAdd);
                 }
                 if (toModify != null) {
-                    Note[] notesToModify = toModify.stream().map(getMapper()).toArray(Note[]::new);
+                    Map<String, Long> idsMap = appDatabase.notesDao().getIDs().stream().collect(Collectors.toMap(EntityIDs::getRemoteId, EntityIDs::getId));
+                    Note[] notesToModify = toModify.stream().map(getMapperModifications(idsMap)).toArray(Note[]::new);
                     appDatabase.notesDao().update(notesToModify);
                 }
             }
-            EntityChanges<ClipItemDTO> clipNotesChanges = remotePayload.getClipNotes();
+            EntityChanges<ClipNoteDTO> clipNotesChanges = remotePayload.getClipNotes();
             if (clipNotesChanges != null) {
-                List<ClipItemDTO> toAdd = clipNotesChanges.getToAdd();
-                List<ClipItemDTO> toModify = clipNotesChanges.getToModify();
+                List<ClipNoteDTO> toAdd = clipNotesChanges.getToAdd();
+                List<ClipNoteDTO> toModify = clipNotesChanges.getToModify();
                 if (toAdd != null) {
                     appDatabase.clipsDao().deleteUnsynced();
-                    ClipItem[] notesToAdd = toAdd.stream().map(getMapper()).toArray(ClipItem[]::new);
+                    ClipNote[] notesToAdd = toAdd.stream().map(getMapper()).toArray(ClipNote[]::new);
                     appDatabase.clipsDao().insert(notesToAdd);
                 }
                 if (toModify != null) {
-                    ClipItem[] notesToModify = toModify.stream().map(getMapper()).toArray(ClipItem[]::new);
+                    Map<String, Long> idsMap = appDatabase.notesDao().getIDs().stream().collect(Collectors.toMap(EntityIDs::getRemoteId, EntityIDs::getId));
+                    ClipNote[] notesToModify = toModify.stream().map(getMapperModifications(idsMap)).toArray(ClipNote[]::new);
                     appDatabase.clipsDao().update(notesToModify);
                 }
             }

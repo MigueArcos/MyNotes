@@ -2,6 +2,7 @@ package com.zeus.migue.notes.data.DTO;
 
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
+import androidx.room.Ignore;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -13,7 +14,7 @@ import com.zeus.migue.notes.infrastructure.contracts.JsonConverter;
 import java.util.Locale;
 import java.util.Objects;
 
-public class NoteDTO implements IEntityConverter<Note>, IFilterable {
+public class NoteDTO extends JsonConverter implements IEntityConverter<Note>, IFilterable {
     @ColumnInfo(name = "Id")
     private long id;
 
@@ -44,11 +45,11 @@ public class NoteDTO implements IEntityConverter<Note>, IFilterable {
     private boolean isDeleted;
     @ColumnInfo(name = "IsUploaded")
     private boolean isUploaded;
-    @ColumnInfo(name = "IsModified")
-    private boolean isModified;
+
     public NoteDTO(){
 
     }
+    @Ignore
     public NoteDTO(String title, String content, String creationDate, String modificationDate, boolean isDeleted) {
         this.title = title;
         this.creationDate = creationDate;
@@ -121,17 +122,9 @@ public class NoteDTO implements IEntityConverter<Note>, IFilterable {
         isUploaded = uploaded;
     }
 
-    public boolean isModified() {
-        return isModified;
-    }
-
-    public void setModified(boolean modified) {
-        isModified = modified;
-    }
-
     @Override
     public Note toEntity(){
-        return new Note(id, remoteId, title, content, creationDate, modificationDate, isDeleted, isModified, isUploaded);
+        return new Note(id, remoteId, title, content, creationDate, modificationDate, isDeleted, isUploaded);
     }
 
     @Override
@@ -141,7 +134,7 @@ public class NoteDTO implements IEntityConverter<Note>, IFilterable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, remoteId, title, content, creationDate, modificationDate, isDeleted, isModified, isUploaded);
+        return Objects.hash(id, remoteId, title, content, creationDate, modificationDate, isDeleted, isUploaded);
     }
 
     @Override
@@ -149,6 +142,6 @@ public class NoteDTO implements IEntityConverter<Note>, IFilterable {
         if (obj == this) return true;
         if (!(obj instanceof  NoteDTO)) return false;
         NoteDTO source = (NoteDTO) obj;
-        return source.id == id && Objects.equals(source.remoteId, remoteId) && Objects.equals(source.title, title) && Objects.equals(source.content, content) && Objects.equals(source.creationDate, creationDate) && Objects.equals(source.modificationDate, modificationDate) && source.isDeleted == isDeleted && source.isModified == isModified && source.isUploaded == isUploaded;
+        return source.id == id && Objects.equals(source.remoteId, remoteId) && Objects.equals(source.title, title) && Objects.equals(source.content, content) && Objects.equals(source.creationDate, creationDate) && Objects.equals(source.modificationDate, modificationDate) && source.isDeleted == isDeleted && source.isUploaded == isUploaded;
     }
 }

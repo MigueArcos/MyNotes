@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import com.zeus.migue.notes.R;
 import com.zeus.migue.notes.data.DTO.NoteDTO;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
-import com.zeus.migue.notes.ui.activity_main.fragments.shared.BaseNotesFragment;
+import com.zeus.migue.notes.ui.activity_main.fragments.notes.shared.BaseNotesFragment;
 
 import java.util.Date;
 
@@ -26,7 +26,6 @@ public class DeletedNotesFragment extends BaseNotesFragment {
         if (swipeDir == ItemTouchHelper.RIGHT) {
             new AlertDialog.Builder(getActivity()).setTitle(R.string.dialog_info_title).setMessage(R.string.activity_main_fragment_deleted_notes_recover_note_text).setPositiveButton(R.string.dialog_ok_message, (dialog, which) -> {
                 data.setDeleted(false);
-                data.setModified(true);
                 data.setModificationDate(Utils.toIso8601(new Date(), true));
                 viewModel.updateItem(data);
             }).setNegativeButton(R.string.dialog_cancel_message, (dialog, which) -> recoverDataAtPosition(data, position)).setCancelable(false).show();

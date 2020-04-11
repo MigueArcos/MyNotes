@@ -19,6 +19,7 @@ import com.google.gson.GsonBuilder;
 import com.zeus.migue.notes.R;
 import com.zeus.migue.notes.infrastructure.network.HttpClient;
 
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -66,7 +67,19 @@ public class Utils {
     public static void changeStatusBarColor(Activity activity, int colorResId){
         activity.getWindow().setStatusBarColor(ContextCompat.getColor(activity, colorResId));
     }
-
+    public static String formatCurrency(double number){
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
+        int decimalPart = (int) ((number - (int) number) * 100);
+        if (decimalPart == 0) currencyFormatter.setMinimumFractionDigits(0);
+        return currencyFormatter.format(number);
+    }
+    //Removes empty decimals if there are
+    public static String formatDouble(double number){
+        int decimalPart = (int) ((number - (int) number) * 100);
+        int numberPart = (int) number;
+        if (decimalPart == 0) return String.valueOf(numberPart);
+        return String.valueOf(number);
+    }
     public static void copyTextToClipboard(Context context, String url) {
         final ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         final ClipData clip = ClipData.newPlainText(context.getPackageName(), url);

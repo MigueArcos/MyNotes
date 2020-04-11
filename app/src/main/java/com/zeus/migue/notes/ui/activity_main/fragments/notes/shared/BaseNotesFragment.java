@@ -1,7 +1,6 @@
-package com.zeus.migue.notes.ui.activity_main.fragments.shared;
+package com.zeus.migue.notes.ui.activity_main.fragments.notes.shared;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 
 import androidx.annotation.NonNull;

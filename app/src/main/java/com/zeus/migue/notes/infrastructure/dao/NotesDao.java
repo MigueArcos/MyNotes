@@ -5,6 +5,7 @@ import androidx.room.Dao;
 import androidx.room.Query;
 
 import com.zeus.migue.notes.data.DTO.NoteDTO;
+import com.zeus.migue.notes.data.room.composite_entities.EntityIDs;
 import com.zeus.migue.notes.data.room.entities.Note;
 
 import java.util.List;
@@ -21,4 +22,6 @@ public interface NotesDao extends BaseDao<Note> {
     List<NoteDTO> getModifiedNotes(String lastSync);
     @Query("DELETE FROM Notes WHERE IsUploaded = 0")
     int deleteUnsynced();
+    @Query("SELECT Id, RemoteId FROM Notes WHERE IsUploaded = 1")
+    List<EntityIDs> getIDs();
 }

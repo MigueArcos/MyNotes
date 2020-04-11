@@ -19,29 +19,24 @@ import com.zeus.migue.notes.infrastructure.services.implementations.Logger;
 import com.zeus.migue.notes.infrastructure.services.implementations.UserPreferences;
 import com.zeus.migue.notes.infrastructure.utils.Event;
 import com.zeus.migue.notes.infrastructure.utils.LiveDataEvent;
+import com.zeus.migue.notes.ui.shared.BasicViewModel;
 
-public class LoginActivityViewModel extends AndroidViewModel {
+public class LoginActivityViewModel extends BasicViewModel {
     private SignInFragmentState signInFragmentState;
     private SignUpFragmentState signUpFragmentState;
     private boolean isSignInFragment;
-    private MutableLiveData<LiveDataEvent<Event>> eventData;
     private MutableLiveData<SignInResponse> loginResponse;
 
     private IAuthorizationService authorizationService;
-    private NotesRepository notesRepository;
     private UserPreferences userPreferences;
     public LoginActivityViewModel(@NonNull Application application){
         super(application);
-        eventData = new MutableLiveData<>();
         loginResponse = new MutableLiveData<>();
         isSignInFragment = true;
         signInFragmentState = new SignInFragmentState();
         signUpFragmentState = new SignUpFragmentState();
 
-        ISynchronizer notesSynchronizer = new Synchronizer(application);
         authorizationService = new AuthorizationService(application);
-        ILogger logger = Logger.getInstance(application);
-        notesRepository = NotesRepository.getInstance(AppDatabase.getInstance(application).notesDao(), logger);
         userPreferences = UserPreferences.getInstance(application);
     }
     public LiveData<LiveDataEvent<Event>> getEvent() {

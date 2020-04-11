@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public abstract class GenericRecyclerViewAdapter<T, VH extends CustomViewHolder<T>> extends RecyclerView.Adapter<VH> {
+public abstract class GenericRecyclerViewAdapter<T, VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
     public interface ItemClickListener<T> {
         void onClickItem(T data, int position);
     }
@@ -44,7 +44,7 @@ public abstract class GenericRecyclerViewAdapter<T, VH extends CustomViewHolder<
 
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
-        holder.renderItem(items.get(position));
+        ((CustomViewHolder<T>)holder).renderItem(items.get(position));
     }
 
     @Override

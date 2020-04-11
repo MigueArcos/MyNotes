@@ -1,7 +1,6 @@
 package com.zeus.migue.notes.ui.activity_main.fragments.clipboard;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 
 import androidx.lifecycle.ViewModelProvider;
@@ -10,13 +9,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.zeus.migue.notes.R;
-import com.zeus.migue.notes.data.DTO.ClipItemDTO;
-import com.zeus.migue.notes.data.room.entities.ClipItem;
+import com.zeus.migue.notes.data.DTO.ClipNoteDTO;
+import com.zeus.migue.notes.data.room.entities.ClipNote;
 import com.zeus.migue.notes.ui.activity_notes_editor.BottomSheetNotesEditor;
 import com.zeus.migue.notes.ui.shared.recyclerview.BaseListFragment;
 import com.zeus.migue.notes.ui.shared.recyclerview.GenericRecyclerViewAdapter;
 
-public class ClipboardFragment extends BaseListFragment<ClipItem, ClipItemDTO, ClipboardViewModel> {
+public class ClipboardFragment extends BaseListFragment<ClipNote, ClipNoteDTO, ClipboardViewModel> {
     public static ClipboardFragment newInstance() {
         ClipboardFragment myFragment = new ClipboardFragment();
         return myFragment;
@@ -24,7 +23,7 @@ public class ClipboardFragment extends BaseListFragment<ClipItem, ClipItemDTO, C
 
 
     @Override
-    public void handleItemSwipe(ClipItemDTO clipItemDTO, int position, int swipeDir) {
+    public void handleItemSwipe(ClipNoteDTO clipNoteDTO, int position, int swipeDir) {
 
     }
 
@@ -43,7 +42,7 @@ public class ClipboardFragment extends BaseListFragment<ClipItem, ClipItemDTO, C
     }
 
     @Override
-    public GenericRecyclerViewAdapter<ClipItemDTO, ?> getAdapter() {
+    public ClipboardAdapter getAdapter() {
         return new ClipboardAdapter(this::handleItemSwipe);
     }
 

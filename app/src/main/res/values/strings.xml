@@ -74,4 +74,9 @@
     <string name="activity_main_fragment_deleted_notes_recover_note_text">¿Quieres recuperar esta nota?</string>
     <string name="main_activity_menu_clipboard">Portapapeples</string>
     <string name="sync_error">Ocurrió un error durante el proceso de sincronización</string>
+    <string name="fragment_my_money_dialog_placeholder_account_name">Nombre de cuenta</string>
+    <string name="fragment_my_money_dialog_placeholder_account_value">Valor</string>
+    <string name="main_activity_menu_accounts">Mis cuentas</string>
+    <string name="invalid_arguments">Hay algún error con los datos proporcionados</string>
+    <string name="fragment_my_money_dialog_accounts_title">Cuentas</string>
 </resources>

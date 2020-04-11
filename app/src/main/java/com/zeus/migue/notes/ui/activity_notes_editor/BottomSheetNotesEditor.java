@@ -20,19 +20,19 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.zeus.migue.notes.R;
-import com.zeus.migue.notes.data.DTO.ClipItemDTO;
+import com.zeus.migue.notes.data.DTO.ClipNoteDTO;
 import com.zeus.migue.notes.data.DTO.NoteDTO;
 import com.zeus.migue.notes.infrastructure.utils.Event;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
 
 import java.util.Date;
 
-public class BottomSheetNotesEditor<T> extends BottomSheetDialogFragment {
+public class BottomSheetNotesEditor extends BottomSheetDialogFragment {
     private String originalTitle = Utils.EMPTY_STRING;
     private String originalContent = Utils.EMPTY_STRING;
     private TextView contentEdit, titleEdit;
     private Toolbar toolbar;
-    private boolean editModeEnabled = false, isNewNote = true, isClipItem = false;
+    private boolean editModeEnabled = false, isNewNote = true, isClipNote = false;
     private NoteDTO noteDTO;
     private NotesEditorViewModel notesEditorViewModel;
 
@@ -52,9 +52,9 @@ public class BottomSheetNotesEditor<T> extends BottomSheetDialogFragment {
         Bundle packageData = getArguments();
         if (packageData != null) {
             isNewNote = false;
-            isClipItem = packageData.getBoolean("isClipItem", false);
-            if (isClipItem){
-                ClipItemDTO dto = Utils.fromJson(packageData.getString("payload", "{}"), ClipItemDTO.class, false);
+            isClipNote = packageData.getBoolean("isClipNote", false);
+            if (isClipNote){
+                ClipNoteDTO dto = Utils.fromJson(packageData.getString("payload", "{}"), ClipNoteDTO.class, false);
                 originalContent = dto.getContent();
                 contentEdit.setText(originalContent);
                 titleEdit.setVisibility(View.GONE);
@@ -102,12 +102,12 @@ public class BottomSheetNotesEditor<T> extends BottomSheetDialogFragment {
         toolbar.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case R.id.done:
-                    if (isClipItem) return true;
+                    if (isClipNote) return true;
                     insertOrUpdate();
                     Utils.hideKeyboardFromView(v);
                     return true;
                 case R.id.edit:
-                    if (isClipItem) return true;
+                    if (isClipNote) return true;
                     editModeEnabled = !editModeEnabled;
                     setEditable(titleEdit, editModeEnabled);
                     setEditable(contentEdit, editModeEnabled);
@@ -122,7 +122,7 @@ public class BottomSheetNotesEditor<T> extends BottomSheetDialogFragment {
             }
         });
         toolbar.setNavigationOnClickListener(view -> {
-            if (isClipItem) this.dismiss();
+            if (isClipNote) this.dismiss();
             if (thereAreChanges()) {
                 new AlertDialog.Builder(getContext()).setTitle(R.string.dialog_warning_title).setMessage(R.string.notes_editor_dialog_confirm_loss_changes).setPositiveButton(R.string.dialog_ok_message, (dialog, which) -> {
                     this.dismiss();

@@ -2,17 +2,19 @@ package com.zeus.migue.notes.data.DTO;
 
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
+import androidx.room.Ignore;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.zeus.migue.notes.data.room.entities.ClipItem;
+import com.zeus.migue.notes.data.room.entities.ClipNote;
 import com.zeus.migue.notes.infrastructure.contracts.IEntityConverter;
 import com.zeus.migue.notes.infrastructure.contracts.IFilterable;
+import com.zeus.migue.notes.infrastructure.contracts.JsonConverter;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
 
 import java.util.Objects;
 
-public class ClipItemDTO implements IEntityConverter<ClipItem>, IFilterable {
+public class ClipNoteDTO extends JsonConverter implements IEntityConverter<ClipNote>, IFilterable {
     @ColumnInfo(name = "Id")
     private long id;
 
@@ -35,10 +37,11 @@ public class ClipItemDTO implements IEntityConverter<ClipItem>, IFilterable {
     @ColumnInfo(name = "IsUploaded")
     private boolean isUploaded;
 
-    public ClipItemDTO() {
+    public ClipNoteDTO() {
 
     }
-    public ClipItemDTO(String content, String creationDate, String modificationDate) {
+    @Ignore
+    public ClipNoteDTO(String content, String creationDate, String modificationDate) {
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
         this.content = content;
@@ -97,8 +100,8 @@ public class ClipItemDTO implements IEntityConverter<ClipItem>, IFilterable {
 
 
     @Override
-    public ClipItem toEntity() {
-        return new ClipItem(id, remoteId, content, creationDate, modificationDate, isUploaded);
+    public ClipNote toEntity() {
+        return new ClipNote(id, remoteId, content, creationDate, modificationDate, isUploaded);
     }
 
     @Override
@@ -114,8 +117,8 @@ public class ClipItemDTO implements IEntityConverter<ClipItem>, IFilterable {
     @Override
     public boolean equals(@Nullable Object obj) {
         if (obj == this) return true;
-        if (!(obj instanceof ClipItemDTO)) return false;
-        ClipItemDTO source = (ClipItemDTO) obj;
+        if (!(obj instanceof ClipNoteDTO)) return false;
+        ClipNoteDTO source = (ClipNoteDTO) obj;
         return source.id == id && Objects.equals(source.remoteId, remoteId) && Objects.equals(source.content, content) && Objects.equals(source.creationDate, creationDate) && Objects.equals(source.modificationDate, modificationDate) && source.isUploaded == isUploaded;
     }
 }
