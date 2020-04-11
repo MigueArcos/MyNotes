@@ -32,23 +32,4 @@ public class AccountsViewModel extends BaseListViewModel<Account, AccountDTO> {
     public AccountsRepository getRepository(Application application) {
         return AccountsRepository.getInstance(AppDatabase.getInstance(application).accountsDao(), Logger.getInstance(application));
     }
-
-    public long insertAccount(AccountDTO account) {
-        try {
-            return repository.insert(account);
-        } catch (CustomError customError) {
-            customError.printStackTrace();
-            eventData.setValue(new LiveDataEvent<>(customError.getEvent()));
-            return -1;
-        }
-    }
-
-    public void updateAccount(AccountDTO account){
-        try {
-            repository.update(account);
-        } catch (CustomError customError) {
-            customError.printStackTrace();
-            eventData.setValue(new LiveDataEvent<>(customError.getEvent()));
-        }
-    }
 }

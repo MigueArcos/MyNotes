@@ -25,7 +25,7 @@ public class AccountsAdapter extends GenericRecyclerViewAdapter<AccountDTO, Recy
 
     public AccountsAdapter(ItemSwipeListener<AccountDTO> itemSwipeListener) {
         super(new ItemTouchHelperCallback.ItemTouchHelperConfiguration(R.drawable.ic_delete_icon, R.drawable.ic_delete_icon, Color.parseColor("#f44336"), Color.parseColor("#f44336"), AccountsTotalViewHolder.class));
-        itemTouchHelperConfiguration.setItemSwipeListenerMin((pos, swipeDir) -> itemSwipeListener.onItemSwiped(items.get(pos), pos, swipeDir));
+        itemTouchHelperConfiguration.setItemSwipeListenerMin((pos, swipeDir) -> itemSwipeListener.onItemSwiped(items.get(pos - 1), pos - 1, swipeDir));
     }
 
     @NonNull

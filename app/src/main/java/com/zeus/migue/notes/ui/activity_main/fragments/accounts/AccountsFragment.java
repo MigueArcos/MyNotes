@@ -1,10 +1,10 @@
 package com.zeus.migue.notes.ui.activity_main.fragments.accounts;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -12,7 +12,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.zeus.migue.notes.R;
 import com.zeus.migue.notes.data.DTO.AccountDTO;
 import com.zeus.migue.notes.data.room.entities.Account;
-import com.zeus.migue.notes.ui.shared.TextWatcherWrapper;
 import com.zeus.migue.notes.ui.shared.recyclerview.BaseListFragment;
 
 public class AccountsFragment extends BaseListFragment<Account, AccountDTO, AccountsViewModel> {
@@ -26,8 +25,16 @@ public class AccountsFragment extends BaseListFragment<Account, AccountDTO, Acco
 
 
     @Override
-    public void handleItemSwipe(AccountDTO clipNoteDTO, int position, int swipeDir) {
+    public void handleItemSwipe(AccountDTO dto, int position, int swipeDir) {
+        new AlertDialog.Builder(getActivity()).setTitle(R.string.dialog_warning_title).setMessage(R.string.activity_main_fragment_deleted_notes_cannot_recover_notes_warning).setPositiveButton(R.string.dialog_ok_message, (dialog, which) -> viewModel.deleteItem(dto)).setNegativeButton(R.string.dialog_cancel_message, (dialog, which) -> recoverDataAtPosition(dto, position)).setCancelable(false).show();
+        adapter.getItems().remove(position);
+        adapter.notifyItemRemoved(position + 1);
+    }
 
+    @Override
+    protected void recoverDataAtPosition(AccountDTO data, int position) {
+        adapter.getItems().add(position, data);
+        adapter.notifyItemInserted(position + 1);
     }
 
     @Override
@@ -71,7 +78,7 @@ public class AccountsFragment extends BaseListFragment<Account, AccountDTO, Acco
                 if (!accountDialog.accountIsValid()) {
                     Toast.makeText(getContext(), R.string.invalid_arguments, Toast.LENGTH_SHORT).show();
                 } else {
-                    viewModel.insertAccount(accountDialog.getCurrentAccount());
+                    viewModel.insertItem(accountDialog.getCurrentAccount());
                 }
             }).setNegativeButton(R.string.dialog_cancel_message, null).show();
         });
@@ -83,7 +90,7 @@ public class AccountsFragment extends BaseListFragment<Account, AccountDTO, Acco
                 if (!accountDialog.accountIsValid()) {
                     Toast.makeText(getContext(), R.string.invalid_arguments, Toast.LENGTH_SHORT).show();
                 } else {
-                    viewModel.updateAccount(accountDialog.getCurrentAccount());
+                    viewModel.updateItem(accountDialog.getCurrentAccount());
                 }
             }).setNegativeButton(R.string.dialog_cancel_message, null).show();
         });

@@ -35,7 +35,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback {
             this.itemSwipeListener = itemSwipeListener;
         }
         public <T extends RecyclerView.ViewHolder> boolean  holderIsSwipeable(T holder) {
-            if (holdersNotSwipeable == null || holdersNotSwipeable.length == 0) return false;
+            if (holdersNotSwipeable == null || holdersNotSwipeable.length == 0) return true;
             for (Class<?> clazz : holdersNotSwipeable){
                 if (clazz.isInstance(holder)) return false;
             }
@@ -63,7 +63,6 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback {
 
     @Override
     public int getSwipeDirs(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-        //if (viewHolder.getAdapterPosition() == 0) return 0;
         if (!configuration.holderIsSwipeable(viewHolder)) return 0;
         return super.getSwipeDirs(recyclerView, viewHolder);
     }

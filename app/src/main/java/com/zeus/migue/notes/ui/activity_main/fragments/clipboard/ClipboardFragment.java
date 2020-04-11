@@ -1,9 +1,11 @@
 package com.zeus.migue.notes.ui.activity_main.fragments.clipboard;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -11,9 +13,12 @@ import com.google.gson.Gson;
 import com.zeus.migue.notes.R;
 import com.zeus.migue.notes.data.DTO.ClipNoteDTO;
 import com.zeus.migue.notes.data.room.entities.ClipNote;
+import com.zeus.migue.notes.infrastructure.utils.Utils;
 import com.zeus.migue.notes.ui.activity_notes_editor.BottomSheetNotesEditor;
 import com.zeus.migue.notes.ui.shared.recyclerview.BaseListFragment;
 import com.zeus.migue.notes.ui.shared.recyclerview.GenericRecyclerViewAdapter;
+
+import java.util.Date;
 
 public class ClipboardFragment extends BaseListFragment<ClipNote, ClipNoteDTO, ClipboardViewModel> {
     public static ClipboardFragment newInstance() {
@@ -23,8 +28,10 @@ public class ClipboardFragment extends BaseListFragment<ClipNote, ClipNoteDTO, C
 
 
     @Override
-    public void handleItemSwipe(ClipNoteDTO clipNoteDTO, int position, int swipeDir) {
-
+    public void handleItemSwipe(ClipNoteDTO dto, int position, int swipeDir) {
+        new AlertDialog.Builder(getActivity()).setTitle(R.string.dialog_warning_title).setMessage(R.string.activity_main_fragment_deleted_notes_cannot_recover_notes_warning).setPositiveButton(R.string.dialog_ok_message, (dialog, which) -> viewModel.deleteItem(dto)).setNegativeButton(R.string.dialog_cancel_message, (dialog, which) -> recoverDataAtPosition(dto, position)).setCancelable(false).show();
+        adapter.getItems().remove(position);
+        adapter.notifyItemRemoved(position);
     }
 
     @Override

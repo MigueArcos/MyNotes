@@ -3,14 +3,10 @@ package com.zeus.migue.notes.ui.shared.recyclerview;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.zeus.migue.notes.data.DTO.ErrorCode;
-import com.zeus.migue.notes.data.DTO.NoteDTO;
 import com.zeus.migue.notes.data.DTO.sync.SyncPayload;
-import com.zeus.migue.notes.data.room.AppDatabase;
 import com.zeus.migue.notes.data.room.entities.BaseEntity;
 import com.zeus.migue.notes.infrastructure.contracts.IEntityConverter;
 import com.zeus.migue.notes.infrastructure.contracts.IFilterable;
@@ -20,8 +16,6 @@ import com.zeus.migue.notes.infrastructure.network.services.Synchronizer;
 import com.zeus.migue.notes.infrastructure.repositories.GenericRepository;
 import com.zeus.migue.notes.infrastructure.services.implementations.UserPreferences;
 import com.zeus.migue.notes.infrastructure.utils.Event;
-import com.zeus.migue.notes.infrastructure.repositories.NotesRepository;
-import com.zeus.migue.notes.infrastructure.services.implementations.Logger;
 import com.zeus.migue.notes.infrastructure.utils.LiveDataEvent;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
 import com.zeus.migue.notes.ui.shared.BasicViewModel;
@@ -35,6 +29,7 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
     private MutableLiveData<SyncPayload> syncResponse;
     private ISynchronizer synchronizer;
     private UserPreferences userPreferences;
+
     public BaseListViewModel(@NonNull Application application) {
         super(application);
         repository = getRepository(application);
@@ -47,27 +42,22 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
     }
 
     public abstract LiveData<List<DTO>> initItemsLiveData();
+
     public abstract GenericRepository<Entity, DTO> getRepository(Application application);
 
     public LiveData<List<DTO>> getItems() {
         return itemsLiveData;
     }
 
-    public LiveData<SyncPayload> getSyncResponse () { return syncResponse; }
+    public LiveData<SyncPayload> getSyncResponse() {
+        return syncResponse;
+    }
 
-    public void filterNotes(String filter){
+    public void filterNotes(String filter) {
         filterLiveData.setValue(filter);
     }
 
-    public void updateItem(DTO dto){
-        try {
-            repository.update(dto);
-        } catch (CustomError customError) {
-            customError.printStackTrace();
-            eventData.setValue(new LiveDataEvent<>(customError.getEvent()));
-        }
-    }
-    public void startSynchronization(){
+    public void startSynchronization() {
         synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), userPreferences.getRefreshToken(), userPreferences.getLastSyncDate(), syncPayload -> {
             userPreferences.setLastSyncDate(syncPayload.getLastSync());
             syncResponse.setValue(syncPayload);
@@ -77,12 +67,31 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
         });
     }
 
-    public void deleteItem(DTO dto){
+    public void deleteItem(DTO dto) {
         try {
             repository.delete(dto);
         } catch (CustomError customError) {
             customError.printStackTrace();
             eventData.setValue(new LiveDataEvent<>(customError.getEvent()));
+        }
+    }
+
+    public void updateItem(DTO dto) {
+        try {
+            repository.update(dto);
+        } catch (CustomError customError) {
+            customError.printStackTrace();
+            eventData.setValue(new LiveDataEvent<>(customError.getEvent()));
+        }
+    }
+
+    public long insertItem(DTO dto) {
+        try {
+            return repository.insert(dto);
+        } catch (CustomError customError) {
+            customError.printStackTrace();
+            eventData.setValue(new LiveDataEvent<>(customError.getEvent()));
+            return -1;
         }
     }
 }
