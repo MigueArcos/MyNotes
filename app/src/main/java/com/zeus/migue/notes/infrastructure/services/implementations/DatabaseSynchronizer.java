@@ -6,6 +6,7 @@ import com.zeus.migue.notes.data.DTO.ClipNoteDTO;
 import com.zeus.migue.notes.data.DTO.NoteDTO;
 import com.zeus.migue.notes.data.DTO.sync.EntityChanges;
 import com.zeus.migue.notes.data.DTO.sync.SyncPayload;
+import com.zeus.migue.notes.data.enums.EntityName;
 import com.zeus.migue.notes.data.room.AppDatabase;
 import com.zeus.migue.notes.data.room.composite_entities.EntityIDs;
 import com.zeus.migue.notes.data.room.entities.BaseEntity;
@@ -60,9 +61,11 @@ public class DatabaseSynchronizer implements IDatabaseSynchronizer {
             EntityChanges<NoteDTO> notesChanges = new EntityChanges<>();
             notesChanges.setToAdd(appDatabase.notesDao().getNewNotes());
             notesChanges.setToModify(appDatabase.notesDao().getModifiedNotes(lastSyncDate));
+            notesChanges.setToDelete(appDatabase.deleteLogDao().getIDsToDelete(EntityName.Note.toString()));
             EntityChanges<ClipNoteDTO> clipNotesChanges = new EntityChanges<>();
             clipNotesChanges.setToAdd(appDatabase.clipsDao().getNewClipNotes());
             clipNotesChanges.setToModify(appDatabase.clipsDao().getModifiedClipNotes(lastSyncDate));
+            clipNotesChanges.setToDelete(appDatabase.deleteLogDao().getIDsToDelete(EntityName.ClipNote.toString()));
             syncPayload.setLastSync(lastSyncDate);
             syncPayload.setNotes(notesChanges);
             syncPayload.setClipNotes(clipNotesChanges);
@@ -76,7 +79,6 @@ public class DatabaseSynchronizer implements IDatabaseSynchronizer {
             return null;
         }
     }
-
     @Override
     public boolean synchronize(SyncPayload remotePayload) {
         Future<Boolean> promise = executorService.submit(() -> {
@@ -95,6 +97,8 @@ public class DatabaseSynchronizer implements IDatabaseSynchronizer {
                     appDatabase.notesDao().update(notesToModify);
                 }
             }
+            appDatabase.deleteLogDao().deleteAfterSync(EntityName.Note.toString());
+
             EntityChanges<ClipNoteDTO> clipNotesChanges = remotePayload.getClipNotes();
             if (clipNotesChanges != null) {
                 List<ClipNoteDTO> toAdd = clipNotesChanges.getToAdd();
@@ -110,8 +114,7 @@ public class DatabaseSynchronizer implements IDatabaseSynchronizer {
                     appDatabase.clipsDao().update(notesToModify);
                 }
             }
-            //String[] notesToDelete = remotePayload.getNotes().getToDelete().toArray(new String[0]);
-
+            appDatabase.deleteLogDao().deleteAfterSync(EntityName.ClipNote.toString());
             return true;
         });
         try {

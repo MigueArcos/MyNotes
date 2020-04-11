@@ -1,14 +1,12 @@
 package com.zeus.migue.notes.infrastructure.dao;
 
-import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.Query;
 import androidx.room.Update;
 
 import com.zeus.migue.notes.data.room.entities.BaseEntity;
-
-import java.util.List;
 
 @Dao
 public interface BaseDao<T extends BaseEntity> {
@@ -30,5 +28,4 @@ public interface BaseDao<T extends BaseEntity> {
 
     @Delete
     void delete(T data);
-
 }
