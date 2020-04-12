@@ -2,6 +2,7 @@ package com.zeus.migue.notes.data.DTO.sync;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.zeus.migue.notes.infrastructure.utils.Utils;
 
 import java.util.List;
 
@@ -41,5 +42,9 @@ public class EntityChanges<T> {
 
     public void setToDelete(List<String> toDelete) {
         this.toDelete = toDelete;
+    }
+
+    public int getChildsSize(){
+        return Utils.getSafeListSize(toAdd) + Utils.getSafeListSize(toModify) + Utils.getSafeListSize(toDelete);
     }
 }

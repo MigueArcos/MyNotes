@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.provider.Settings;
+import android.text.InputType;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
@@ -118,4 +119,11 @@ public class Utils {
         return src == null || src.size() == 0;
     }
 
+    public static <T> int getSafeListSize(List<T> src){
+        return listIsNullOrEmpty(src) ? 0 : src.size();
+    }
+
+    public static <T> Integer getListSize(List<T> src){
+        return listIsNullOrEmpty(src) ? null : src.size();
+    }
 }

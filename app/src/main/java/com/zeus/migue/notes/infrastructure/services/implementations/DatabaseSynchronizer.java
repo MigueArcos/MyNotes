@@ -10,22 +10,19 @@ import com.zeus.migue.notes.data.DTO.sync.EntityChanges;
 import com.zeus.migue.notes.data.DTO.sync.SyncPayload;
 import com.zeus.migue.notes.data.enums.EntityName;
 import com.zeus.migue.notes.data.room.AppDatabase;
-import com.zeus.migue.notes.data.room.composite_entities.EntityIDs;
-import com.zeus.migue.notes.data.room.entities.BaseEntity;
 import com.zeus.migue.notes.data.room.entities.ClipNote;
 import com.zeus.migue.notes.data.room.entities.Note;
-import com.zeus.migue.notes.infrastructure.contracts.IEntityConverter;
+import com.zeus.migue.notes.infrastructure.dao.ClipNotesDao;
+import com.zeus.migue.notes.infrastructure.dao.NotesDao;
 import com.zeus.migue.notes.infrastructure.services.contracts.IDatabaseSynchronizer;
 import com.zeus.migue.notes.infrastructure.services.contracts.ILogger;
+import com.zeus.migue.notes.infrastructure.utils.EntityChangesProcessor;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class DatabaseSynchronizer implements IDatabaseSynchronizer {
     private AppDatabase appDatabase;
@@ -38,48 +35,41 @@ public class DatabaseSynchronizer implements IDatabaseSynchronizer {
         executorService = Executors.newSingleThreadExecutor();
     }
 
-    private <Entity extends BaseEntity, DTO extends IEntityConverter<Entity>> Function<DTO, Entity> getMapper() {
-        return dto -> {
-            Entity entity = dto.toEntity();
-            entity.setIsUploaded(true);
-            return entity;
-        };
-    }
-    @SuppressWarnings("ConstantConditions")
-    private <Entity extends BaseEntity, DTO extends IEntityConverter<Entity>> Function<DTO, Entity> getMapperModifications(Map<String, Long> idsMap) {
-        return dto -> {
-            Entity entity = dto.toEntity();
-            entity.setIsUploaded(true);
-            if (Utils.stringIsNullOrEmpty(entity.getRemoteId()) && idsMap.containsKey(entity.getRemoteId())){
-                entity.setId(idsMap.get(entity.getRemoteId()));
-            }
-            return entity;
-        };
-    }
     public static class ChangeToLog{
         public String source;
         public EntityLog notes;
         public EntityLog clipNotes;
         public static class EntityLog{
             public List<String> toDelete;
-            public int toAdd;
-            public int toModify;
+            public Integer toAdd;
+            public Integer toModify;
+        }
+
+    }
+    private void cleanPayload(SyncPayload syncPayload){
+        if (syncPayload.getNotes() != null){
+            int size = syncPayload.getNotes().getChildsSize();
+            if (size == 0) syncPayload.setNotes(null);
+        }
+        if (syncPayload.getClipNotes() != null){
+            int size = syncPayload.getClipNotes().getChildsSize();
+            if (size == 0) syncPayload.setClipNotes(null);
         }
     }
-    public void prettyPrintLog(SyncPayload syncPayload, String source){
+    private void prettyPrintLog(SyncPayload syncPayload, String source){
         ChangeToLog changeToLog = new ChangeToLog();
         changeToLog.source = source;
         if (syncPayload.getNotes() != null){
             changeToLog.notes = new ChangeToLog.EntityLog();
-            if (syncPayload.getNotes().getToAdd() != null) changeToLog.notes.toAdd = syncPayload.getNotes().getToAdd().size();
-            if (syncPayload.getNotes().getToModify() != null) changeToLog.notes.toModify = syncPayload.getNotes().getToModify().size();
-            if (syncPayload.getNotes().getToDelete() != null) changeToLog.notes.toDelete = syncPayload.getNotes().getToDelete();
+            changeToLog.notes.toAdd = Utils.getListSize(syncPayload.getNotes().getToAdd());
+            changeToLog.notes.toModify = Utils.getListSize(syncPayload.getNotes().getToModify());
+            if (!Utils.listIsNullOrEmpty(syncPayload.getNotes().getToDelete())) changeToLog.notes.toDelete = syncPayload.getNotes().getToDelete();
         }
         if (syncPayload.getClipNotes() != null){
             changeToLog.clipNotes = new ChangeToLog.EntityLog();
-            if (syncPayload.getClipNotes().getToAdd() != null) changeToLog.clipNotes.toAdd = syncPayload.getClipNotes().getToAdd().size();
-            if (syncPayload.getClipNotes().getToModify() != null) changeToLog.clipNotes.toModify = syncPayload.getClipNotes().getToModify().size();
-            if (syncPayload.getClipNotes().getToDelete() != null) changeToLog.clipNotes.toDelete = syncPayload.getClipNotes().getToDelete();
+            changeToLog.clipNotes.toAdd = Utils.getListSize(syncPayload.getClipNotes().getToAdd());
+            changeToLog.clipNotes.toModify = Utils.getListSize(syncPayload.getClipNotes().getToModify());
+            if (!Utils.listIsNullOrEmpty(syncPayload.getClipNotes().getToDelete())) changeToLog.clipNotes.toDelete = syncPayload.getClipNotes().getToDelete();
         }
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         logger.log(gson.toJson(changeToLog));
@@ -100,6 +90,7 @@ public class DatabaseSynchronizer implements IDatabaseSynchronizer {
             syncPayload.setLastSync(lastSyncDate);
             syncPayload.setNotes(notesChanges);
             syncPayload.setClipNotes(clipNotesChanges);
+            cleanPayload(syncPayload);
             prettyPrintLog(syncPayload, "Local");
             return syncPayload;
         });
@@ -111,55 +102,21 @@ public class DatabaseSynchronizer implements IDatabaseSynchronizer {
             return null;
         }
     }
-    /*
-    private void addSafeNavigation(SyncPayload syncPayload){
-        if (syncPayload.getNotes() == null) syncPayload.setNotes(new EntityChanges<>());
-        if (Utils.listIsNullOrEmpty(syncPayload.getNotes().getToAdd())) syncPayload.getNotes().setToAdd(new ArrayList<>());
-        if (Utils.listIsNullOrEmpty(syncPayload.getNotes().getToModify())) syncPayload.getNotes().setToModify(new ArrayList<>());
-        if (Utils.listIsNullOrEmpty(syncPayload.getNotes().getToDelete())) syncPayload.getNotes().setToDelete(new ArrayList<>());
-        if (syncPayload.getClipNotes() == null) syncPayload.setClipNotes(new EntityChanges<>());
-        if (Utils.listIsNullOrEmpty(syncPayload.getClipNotes().getToAdd())) syncPayload.getClipNotes().setToAdd(new ArrayList<>());
-        if (Utils.listIsNullOrEmpty(syncPayload.getClipNotes().getToModify())) syncPayload.getClipNotes().setToModify(new ArrayList<>());
-        if (Utils.listIsNullOrEmpty(syncPayload.getClipNotes().getToDelete())) syncPayload.getClipNotes().setToDelete(new ArrayList<>());
-    }
-    */
+
     @Override
     public boolean synchronize(SyncPayload remotePayload) {
         Future<Boolean> promise = executorService.submit(() -> {
+            cleanPayload(remotePayload);
             prettyPrintLog(remotePayload, "Remote");
-            EntityChanges<NoteDTO> notesChanges = remotePayload.getNotes();
-            if (notesChanges != null) {
-                List<NoteDTO> toAdd = notesChanges.getToAdd();
-                List<NoteDTO> toModify = notesChanges.getToModify();
-                if (toAdd != null) {
-                    appDatabase.notesDao().deleteUploaded(false);
-                    Note[] notesToAdd = toAdd.stream().map(getMapper()).toArray(Note[]::new);
-                    appDatabase.notesDao().insert(notesToAdd);
-                }
-                if (toModify != null) {
-                    Map<String, Long> idsMap = appDatabase.notesDao().getIDs().stream().collect(Collectors.toMap(EntityIDs::getRemoteId, EntityIDs::getId));
-                    Note[] notesToModify = toModify.stream().map(getMapperModifications(idsMap)).toArray(Note[]::new);
-                    appDatabase.notesDao().update(notesToModify);
-                }
-            }
+
+            EntityChangesProcessor<Note, NoteDTO, NotesDao> notesProcessor = new EntityChangesProcessor<>(appDatabase.notesDao());
+            notesProcessor.processChanges(remotePayload.getNotes(), stream -> stream.toArray(Note[]::new));
             appDatabase.deleteLogDao().deleteAfterSync(EntityName.Note.toString());
 
-            EntityChanges<ClipNoteDTO> clipNotesChanges = remotePayload.getClipNotes();
-            if (clipNotesChanges != null) {
-                List<ClipNoteDTO> toAdd = clipNotesChanges.getToAdd();
-                List<ClipNoteDTO> toModify = clipNotesChanges.getToModify();
-                if (toAdd != null) {
-                    appDatabase.clipsDao().deleteUploaded(false);
-                    ClipNote[] notesToAdd = toAdd.stream().map(getMapper()).toArray(ClipNote[]::new);
-                    appDatabase.clipsDao().insert(notesToAdd);
-                }
-                if (toModify != null) {
-                    Map<String, Long> idsMap = appDatabase.notesDao().getIDs().stream().collect(Collectors.toMap(EntityIDs::getRemoteId, EntityIDs::getId));
-                    ClipNote[] notesToModify = toModify.stream().map(getMapperModifications(idsMap)).toArray(ClipNote[]::new);
-                    appDatabase.clipsDao().update(notesToModify);
-                }
-            }
+            EntityChangesProcessor<ClipNote, ClipNoteDTO, ClipNotesDao> clipNotesProcessor = new EntityChangesProcessor<>(appDatabase.clipsDao());
+            clipNotesProcessor.processChanges(remotePayload.getClipNotes(), stream -> stream.toArray(ClipNote[]::new));
             appDatabase.deleteLogDao().deleteAfterSync(EntityName.ClipNote.toString());
+
             return true;
         });
         try {

@@ -11,7 +11,7 @@ import com.zeus.migue.notes.data.room.entities.Note;
 import java.util.List;
 
 @Dao
-public interface NotesDao extends BaseDao<Note> {
+public interface NotesDao extends BaseDao<Note>, ISyncDao {
     @Query("SELECT * FROM Notes WHERE IsDeleted=:showDeleted ORDER BY ModificationDate DESC")
     LiveData<List<NoteDTO>> getAllNotes(boolean showDeleted);
     @Query("SELECT * FROM Notes WHERE IsDeleted=:showDeleted AND (Title || Content) LIKE :filter ORDER BY ModificationDate DESC")
@@ -20,8 +20,12 @@ public interface NotesDao extends BaseDao<Note> {
     List<NoteDTO> getNewNotes();
     @Query("SELECT * FROM Notes WHERE ModificationDate > :lastSync AND IsUploaded = 1 ORDER BY CreationDate DESC")
     List<NoteDTO> getModifiedNotes(String lastSync);
-    @Query("DELETE FROM Notes WHERE IsUploaded = :isUploaded")
-    int deleteUploaded(boolean isUploaded);
+
+
+    @Override
     @Query("SELECT Id, RemoteId FROM Notes WHERE IsUploaded = 1")
     List<EntityIDs> getIDs();
+    @Override
+    @Query("DELETE FROM Notes WHERE IsUploaded = :isUploaded")
+    int deleteUploaded(boolean isUploaded);
 }
