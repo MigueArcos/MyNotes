@@ -27,13 +27,13 @@
                 android:icon="@drawable/ic_login"
                 android:title="@string/main_activity_menu_login" />
             <item
-                android:id="@+id/logout"
-                android:icon="@drawable/ic_logout"
-                android:title="@string/main_activity_menu_logout" />
-            <item
                 android:id="@+id/about_app"
                 android:icon="@drawable/ic_info_grey"
                 android:title="@string/about_app" />
+            <item
+                android:id="@+id/logout"
+                android:icon="@drawable/ic_logout"
+                android:title="@string/main_activity_menu_logout" />
         </menu>
     </item>
 
