@@ -30,7 +30,7 @@ public class Synchronizer implements ISynchronizer {
     }
 
     @Override
-    public void syncDatabases(String token, String lastSyncDate, IResponseListener<SyncPayload> successListener, IResponseListener<ErrorCode> errorListener) {
+    public void syncDatabases(String token, String refreshToken, String lastSyncDate, IResponseListener<SyncPayload> successListener, IResponseListener<ErrorCode> errorListener) {
         SyncPayload syncRequest = databaseSynchronizer.buildLocalPayload(lastSyncDate);
         if (syncRequest == null) {
             errorListener.onResponse(new ErrorCode(0, "", true));
@@ -66,33 +66,9 @@ public class Synchronizer implements ISynchronizer {
             }
 
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders(){
                 return new HashMap<String, String>() {{
-                    //put("refresh_token", refreshToken);
-                    put("authorization", token);
-                }};
-            }
-        };
-        httpClient.addToRequestQueue(tRequest);
-    }
-
-    @Override
-    public void getUserNotes(String token, IResponseListener<List<NoteDTO>> successListener, IResponseListener<ErrorCode> errorListener) {
-        StringRequest tRequest = new StringRequest(Request.Method.GET, HttpClient.URL + "/notes",
-                response -> {
-                    Log.d(Utils.GLOBAL_LOG_TAG, response);
-                    List<NoteDTO> remoteSyncDTO = Utils.NETWORK_SERIALIZER.fromJson(response, new TypeToken<List<NoteDTO>>() {
-                    }.getType());
-                    successListener.onResponse(remoteSyncDTO);
-                },
-                error -> {
-                    // TODO Auto-generated method stub
-                    errorListener.onResponse(httpClient.getVolleyError(error));
-                }
-        ) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                return new HashMap<String, String>() {{
+                    if (!Utils.stringIsNullOrEmpty(refreshToken)) put("refresh_token", refreshToken);
                     put("authorization", token);
                 }};
             }

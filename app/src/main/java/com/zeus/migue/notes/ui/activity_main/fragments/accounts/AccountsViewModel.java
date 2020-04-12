@@ -9,11 +9,9 @@ import com.zeus.migue.notes.data.DTO.AccountDTO;
 import com.zeus.migue.notes.data.room.AppDatabase;
 import com.zeus.migue.notes.data.room.entities.Account;
 import com.zeus.migue.notes.infrastructure.dao.AccountsDao;
-import com.zeus.migue.notes.infrastructure.errors.CustomError;
 import com.zeus.migue.notes.infrastructure.repositories.AccountsRepository;
 import com.zeus.migue.notes.infrastructure.services.implementations.Logger;
-import com.zeus.migue.notes.infrastructure.utils.LiveDataEvent;
-import com.zeus.migue.notes.ui.shared.recyclerview.BaseListViewModel;
+import com.zeus.migue.notes.ui.shared.BaseListViewModel;
 
 import java.util.List;
 

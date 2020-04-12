@@ -1,4 +1,4 @@
-package com.zeus.migue.notes.ui.shared;
+package com.zeus.migue.notes.ui.shared.misc;
 
 import android.text.Editable;
 import android.text.TextWatcher;

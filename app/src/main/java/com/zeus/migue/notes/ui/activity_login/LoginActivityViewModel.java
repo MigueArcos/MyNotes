@@ -1,6 +1,7 @@
 package com.zeus.migue.notes.ui.activity_login;
 
 import android.app.Application;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -8,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.zeus.migue.notes.data.DTO.ErrorCode;
 import com.zeus.migue.notes.data.DTO.SignInResponse;
+import com.zeus.migue.notes.infrastructure.broadcast_services.AutomaticSyncEnabler;
 import com.zeus.migue.notes.infrastructure.network.IResponseListener;
 import com.zeus.migue.notes.infrastructure.network.services.AuthorizationService;
 import com.zeus.migue.notes.infrastructure.network.services.IAuthorizationService;
@@ -26,7 +28,7 @@ public class LoginActivityViewModel extends BasicViewModel {
     private ISynchronizer synchronizer;
     private IAuthorizationService authorizationService;
     private UserPreferences userPreferences;
-
+    private AutomaticSyncEnabler syncEnabler;
     public static final int RESPONSE_ERROR = 0;
     public static final int SYNC_SUCCESS = 1;
     public static final int LOGIN_SUCCESS = 2;
@@ -40,6 +42,7 @@ public class LoginActivityViewModel extends BasicViewModel {
         synchronizer = new Synchronizer(application);
         authorizationService = new AuthorizationService(application);
         userPreferences = UserPreferences.getInstance(application);
+        syncEnabler = AutomaticSyncEnabler.getInstance(application);
     }
     public LiveData<LiveDataEvent<Event>> getEvent() {
         return eventData;
@@ -57,7 +60,9 @@ public class LoginActivityViewModel extends BasicViewModel {
         authorizationService.signIn(email, password, signInResponse -> {
             userPreferences.setAuthInfo(signInResponse, true);
             networkResponse.setValue(LOGIN_SUCCESS);
-            synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), userPreferences.getLastSyncDate(), syncPayload ->  {
+            syncEnabler.enableAutomaticSync();
+            syncEnabler.registerSyncServiceOnBoot(true);
+            synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), null, userPreferences.getLastSyncDate(), syncPayload ->  {
                 userPreferences.setLastSyncDate(syncPayload.getLastSync());
                 networkResponse.setValue(SYNC_SUCCESS);
             }, errorListener);
@@ -76,7 +81,9 @@ public class LoginActivityViewModel extends BasicViewModel {
         authorizationService.signUp(email, userName, password, signInResponse -> {
             userPreferences.setAuthInfo(signInResponse, true);
             networkResponse.setValue(LOGIN_SUCCESS);
-            synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), userPreferences.getLastSyncDate(), syncPayload ->  {
+            syncEnabler.enableAutomaticSync();
+            syncEnabler.registerSyncServiceOnBoot(true);
+            synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), null, userPreferences.getLastSyncDate(), syncPayload ->  {
                 userPreferences.setLastSyncDate(syncPayload.getLastSync());
                 networkResponse.setValue(SYNC_SUCCESS);
             }, errorListener);

@@ -96,7 +96,19 @@ public class GenericRepository<T extends BaseEntity, DTO extends IFilterable & I
             throw new CustomError(Event.ROOM_DELETE_ERROR);
         }
     }
-
+    public interface ExecuteOperations{
+        void executeOperations();
+    }
+    public void executeOperations(ExecuteOperations executeOperations) throws CustomError {
+        Future promise = executorService.submit(executeOperations::executeOperations);
+        try {
+            promise.get();
+        } catch (Exception ex) {
+            if (logger != null)
+                logger.log(String.format("(UpdateDB) Exception occurred: %s", ex.getMessage()));
+            throw new CustomError(Event.ROOM_ERROR);
+        }
+    }
 
     //////////////////////////////////////// Tests that will be deleted soon //////////////////////////////////////
 

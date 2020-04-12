@@ -8,7 +8,7 @@
         android:padding="8dp"
         android:orientation="vertical">
 
-        <com.zeus.migue.notes.ui.shared.InputField
+        <com.zeus.migue.notes.ui.shared.components.InputField
             android:id="@+id/account_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -20,9 +20,9 @@
                 android:inputType="textShortMessage|textCapWords"
                 android:maxLines="1"
                 android:singleLine="true" />
-        </com.zeus.migue.notes.ui.shared.InputField>
+        </com.zeus.migue.notes.ui.shared.components.InputField>
 
-        <com.zeus.migue.notes.ui.shared.InputField
+        <com.zeus.migue.notes.ui.shared.components.InputField
             android:id="@+id/account_value"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -34,7 +34,7 @@
                 android:inputType="number"
                 android:maxLines="1"
                 android:singleLine="true" />
-        </com.zeus.migue.notes.ui.shared.InputField>
+        </com.zeus.migue.notes.ui.shared.components.InputField>
 
     </LinearLayout>
 </LinearLayout>

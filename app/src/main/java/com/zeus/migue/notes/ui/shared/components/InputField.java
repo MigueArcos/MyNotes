@@ -1,4 +1,4 @@
-package com.zeus.migue.notes.ui.shared;
+package com.zeus.migue.notes.ui.shared.components;
 
 import android.content.Context;
 import android.util.AttributeSet;

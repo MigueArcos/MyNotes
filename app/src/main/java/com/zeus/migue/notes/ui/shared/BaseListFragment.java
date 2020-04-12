@@ -1,4 +1,4 @@
-package com.zeus.migue.notes.ui.shared.recyclerview;
+package com.zeus.migue.notes.ui.shared;
 
 import android.graphics.Point;
 import android.os.Bundle;
@@ -25,7 +25,7 @@ import com.zeus.migue.notes.infrastructure.contracts.IEntityConverter;
 import com.zeus.migue.notes.infrastructure.contracts.IFilterable;
 import com.zeus.migue.notes.infrastructure.utils.Event;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
-import com.zeus.migue.notes.ui.shared.BaseFragment;
+import com.zeus.migue.notes.ui.shared.recyclerview.GenericRecyclerViewAdapter;
 
 import java.util.ArrayList;
 

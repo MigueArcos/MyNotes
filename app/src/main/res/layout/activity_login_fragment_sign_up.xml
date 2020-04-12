@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <com.zeus.migue.notes.ui.shared.InputField
+    <com.zeus.migue.notes.ui.shared.components.InputField
         android:id="@+id/username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -18,9 +18,9 @@
             android:maxLines="1"
             android:singleLine="true" />
 
-    </com.zeus.migue.notes.ui.shared.InputField>
+    </com.zeus.migue.notes.ui.shared.components.InputField>
 
-    <com.zeus.migue.notes.ui.shared.InputField
+    <com.zeus.migue.notes.ui.shared.components.InputField
         android:id="@+id/email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -32,10 +32,10 @@
             android:hint="@string/activity_login_fragment_sign_up_email"
             android:maxLines="1"
             android:singleLine="true" />
-    </com.zeus.migue.notes.ui.shared.InputField>
+    </com.zeus.migue.notes.ui.shared.components.InputField>
 
 
-    <com.zeus.migue.notes.ui.shared.InputField
+    <com.zeus.migue.notes.ui.shared.components.InputField
         android:id="@+id/password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -47,9 +47,9 @@
             android:hint="@string/activity_login_fragment_sign_up_password"
             android:maxLines="1"
             android:singleLine="true" />
-    </com.zeus.migue.notes.ui.shared.InputField>
+    </com.zeus.migue.notes.ui.shared.components.InputField>
 
-    <com.zeus.migue.notes.ui.shared.InputField
+    <com.zeus.migue.notes.ui.shared.components.InputField
         android:id="@+id/confirm_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -61,7 +61,7 @@
             android:hint="@string/activity_login_fragment_sign_up_confirm_password"
             android:maxLines="1"
             android:singleLine="true" />
-    </com.zeus.migue.notes.ui.shared.InputField>
+    </com.zeus.migue.notes.ui.shared.components.InputField>
 
     <Button
         android:id="@+id/submit_button"

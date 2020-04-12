@@ -12,7 +12,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.zeus.migue.notes.R;
 import com.zeus.migue.notes.data.DTO.AccountDTO;
 import com.zeus.migue.notes.data.room.entities.Account;
-import com.zeus.migue.notes.ui.shared.recyclerview.BaseListFragment;
+import com.zeus.migue.notes.ui.shared.BaseListFragment;
 
 public class AccountsFragment extends BaseListFragment<Account, AccountDTO, AccountsViewModel> {
     public static AccountsFragment newInstance() {

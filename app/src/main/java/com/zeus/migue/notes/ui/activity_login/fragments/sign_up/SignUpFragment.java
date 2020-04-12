@@ -18,8 +18,8 @@ import com.zeus.migue.notes.infrastructure.utils.Event;
 import com.zeus.migue.notes.ui.activity_login.LoginActivityViewModel;
 import com.zeus.migue.notes.ui.activity_main.MainActivity;
 import com.zeus.migue.notes.ui.shared.BaseFragment;
-import com.zeus.migue.notes.ui.shared.InputField;
-import com.zeus.migue.notes.ui.shared.LoaderDialog;
+import com.zeus.migue.notes.ui.shared.components.InputField;
+import com.zeus.migue.notes.ui.shared.components.LoaderDialog;
 
 import java.util.regex.Pattern;
 

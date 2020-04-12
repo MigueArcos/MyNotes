@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.zeus.migue.notes.data.room.AppDatabase;
+import com.zeus.migue.notes.infrastructure.broadcast_services.AutomaticSyncEnabler;
 import com.zeus.migue.notes.infrastructure.errors.CustomError;
 import com.zeus.migue.notes.infrastructure.services.implementations.UserPreferences;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
@@ -20,12 +21,14 @@ public class MainActivityViewModel extends BasicViewModel {
     private UserPreferences userPreferences;
     private MutableLiveData<MinimalUserInfo> userIsLoggedIn;
     private AppDatabase appDatabase;
+    private AutomaticSyncEnabler syncEnabler;
     public MainActivityViewModel(@NonNull Application application) {
         super(application);
         userPreferences = UserPreferences.getInstance(application);
         userIsLoggedIn = new MutableLiveData<>();
         userIsLoggedIn.setValue(new MinimalUserInfo(userPreferences.userIsAuthenticated(), userPreferences.getName(), userPreferences.getEmail()));
         appDatabase = AppDatabase.getInstance(application);
+        syncEnabler = AutomaticSyncEnabler.getInstance(application);
     }
 
     public UserPreferences getUserPreferences() {
@@ -48,6 +51,7 @@ public class MainActivityViewModel extends BasicViewModel {
         }  catch (Exception e) {
             logger.log("(Close session) " + e.getMessage());
         }
+        syncEnabler.disableAutomaticSync();
         userIsLoggedIn.setValue(new MinimalUserInfo(false, Utils.EMPTY_STRING, Utils.EMPTY_STRING));
     }
 

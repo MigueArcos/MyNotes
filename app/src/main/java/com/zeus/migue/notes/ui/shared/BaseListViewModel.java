@@ -1,4 +1,4 @@
-package com.zeus.migue.notes.ui.shared.recyclerview;
+package com.zeus.migue.notes.ui.shared;
 
 import android.app.Application;
 
@@ -74,10 +74,10 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
         if (userPreferences.tokenHasExpired()){
             authorizationService.refreshToken(userPreferences.getRefreshToken(), signInResponse -> {
                 userPreferences.setAuthInfo(signInResponse, false);
-                synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), userPreferences.getLastSyncDate(), syncSuccessListener, syncErrorListener);
+                synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), null, userPreferences.getLastSyncDate(), syncSuccessListener, syncErrorListener);
             }, syncErrorListener);
         }else{
-            synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), userPreferences.getLastSyncDate(), syncSuccessListener, syncErrorListener);
+            synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), null, userPreferences.getLastSyncDate(), syncSuccessListener, syncErrorListener);
         }
     }
 

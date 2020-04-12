@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -13,12 +12,8 @@ import com.google.gson.Gson;
 import com.zeus.migue.notes.R;
 import com.zeus.migue.notes.data.DTO.ClipNoteDTO;
 import com.zeus.migue.notes.data.room.entities.ClipNote;
-import com.zeus.migue.notes.infrastructure.utils.Utils;
 import com.zeus.migue.notes.ui.activity_notes_editor.BottomSheetNotesEditor;
-import com.zeus.migue.notes.ui.shared.recyclerview.BaseListFragment;
-import com.zeus.migue.notes.ui.shared.recyclerview.GenericRecyclerViewAdapter;
-
-import java.util.Date;
+import com.zeus.migue.notes.ui.shared.BaseListFragment;
 
 public class ClipboardFragment extends BaseListFragment<ClipNote, ClipNoteDTO, ClipboardViewModel> {
     public static ClipboardFragment newInstance() {

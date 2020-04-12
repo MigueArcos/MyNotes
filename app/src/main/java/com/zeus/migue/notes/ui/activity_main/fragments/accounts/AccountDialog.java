@@ -1,7 +1,6 @@
 package com.zeus.migue.notes.ui.activity_main.fragments.accounts;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -10,8 +9,8 @@ import androidx.appcompat.app.AlertDialog;
 import com.zeus.migue.notes.R;
 import com.zeus.migue.notes.data.DTO.AccountDTO;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
-import com.zeus.migue.notes.ui.shared.InputField;
-import com.zeus.migue.notes.ui.shared.TextWatcherWrapper;
+import com.zeus.migue.notes.ui.shared.components.InputField;
+import com.zeus.migue.notes.ui.shared.misc.TextWatcherWrapper;
 
 import java.util.Date;
 

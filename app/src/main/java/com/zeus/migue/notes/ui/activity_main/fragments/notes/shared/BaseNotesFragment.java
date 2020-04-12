@@ -17,8 +17,7 @@ import com.zeus.migue.notes.data.DTO.NoteDTO;
 import com.zeus.migue.notes.data.room.entities.Note;
 import com.zeus.migue.notes.ui.activity_main.fragments.notes.NotesViewModel;
 import com.zeus.migue.notes.ui.activity_notes_editor.BottomSheetNotesEditor;
-import com.zeus.migue.notes.ui.activity_notes_editor.NotesEditorViewModel;
-import com.zeus.migue.notes.ui.shared.recyclerview.BaseListFragment;
+import com.zeus.migue.notes.ui.shared.BaseListFragment;
 
 public abstract class BaseNotesFragment extends BaseListFragment<Note, NoteDTO, NotesViewModel> {
     protected Snackbar snackbar;

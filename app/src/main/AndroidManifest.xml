@@ -57,6 +57,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <receiver
+            android:name=".infrastructure.broadcast_services.boot_services.TurnOnSyncService"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".infrastructure.broadcast_services.SyncReceiverService" />
     </application>
 
 </manifest>
