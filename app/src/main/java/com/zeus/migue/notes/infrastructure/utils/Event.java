@@ -13,6 +13,7 @@ public class Event {
     public static final Event PASSWORDS_DO_NOT_MATCH = new Event(R.string.activity_login_fragment_sign_up_mismatch_passwords, MessageType.SHOW_IN_DIALOG);
     public static final Event SYNC_SUCCESS = new Event(0, MessageType.DO_NOT_SHOW);
     public static final Event SYNC_ERROR = new Event(R.string.sync_error, MessageType.SHOW_IN_DIALOG);
+    public static final Event NO_INTERNET = new Event(R.string.no_internet_connection, MessageType.SHOW_IN_DIALOG);
     public Event(int localResId, int messageType) {
         this.localResId = localResId;
         this.messageType = messageType;

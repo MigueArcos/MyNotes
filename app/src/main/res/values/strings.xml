@@ -80,4 +80,5 @@
     <string name="invalid_arguments">Hay algún error con los datos proporcionados</string>
     <string name="fragment_my_money_dialog_accounts_title">Cuentas</string>
     <string name="sync_loader_message">Sincronizando…Por favor espere.</string>
+    <string name="no_internet_connection">No hay conexión a internet</string>
 </resources>

@@ -18,6 +18,8 @@ import com.zeus.migue.notes.infrastructure.network.services.IAuthorizationServic
 import com.zeus.migue.notes.infrastructure.network.services.ISynchronizer;
 import com.zeus.migue.notes.infrastructure.network.services.Synchronizer;
 import com.zeus.migue.notes.infrastructure.repositories.GenericRepository;
+import com.zeus.migue.notes.infrastructure.services.contracts.IConnectivityChecker;
+import com.zeus.migue.notes.infrastructure.services.implementations.ConnectivityChecker;
 import com.zeus.migue.notes.infrastructure.services.implementations.UserPreferences;
 import com.zeus.migue.notes.infrastructure.utils.Event;
 import com.zeus.migue.notes.infrastructure.utils.LiveDataEvent;
@@ -34,6 +36,7 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
     private ISynchronizer synchronizer;
     private UserPreferences userPreferences;
     private IAuthorizationService authorizationService;
+    private IConnectivityChecker connectivityChecker;
     public BaseListViewModel(@NonNull Application application) {
         super(application);
         repository = getRepository(application);
@@ -44,6 +47,7 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
         synchronizer = new Synchronizer(application);
         userPreferences = UserPreferences.getInstance(application);
         authorizationService = new AuthorizationService(application);
+        connectivityChecker = new ConnectivityChecker(application);
     }
 
     public abstract LiveData<List<DTO>> initItemsLiveData();
@@ -63,6 +67,11 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
     }
 
     public void startSynchronization() {
+        if (!connectivityChecker.isConnectedToInternet()){
+            networkResponse.setValue(null);
+            eventData.setValue(new LiveDataEvent<>(Event.NO_INTERNET));
+            return;
+        }
         IResponseListener<SyncPayload> syncSuccessListener = syncPayload -> {
             userPreferences.setLastSyncDate(syncPayload.getLastSync());
             networkResponse.setValue(syncPayload);

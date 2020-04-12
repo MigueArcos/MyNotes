@@ -39,6 +39,7 @@ public class SignInFragment extends BaseFragment implements View.OnClickListener
         if (getActivity() != null) {
             loginActivityViewModel = new ViewModelProvider(getActivity()).get(LoginActivityViewModel.class);
             loginActivityViewModel.getEvent().observe(getViewLifecycleOwner(), liveDataEvent -> {
+                if (loader != null) loader.dismiss();
                 Event event = liveDataEvent.getContentIfNotHandled();
                 if (event != null) {
                     String message = event.getLocalResId() == 0 ? event.getMessage() : getString(event.getLocalResId());

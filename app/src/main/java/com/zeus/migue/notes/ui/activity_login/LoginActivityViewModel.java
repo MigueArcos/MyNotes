@@ -15,6 +15,8 @@ import com.zeus.migue.notes.infrastructure.network.services.AuthorizationService
 import com.zeus.migue.notes.infrastructure.network.services.IAuthorizationService;
 import com.zeus.migue.notes.infrastructure.network.services.ISynchronizer;
 import com.zeus.migue.notes.infrastructure.network.services.Synchronizer;
+import com.zeus.migue.notes.infrastructure.services.contracts.IConnectivityChecker;
+import com.zeus.migue.notes.infrastructure.services.implementations.ConnectivityChecker;
 import com.zeus.migue.notes.infrastructure.services.implementations.UserPreferences;
 import com.zeus.migue.notes.infrastructure.utils.Event;
 import com.zeus.migue.notes.infrastructure.utils.LiveDataEvent;
@@ -29,6 +31,7 @@ public class LoginActivityViewModel extends BasicViewModel {
     private IAuthorizationService authorizationService;
     private UserPreferences userPreferences;
     private AutomaticSyncEnabler syncEnabler;
+    private IConnectivityChecker connectivityChecker;
     public static final int RESPONSE_ERROR = 0;
     public static final int SYNC_SUCCESS = 1;
     public static final int LOGIN_SUCCESS = 2;
@@ -43,6 +46,7 @@ public class LoginActivityViewModel extends BasicViewModel {
         authorizationService = new AuthorizationService(application);
         userPreferences = UserPreferences.getInstance(application);
         syncEnabler = AutomaticSyncEnabler.getInstance(application);
+        connectivityChecker = new ConnectivityChecker(application);
     }
     public LiveData<LiveDataEvent<Event>> getEvent() {
         return eventData;
@@ -53,6 +57,10 @@ public class LoginActivityViewModel extends BasicViewModel {
     }
 
     public void signIn(String email, String password){
+        if (!connectivityChecker.isConnectedToInternet()){
+            eventData.setValue(new LiveDataEvent<>(Event.NO_INTERNET));
+            return;
+        }
         IResponseListener<ErrorCode> errorListener = errorCode -> {
             eventData.setValue(new LiveDataEvent<>(errorCode.toEvent(Event.MessageType.SHOW_IN_DIALOG)));
             networkResponse.setValue(RESPONSE_ERROR);
@@ -70,6 +78,10 @@ public class LoginActivityViewModel extends BasicViewModel {
     }
 
     public void signUp(String email, String userName, String password, String passwordConfirm){
+        if (!connectivityChecker.isConnectedToInternet()){
+            eventData.setValue(new LiveDataEvent<>(Event.NO_INTERNET));
+            return;
+        }
         if (!passwordConfirm.equals(password)){
             eventData.setValue(new LiveDataEvent<>(Event.PASSWORDS_DO_NOT_MATCH));
             return;
