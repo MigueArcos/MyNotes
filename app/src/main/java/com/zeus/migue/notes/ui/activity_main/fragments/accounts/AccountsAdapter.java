@@ -36,7 +36,7 @@ public class AccountsAdapter extends GenericRecyclerViewAdapter<AccountDTO, Recy
                 View headerView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_account_total, parent, false);
                 return new AccountsTotalViewHolder(headerView);
             case ITEM:
-                View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_note, parent, false);
+                View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_generic, parent, false);
                 return new AccountViewHolder(layoutView);
         }
         throw new RuntimeException("No match for " + viewType + ".");
@@ -74,15 +74,18 @@ public class AccountsAdapter extends GenericRecyclerViewAdapter<AccountDTO, Recy
 
 
     public class AccountViewHolder extends CustomViewHolder<AccountDTO> {
-        private TextView titleText, modificationDateText;
+        private TextView titleText, contentText, modificationDateText, modificationTimeText;
         private MaterialLetterIcon materialLetterIcon;
 
         AccountViewHolder(View itemView) {
             super(itemView, itemClickListener);
             titleText = itemView.findViewById(R.id.title_text);
-            modificationDateText = itemView.findViewById(R.id.modification_date_text);
+            contentText = itemView.findViewById(R.id.content_text);
+            contentText.setTextSize(15);
             materialLetterIcon = itemView.findViewById(R.id.letter);
             materialLetterIcon.setShapeColor(Utils.pickRandomColor(itemView.getContext()));
+            modificationDateText = itemView.findViewById(R.id.modification_date);
+            modificationTimeText = itemView.findViewById(R.id.modification_time);
             itemView.setOnClickListener(this);
         }
 
@@ -91,7 +94,12 @@ public class AccountsAdapter extends GenericRecyclerViewAdapter<AccountDTO, Recy
             String text = item.getName();
             materialLetterIcon.setLetter("" + text.charAt(0));
             titleText.setText(text);
-            modificationDateText.setText(Utils.niceDateFormat(Utils.fromIso8601(item.getModificationDate(), true)));
+            contentText.setText(Utils.formatCurrency(item.getTotal()));
+
+            String date = Utils.niceDateFormat(Utils.fromIso8601(item.getModificationDate(), true));
+            String[] dateParts = date.split(" ");
+            modificationDateText.setText(dateParts[0]);
+            modificationTimeText.setText(String.format("%s %s", dateParts[1], dateParts[2]));
         }
 
         @Override

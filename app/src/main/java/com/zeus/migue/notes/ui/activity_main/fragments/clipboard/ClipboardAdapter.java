@@ -25,19 +25,21 @@ public class ClipboardAdapter extends GenericRecyclerViewAdapter<ClipNoteDTO, Cl
     @NonNull
     @Override
     public ClipItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_note, parent, false);
+        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_generic, parent, false);
         return new ClipItemViewHolder(layoutView);
     }
 
     public class ClipItemViewHolder extends CustomViewHolder<ClipNoteDTO> {
-        private TextView contentText, modificationDateText;
+        private TextView titleText, modificationDateText, modificationTimeText;
         private MaterialLetterIcon materialLetterIcon;
         ClipItemViewHolder(View itemView) {
             super(itemView, itemClickListener);
-            contentText = itemView.findViewById(R.id.title_text);
-            modificationDateText = itemView.findViewById(R.id.modification_date_text);
+            titleText = itemView.findViewById(R.id.title_text);
+            itemView.findViewById(R.id.content_text).setVisibility(View.GONE);
             materialLetterIcon = itemView.findViewById(R.id.letter);
             materialLetterIcon.setShapeColor(Utils.pickRandomColor(itemView.getContext()));
+            modificationDateText = itemView.findViewById(R.id.modification_date);
+            modificationTimeText = itemView.findViewById(R.id.modification_time);
             itemView.setOnClickListener(this);
         }
 
@@ -45,8 +47,12 @@ public class ClipboardAdapter extends GenericRecyclerViewAdapter<ClipNoteDTO, Cl
         public void renderItem(ClipNoteDTO item) {
             String text = item.getContent();
             materialLetterIcon.setLetter("" + text.charAt(0));
-            contentText.setText(text);
-            modificationDateText.setText(Utils.niceDateFormat(Utils.fromIso8601(item.getModificationDate(), true)));
+            titleText.setText(text);
+
+            String date = Utils.niceDateFormat(Utils.fromIso8601(item.getModificationDate(), true));
+            String[] dateParts = date.split(" ");
+            modificationDateText.setText(dateParts[0]);
+            modificationTimeText.setText(String.format("%s %s", dateParts[1], dateParts[2]));
         }
 
         @Override

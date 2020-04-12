@@ -81,4 +81,9 @@
     <string name="fragment_my_money_dialog_accounts_title">Cuentas</string>
     <string name="sync_loader_message">Sincronizando…Por favor espere.</string>
     <string name="no_internet_connection">No hay conexión a internet</string>
+    <string name="about_app">Acerca de...</string>
+    <string name="about_app_copyright">© %d Todos los derechos reservados</string>
+    <string name="total_text">Total</string>
+    <string name="no_title_note">Nota sin título</string>
+    <string name="no_content_note">Nota sin contenido</string>
 </resources>

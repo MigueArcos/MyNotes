@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.ferfalk.simplesearchview.SimpleSearchView;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.navigation.NavigationView;
 import com.zeus.migue.notes.R;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
@@ -25,6 +26,8 @@ import com.zeus.migue.notes.ui.activity_main.fragments.clipboard.ClipboardFragme
 import com.zeus.migue.notes.ui.activity_main.fragments.notes.DeletedNotesFragment;
 import com.zeus.migue.notes.ui.activity_main.fragments.notes.NotesFragment;
 import com.zeus.migue.notes.ui.shared.BaseActivity;
+
+import java.util.Calendar;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener{
     private MainActivityViewModel mainActivityViewModel;
@@ -167,6 +170,18 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             mainActivityViewModel.logout();
                         })
                         .setNegativeButton(R.string.dialog_cancel_message, null).show();
+                return true;
+            case R.id.about_app:
+                final BottomSheetDialog aboutAppDialog = new BottomSheetDialog(this);
+                final View bottomSheetLayout = getLayoutInflater().inflate(R.layout.bottom_sheet_dialog, null);
+                ((TextView)bottomSheetLayout.findViewById(R.id.about_app_copyright))
+                        .setText(String.format(getString(R.string.about_app_copyright), Calendar.getInstance().get(Calendar.YEAR)));
+                View.OnClickListener doNothingOnClickHandler = view -> aboutAppDialog.dismiss();
+                bottomSheetLayout.findViewById(R.id.button_close).setOnClickListener(doNothingOnClickHandler);
+                bottomSheetLayout.findViewById(R.id.button_ok).setOnClickListener(doNothingOnClickHandler);
+
+                aboutAppDialog.setContentView(bottomSheetLayout);
+                aboutAppDialog.show();
                 return true;
         }
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, currentFragment).commit();

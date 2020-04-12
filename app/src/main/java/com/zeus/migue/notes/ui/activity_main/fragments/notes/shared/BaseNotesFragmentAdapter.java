@@ -36,17 +36,21 @@ public class BaseNotesFragmentAdapter extends GenericRecyclerViewAdapter<NoteDTO
     @NonNull
     @Override
     public NoteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_note, parent, false);
+        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_generic, parent, false);
         return new NoteViewHolder(layoutView);
     }
 
     public class NoteViewHolder extends CustomViewHolder<NoteDTO> {
-        private TextView titleText, modificationDateText;
+        private TextView titleText, contentText, modificationDateText, modificationTimeText;
         private MaterialLetterIcon materialLetterIcon;
+        private View itemView;
         NoteViewHolder(View itemView) {
             super(itemView, itemClickListener);
+            this.itemView = itemView;
             titleText = itemView.findViewById(R.id.title_text);
-            modificationDateText = itemView.findViewById(R.id.modification_date_text);
+            contentText = itemView.findViewById(R.id.content_text);
+            modificationDateText = itemView.findViewById(R.id.modification_date);
+            modificationTimeText = itemView.findViewById(R.id.modification_time);
             materialLetterIcon = itemView.findViewById(R.id.letter);
             materialLetterIcon.setShapeColor(Utils.pickRandomColor(itemView.getContext()));
             itemView.setOnClickListener(this);
@@ -54,10 +58,16 @@ public class BaseNotesFragmentAdapter extends GenericRecyclerViewAdapter<NoteDTO
 
         @Override
         public void renderItem(NoteDTO item) {
-            String text = Utils.stringIsNullOrEmpty(item.getTitle()) ? "Nota sin título" : item.getTitle();
-            materialLetterIcon.setLetter("" + text.charAt(0));
-            titleText.setText(text);
-            modificationDateText.setText(Utils.niceDateFormat(Utils.fromIso8601(item.getModificationDate(), true)));
+            String title = Utils.stringIsNullOrEmpty(item.getTitle()) ? itemView.getContext().getString(R.string.no_title_note) : item.getTitle();
+            materialLetterIcon.setLetter("" + title.charAt(0));
+            titleText.setText(title);
+            String date = Utils.niceDateFormat(Utils.fromIso8601(item.getModificationDate(), true));
+            String[] dateParts = date.split(" ");
+            modificationDateText.setText(dateParts[0]);
+            modificationTimeText.setText(String.format("%s %s", dateParts[1], dateParts[2]));
+
+            String content = Utils.stringIsNullOrEmpty(item.getContent()) ? itemView.getContext().getString(R.string.no_content_note) : item.getContent();
+            contentText.setText(content);
         }
 
         @Override
