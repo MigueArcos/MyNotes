@@ -2,6 +2,8 @@ package com.zeus.migue.notes.infrastructure.services.implementations;
 
 import android.content.Context;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.zeus.migue.notes.data.DTO.ClipNoteDTO;
 import com.zeus.migue.notes.data.DTO.NoteDTO;
 import com.zeus.migue.notes.data.DTO.sync.EntityChanges;
@@ -54,6 +56,35 @@ public class DatabaseSynchronizer implements IDatabaseSynchronizer {
             return entity;
         };
     }
+    public static class ChangeToLog{
+        public String source;
+        public EntityLog notes;
+        public EntityLog clipNotes;
+        public static class EntityLog{
+            public List<String> toDelete;
+            public int toAdd;
+            public int toModify;
+        }
+    }
+    public void prettyPrintLog(SyncPayload syncPayload, String source){
+        ChangeToLog changeToLog = new ChangeToLog();
+        changeToLog.source = source;
+        if (syncPayload.getNotes() != null){
+            changeToLog.notes = new ChangeToLog.EntityLog();
+            if (syncPayload.getNotes().getToAdd() != null) changeToLog.notes.toAdd = syncPayload.getNotes().getToAdd().size();
+            if (syncPayload.getNotes().getToModify() != null) changeToLog.notes.toModify = syncPayload.getNotes().getToModify().size();
+            if (syncPayload.getNotes().getToDelete() != null) changeToLog.notes.toDelete = syncPayload.getNotes().getToDelete();
+        }
+        if (syncPayload.getClipNotes() != null){
+            changeToLog.clipNotes = new ChangeToLog.EntityLog();
+            if (syncPayload.getClipNotes().getToAdd() != null) changeToLog.clipNotes.toAdd = syncPayload.getClipNotes().getToAdd().size();
+            if (syncPayload.getClipNotes().getToModify() != null) changeToLog.clipNotes.toModify = syncPayload.getClipNotes().getToModify().size();
+            if (syncPayload.getClipNotes().getToDelete() != null) changeToLog.clipNotes.toDelete = syncPayload.getClipNotes().getToDelete();
+        }
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        logger.log(gson.toJson(changeToLog));
+    }
+
     @Override
     public SyncPayload buildLocalPayload(String lastSyncDate) {
         Future<SyncPayload> promise = executorService.submit(() -> {
@@ -69,6 +100,7 @@ public class DatabaseSynchronizer implements IDatabaseSynchronizer {
             syncPayload.setLastSync(lastSyncDate);
             syncPayload.setNotes(notesChanges);
             syncPayload.setClipNotes(clipNotesChanges);
+            prettyPrintLog(syncPayload, "Local");
             return syncPayload;
         });
         try {
@@ -79,15 +111,28 @@ public class DatabaseSynchronizer implements IDatabaseSynchronizer {
             return null;
         }
     }
+    /*
+    private void addSafeNavigation(SyncPayload syncPayload){
+        if (syncPayload.getNotes() == null) syncPayload.setNotes(new EntityChanges<>());
+        if (Utils.listIsNullOrEmpty(syncPayload.getNotes().getToAdd())) syncPayload.getNotes().setToAdd(new ArrayList<>());
+        if (Utils.listIsNullOrEmpty(syncPayload.getNotes().getToModify())) syncPayload.getNotes().setToModify(new ArrayList<>());
+        if (Utils.listIsNullOrEmpty(syncPayload.getNotes().getToDelete())) syncPayload.getNotes().setToDelete(new ArrayList<>());
+        if (syncPayload.getClipNotes() == null) syncPayload.setClipNotes(new EntityChanges<>());
+        if (Utils.listIsNullOrEmpty(syncPayload.getClipNotes().getToAdd())) syncPayload.getClipNotes().setToAdd(new ArrayList<>());
+        if (Utils.listIsNullOrEmpty(syncPayload.getClipNotes().getToModify())) syncPayload.getClipNotes().setToModify(new ArrayList<>());
+        if (Utils.listIsNullOrEmpty(syncPayload.getClipNotes().getToDelete())) syncPayload.getClipNotes().setToDelete(new ArrayList<>());
+    }
+    */
     @Override
     public boolean synchronize(SyncPayload remotePayload) {
         Future<Boolean> promise = executorService.submit(() -> {
+            prettyPrintLog(remotePayload, "Remote");
             EntityChanges<NoteDTO> notesChanges = remotePayload.getNotes();
             if (notesChanges != null) {
                 List<NoteDTO> toAdd = notesChanges.getToAdd();
                 List<NoteDTO> toModify = notesChanges.getToModify();
                 if (toAdd != null) {
-                    appDatabase.notesDao().deleteUnsynced();
+                    appDatabase.notesDao().deleteUploaded(false);
                     Note[] notesToAdd = toAdd.stream().map(getMapper()).toArray(Note[]::new);
                     appDatabase.notesDao().insert(notesToAdd);
                 }
@@ -104,7 +149,7 @@ public class DatabaseSynchronizer implements IDatabaseSynchronizer {
                 List<ClipNoteDTO> toAdd = clipNotesChanges.getToAdd();
                 List<ClipNoteDTO> toModify = clipNotesChanges.getToModify();
                 if (toAdd != null) {
-                    appDatabase.clipsDao().deleteUnsynced();
+                    appDatabase.clipsDao().deleteUploaded(false);
                     ClipNote[] notesToAdd = toAdd.stream().map(getMapper()).toArray(ClipNote[]::new);
                     appDatabase.clipsDao().insert(notesToAdd);
                 }

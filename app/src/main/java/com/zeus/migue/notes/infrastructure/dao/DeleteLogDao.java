@@ -12,4 +12,7 @@ public interface DeleteLogDao {
 
     @Query("SELECT RemoteId FROM DeleteLog WHERE EntityName = :entityName")
     List<String> getIDsToDelete(String entityName);
+
+    @Query("DELETE FROM DeleteLog")
+    int deleteAll();
 }

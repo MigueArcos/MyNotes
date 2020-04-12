@@ -19,7 +19,6 @@ import com.zeus.migue.notes.ui.shared.BasicViewModel;
 
 public class NotesEditorViewModel extends BasicViewModel {
     private NotesRepository notesRepository;
-
     public NotesEditorViewModel(@NonNull Application application) {
         super(application);
         notesRepository = NotesRepository.getInstance(AppDatabase.getInstance(application).notesDao(), logger);

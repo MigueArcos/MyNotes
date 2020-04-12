@@ -30,7 +30,7 @@ public class Synchronizer implements ISynchronizer {
     }
 
     @Override
-    public void syncDatabases(String token, String refreshToken, String lastSyncDate, IResponseListener<SyncPayload> successListener, IResponseListener<ErrorCode> errorListener) {
+    public void syncDatabases(String token, String lastSyncDate, IResponseListener<SyncPayload> successListener, IResponseListener<ErrorCode> errorListener) {
         SyncPayload syncRequest = databaseSynchronizer.buildLocalPayload(lastSyncDate);
         if (syncRequest == null) {
             errorListener.onResponse(new ErrorCode(0, "", true));
@@ -68,7 +68,7 @@ public class Synchronizer implements ISynchronizer {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return new HashMap<String, String>() {{
-                    put("refresh_token", refreshToken);
+                    //put("refresh_token", refreshToken);
                     put("authorization", token);
                 }};
             }

@@ -20,8 +20,8 @@ public interface NotesDao extends BaseDao<Note> {
     List<NoteDTO> getNewNotes();
     @Query("SELECT * FROM Notes WHERE ModificationDate > :lastSync AND IsUploaded = 1 ORDER BY CreationDate DESC")
     List<NoteDTO> getModifiedNotes(String lastSync);
-    @Query("DELETE FROM Notes WHERE IsUploaded = 0")
-    int deleteUnsynced();
+    @Query("DELETE FROM Notes WHERE IsUploaded = :isUploaded")
+    int deleteUploaded(boolean isUploaded);
     @Query("SELECT Id, RemoteId FROM Notes WHERE IsUploaded = 1")
     List<EntityIDs> getIDs();
 }

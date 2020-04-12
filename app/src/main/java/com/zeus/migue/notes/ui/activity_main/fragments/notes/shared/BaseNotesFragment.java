@@ -17,6 +17,7 @@ import com.zeus.migue.notes.data.DTO.NoteDTO;
 import com.zeus.migue.notes.data.room.entities.Note;
 import com.zeus.migue.notes.ui.activity_main.fragments.notes.NotesViewModel;
 import com.zeus.migue.notes.ui.activity_notes_editor.BottomSheetNotesEditor;
+import com.zeus.migue.notes.ui.activity_notes_editor.NotesEditorViewModel;
 import com.zeus.migue.notes.ui.shared.recyclerview.BaseListFragment;
 
 public abstract class BaseNotesFragment extends BaseListFragment<Note, NoteDTO, NotesViewModel> {
@@ -32,6 +33,7 @@ public abstract class BaseNotesFragment extends BaseListFragment<Note, NoteDTO, 
 
     @Override
     protected void initializeViews(View rootView) {
+        BottomSheetNotesEditor.Callback callback = () -> list.scrollToPosition(0);
         emptyListLabel = rootView.findViewById(R.id.empty_list_label);
         loader = rootView.findViewById(R.id.loader);
         create = rootView.findViewById(R.id.create_new_fab);
@@ -41,6 +43,7 @@ public abstract class BaseNotesFragment extends BaseListFragment<Note, NoteDTO, 
             create.setOnClickListener(v -> {
                 dismissSnackBar();
                 BottomSheetNotesEditor dialog = new BottomSheetNotesEditor();
+                dialog.setCallback(callback);
                 dialog.show(getActivity().getSupportFragmentManager(), dialog.getTag());
             });
         }
@@ -50,6 +53,7 @@ public abstract class BaseNotesFragment extends BaseListFragment<Note, NoteDTO, 
         adapter.setItemClickListener((data, position) -> {
             dismissSnackBar();
             BottomSheetNotesEditor dialog = new BottomSheetNotesEditor();
+            dialog.setCallback(callback);
             Bundle packageData = new Bundle();
             packageData.putString("payload", new Gson().toJson(data));
             dialog.setArguments(packageData);
@@ -79,7 +83,7 @@ public abstract class BaseNotesFragment extends BaseListFragment<Note, NoteDTO, 
         viewModel.getItems().observe(getViewLifecycleOwner(), items -> {
             emptyListLabel.setVisibility(items.size() > 0 ? View.GONE : View.VISIBLE);
             adapter.updateData(items);
-            list.scrollToPosition(0);
+            //list.scrollToPosition(0);
         });
     }
 

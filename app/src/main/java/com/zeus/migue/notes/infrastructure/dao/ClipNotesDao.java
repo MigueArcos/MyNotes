@@ -27,8 +27,8 @@ public interface ClipNotesDao extends BaseDao<ClipNote> {
     List<ClipNoteDTO> getNewClipNotes();
     @Query("SELECT * FROM ClipNotes WHERE ModificationDate > :lastSync AND IsUploaded = 1 ORDER BY CreationDate DESC")
     List<ClipNoteDTO> getModifiedClipNotes(String lastSync);
-    @Query("DELETE FROM ClipNotes WHERE IsUploaded = 0")
-    int deleteUnsynced();
+    @Query("DELETE FROM ClipNotes WHERE IsUploaded = :isUploaded")
+    int deleteUploaded(boolean isUploaded);
 
     @Query("SELECT Id, RemoteId FROM ClipNotes WHERE IsUploaded = 1")
     List<EntityIDs> getIDs();

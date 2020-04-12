@@ -44,7 +44,7 @@ public class ClipboardFragment extends BaseListFragment<ClipNote, ClipNoteDTO, C
         viewModel.getItems().observe(getViewLifecycleOwner(), items -> {
             emptyListLabel.setVisibility(items.size() > 0 ? View.GONE : View.VISIBLE);
             adapter.updateData(items);
-            list.scrollToPosition(0);
+            //list.scrollToPosition(0);
         });
     }
 

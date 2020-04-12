@@ -39,7 +39,6 @@ public class SignInFragment extends BaseFragment implements View.OnClickListener
         if (getActivity() != null) {
             loginActivityViewModel = new ViewModelProvider(getActivity()).get(LoginActivityViewModel.class);
             loginActivityViewModel.getEvent().observe(getViewLifecycleOwner(), liveDataEvent -> {
-                if (loader != null) loader.dismiss();
                 Event event = liveDataEvent.getContentIfNotHandled();
                 if (event != null) {
                     String message = event.getLocalResId() == 0 ? event.getMessage() : getString(event.getLocalResId());
@@ -50,12 +49,22 @@ public class SignInFragment extends BaseFragment implements View.OnClickListener
                     }
                 }
             });
-            loginActivityViewModel.getLoginResponse().observe(getViewLifecycleOwner(), signInResponse -> {
-                loader.dismiss();
-                Intent intent = new Intent(getActivity(), MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+            loginActivityViewModel.getNetworkResponse().observe(getViewLifecycleOwner(), networkResponse -> {
+                switch (networkResponse){
+                    case LoginActivityViewModel.LOGIN_SUCCESS:
+                        loader.setMessage(getString(R.string.sync_loader_message));
+                        break;
+                    case LoginActivityViewModel.SYNC_SUCCESS:
+                        Intent intent = new Intent(getActivity(), MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        loader.dismiss();
+                        break;
+                    default:
+                        loader.dismiss();
+                        break;
+                }
             });
             password.setText(loginActivityViewModel.getSignInFragmentState().getPassword());
             email.setText(loginActivityViewModel.getSignInFragmentState().getEmail());

@@ -3,19 +3,16 @@ package com.zeus.migue.notes.ui.activity_login;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.zeus.migue.notes.data.DTO.ErrorCode;
 import com.zeus.migue.notes.data.DTO.SignInResponse;
-import com.zeus.migue.notes.data.room.AppDatabase;
+import com.zeus.migue.notes.infrastructure.network.IResponseListener;
 import com.zeus.migue.notes.infrastructure.network.services.AuthorizationService;
 import com.zeus.migue.notes.infrastructure.network.services.IAuthorizationService;
 import com.zeus.migue.notes.infrastructure.network.services.ISynchronizer;
 import com.zeus.migue.notes.infrastructure.network.services.Synchronizer;
-import com.zeus.migue.notes.infrastructure.repositories.NotesRepository;
-import com.zeus.migue.notes.infrastructure.services.contracts.ILogger;
-import com.zeus.migue.notes.infrastructure.services.implementations.Logger;
 import com.zeus.migue.notes.infrastructure.services.implementations.UserPreferences;
 import com.zeus.migue.notes.infrastructure.utils.Event;
 import com.zeus.migue.notes.infrastructure.utils.LiveDataEvent;
@@ -25,17 +22,22 @@ public class LoginActivityViewModel extends BasicViewModel {
     private SignInFragmentState signInFragmentState;
     private SignUpFragmentState signUpFragmentState;
     private boolean isSignInFragment;
-    private MutableLiveData<SignInResponse> loginResponse;
-
+    private MutableLiveData<Integer> networkResponse;
+    private ISynchronizer synchronizer;
     private IAuthorizationService authorizationService;
     private UserPreferences userPreferences;
+
+    public static final int RESPONSE_ERROR = 0;
+    public static final int SYNC_SUCCESS = 1;
+    public static final int LOGIN_SUCCESS = 2;
+
     public LoginActivityViewModel(@NonNull Application application){
         super(application);
-        loginResponse = new MutableLiveData<>();
+        networkResponse = new MutableLiveData<>();
         isSignInFragment = true;
         signInFragmentState = new SignInFragmentState();
         signUpFragmentState = new SignUpFragmentState();
-
+        synchronizer = new Synchronizer(application);
         authorizationService = new AuthorizationService(application);
         userPreferences = UserPreferences.getInstance(application);
     }
@@ -43,17 +45,23 @@ public class LoginActivityViewModel extends BasicViewModel {
         return eventData;
     }
 
-    public LiveData<SignInResponse> getLoginResponse() {
-        return loginResponse;
+    public LiveData<Integer> getNetworkResponse() {
+        return networkResponse;
     }
 
     public void signIn(String email, String password){
+        IResponseListener<ErrorCode> errorListener = errorCode -> {
+            eventData.setValue(new LiveDataEvent<>(errorCode.toEvent(Event.MessageType.SHOW_IN_DIALOG)));
+            networkResponse.setValue(RESPONSE_ERROR);
+        };
         authorizationService.signIn(email, password, signInResponse -> {
             userPreferences.setAuthInfo(signInResponse, true);
-            loginResponse.setValue(signInResponse);
-        }, errorCode -> {
-            eventData.setValue(new LiveDataEvent<>(errorCode.toEvent(Event.MessageType.SHOW_IN_DIALOG)));
-        });
+            networkResponse.setValue(LOGIN_SUCCESS);
+            synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), userPreferences.getLastSyncDate(), syncPayload ->  {
+                userPreferences.setLastSyncDate(syncPayload.getLastSync());
+                networkResponse.setValue(SYNC_SUCCESS);
+            }, errorListener);
+        }, errorListener);
     }
 
     public void signUp(String email, String userName, String password, String passwordConfirm){
@@ -61,12 +69,18 @@ public class LoginActivityViewModel extends BasicViewModel {
             eventData.setValue(new LiveDataEvent<>(Event.PASSWORDS_DO_NOT_MATCH));
             return;
         }
+        IResponseListener<ErrorCode> errorListener = errorCode -> {
+            eventData.setValue(new LiveDataEvent<>(errorCode.toEvent(Event.MessageType.SHOW_IN_DIALOG)));
+            networkResponse.setValue(RESPONSE_ERROR);
+        };
         authorizationService.signUp(email, userName, password, signInResponse -> {
             userPreferences.setAuthInfo(signInResponse, true);
-            loginResponse.setValue(signInResponse);
-        }, errorCode -> {
-            eventData.setValue(new LiveDataEvent<>(errorCode.toEvent(Event.MessageType.SHOW_IN_DIALOG)));
-        });
+            networkResponse.setValue(LOGIN_SUCCESS);
+            synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), userPreferences.getLastSyncDate(), syncPayload ->  {
+                userPreferences.setLastSyncDate(syncPayload.getLastSync());
+                networkResponse.setValue(SYNC_SUCCESS);
+            }, errorListener);
+        }, errorListener);
     }
 
     public SignInFragmentState getSignInFragmentState() {

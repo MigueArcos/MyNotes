@@ -71,7 +71,7 @@ public abstract class BaseListFragment<Entity extends BaseEntity, DTO extends IF
                     }
                 }
             });
-            viewModel.getSyncResponse().observe(getViewLifecycleOwner(), syncPayload -> {
+            viewModel.getNetworkResponse().observe(getViewLifecycleOwner(), syncPayload -> {
                 loader.setRefreshing(false);
             });
             searchView = getActivity().findViewById(R.id.searchView);
@@ -151,6 +151,7 @@ public abstract class BaseListFragment<Entity extends BaseEntity, DTO extends IF
     protected void recoverDataAtPosition(DTO data, int position) {
         adapter.getItems().add(position, data);
         adapter.notifyItemInserted(position);
+        list.scrollToPosition(position);
     }
 
     protected void startSynchronization(){

@@ -35,6 +35,7 @@ public class AccountsFragment extends BaseListFragment<Account, AccountDTO, Acco
     protected void recoverDataAtPosition(AccountDTO data, int position) {
         adapter.getItems().add(position, data);
         adapter.notifyItemInserted(position + 1);
+        list.scrollToPosition(position);
     }
 
     @Override
@@ -47,7 +48,7 @@ public class AccountsFragment extends BaseListFragment<Account, AccountDTO, Acco
         viewModel.getItems().observe(getViewLifecycleOwner(), items -> {
             emptyListLabel.setVisibility(View.GONE);
             adapter.updateData(items);
-            list.scrollToPosition(0);
+            //list.scrollToPosition(0);
         });
     }
 

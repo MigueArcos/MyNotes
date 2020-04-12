@@ -3,6 +3,7 @@ package com.zeus.migue.notes.ui.activity_notes_editor;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.util.Linkify;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -28,6 +29,9 @@ import com.zeus.migue.notes.infrastructure.utils.Utils;
 import java.util.Date;
 
 public class BottomSheetNotesEditor extends BottomSheetDialogFragment {
+    public interface Callback{
+        void onDatabaseChangeReady();
+    }
     private String originalTitle = Utils.EMPTY_STRING;
     private String originalContent = Utils.EMPTY_STRING;
     private TextView contentEdit, titleEdit;
@@ -35,13 +39,16 @@ public class BottomSheetNotesEditor extends BottomSheetDialogFragment {
     private boolean editModeEnabled = false, isNewNote = true, isClipNote = false;
     private NoteDTO noteDTO;
     private NotesEditorViewModel notesEditorViewModel;
-
+    private Callback callback;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.NotesEditorDialog);
     }
 
+    public void setCallback(Callback callback) {
+        this.callback = callback;
+    }
 
     @Override
     public void setupDialog(@NonNull Dialog dialog, int style) {
@@ -91,7 +98,6 @@ public class BottomSheetNotesEditor extends BottomSheetDialogFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
     }
 
     private void initializeViews(View v) {
@@ -180,6 +186,9 @@ public class BottomSheetNotesEditor extends BottomSheetDialogFragment {
             editModeEnabled = false;
             setEditable(titleEdit, false);
             setEditable(contentEdit, false);
+            if (callback != null){
+                new Handler().postDelayed(() -> callback.onDatabaseChangeReady(), 100);
+            }
             Toast.makeText(getContext(), R.string.saved_message, Toast.LENGTH_SHORT).show();
         } else
             Toast.makeText(getContext(), R.string.nothing_to_save_message, Toast.LENGTH_SHORT).show();

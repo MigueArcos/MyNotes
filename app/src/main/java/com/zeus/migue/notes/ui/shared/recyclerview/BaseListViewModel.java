@@ -6,11 +6,15 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.zeus.migue.notes.data.DTO.ErrorCode;
 import com.zeus.migue.notes.data.DTO.sync.SyncPayload;
 import com.zeus.migue.notes.data.room.entities.BaseEntity;
 import com.zeus.migue.notes.infrastructure.contracts.IEntityConverter;
 import com.zeus.migue.notes.infrastructure.contracts.IFilterable;
 import com.zeus.migue.notes.infrastructure.errors.CustomError;
+import com.zeus.migue.notes.infrastructure.network.IResponseListener;
+import com.zeus.migue.notes.infrastructure.network.services.AuthorizationService;
+import com.zeus.migue.notes.infrastructure.network.services.IAuthorizationService;
 import com.zeus.migue.notes.infrastructure.network.services.ISynchronizer;
 import com.zeus.migue.notes.infrastructure.network.services.Synchronizer;
 import com.zeus.migue.notes.infrastructure.repositories.GenericRepository;
@@ -26,19 +30,20 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
     protected GenericRepository<Entity, DTO> repository;
     protected MutableLiveData<String> filterLiveData;
     private LiveData<List<DTO>> itemsLiveData;
-    private MutableLiveData<SyncPayload> syncResponse;
+    private MutableLiveData<SyncPayload> networkResponse;
     private ISynchronizer synchronizer;
     private UserPreferences userPreferences;
-
+    private IAuthorizationService authorizationService;
     public BaseListViewModel(@NonNull Application application) {
         super(application);
         repository = getRepository(application);
         filterLiveData = new MutableLiveData<>();
-        syncResponse = new MutableLiveData<>();
+        networkResponse = new MutableLiveData<>();
         itemsLiveData = initItemsLiveData();
         filterLiveData.setValue(Utils.EMPTY_STRING);
         synchronizer = new Synchronizer(application);
         userPreferences = UserPreferences.getInstance(application);
+        authorizationService = new AuthorizationService(application);
     }
 
     public abstract LiveData<List<DTO>> initItemsLiveData();
@@ -49,8 +54,8 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
         return itemsLiveData;
     }
 
-    public LiveData<SyncPayload> getSyncResponse() {
-        return syncResponse;
+    public LiveData<SyncPayload> getNetworkResponse() {
+        return networkResponse;
     }
 
     public void filterNotes(String filter) {
@@ -58,13 +63,22 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
     }
 
     public void startSynchronization() {
-        synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), userPreferences.getRefreshToken(), userPreferences.getLastSyncDate(), syncPayload -> {
+        IResponseListener<SyncPayload> syncSuccessListener = syncPayload -> {
             userPreferences.setLastSyncDate(syncPayload.getLastSync());
-            syncResponse.setValue(syncPayload);
-        }, errorCode -> {
+            networkResponse.setValue(syncPayload);
+        };
+        IResponseListener<ErrorCode> syncErrorListener = errorCode -> {
             eventData.setValue(new LiveDataEvent<>(errorCode.toEvent(Event.MessageType.SHOW_IN_DIALOG)));
-            syncResponse.setValue(null);
-        });
+            networkResponse.setValue(null);
+        };
+        if (userPreferences.tokenHasExpired()){
+            authorizationService.refreshToken(userPreferences.getRefreshToken(), signInResponse -> {
+                userPreferences.setAuthInfo(signInResponse, false);
+                synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), userPreferences.getLastSyncDate(), syncSuccessListener, syncErrorListener);
+            }, syncErrorListener);
+        }else{
+            synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), userPreferences.getLastSyncDate(), syncSuccessListener, syncErrorListener);
+        }
     }
 
     public void deleteItem(DTO dto) {
