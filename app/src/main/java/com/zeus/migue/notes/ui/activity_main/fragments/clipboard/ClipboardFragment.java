@@ -71,7 +71,7 @@ public class ClipboardFragment extends BaseListFragment<ClipNote, ClipNoteDTO, C
             BottomSheetNotesEditor dialog = new BottomSheetNotesEditor();
             Bundle packageData = new Bundle();
             packageData.putString("payload", new Gson().toJson(data));
-            packageData.putBoolean("isClipItem", true);
+            packageData.putBoolean("isClipNote", true);
             dialog.setArguments(packageData);
             dialog.show(getActivity().getSupportFragmentManager(), dialog.getTag());
         });

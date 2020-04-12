@@ -66,7 +66,7 @@ public class BaseNotesFragmentAdapter extends GenericRecyclerViewAdapter<NoteDTO
             modificationDateText.setText(dateParts[0]);
             modificationTimeText.setText(String.format("%s %s", dateParts[1], dateParts[2]));
 
-            String content = Utils.stringIsNullOrEmpty(item.getContent()) ? itemView.getContext().getString(R.string.no_content_note) : item.getContent();
+            String content = Utils.stringIsNullOrEmpty(item.getContent()) ? itemView.getContext().getString(R.string.no_content_note) : item.getContent().trim().split("\\r?\\n")[0];
             contentText.setText(content);
         }
 
