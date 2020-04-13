@@ -33,7 +33,6 @@ public abstract class BaseListFragment<Entity extends BaseEntity, DTO extends IF
     protected RecyclerView list;
     protected TextView emptyListLabel;
     protected SwipeRefreshLayout loader;
-    protected boolean isLoading = false;
     protected GenericRecyclerViewAdapter<DTO, ?> adapter;
     protected ViewModel viewModel;
     private SimpleSearchView searchView;

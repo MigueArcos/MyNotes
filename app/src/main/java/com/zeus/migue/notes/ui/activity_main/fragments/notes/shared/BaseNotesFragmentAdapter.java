@@ -17,20 +17,12 @@ import com.zeus.migue.notes.ui.shared.recyclerview.GenericRecyclerViewAdapter;
 import com.zeus.migue.notes.ui.shared.recyclerview.ItemTouchHelperCallback;
 
 public class BaseNotesFragmentAdapter extends GenericRecyclerViewAdapter<NoteDTO, BaseNotesFragmentAdapter.NoteViewHolder> {
-    public BaseNotesFragmentAdapter(ItemTouchHelperCallback.ItemTouchHelperConfiguration itemTouchHelperConfiguration) {
-        super(itemTouchHelperConfiguration);
-    }
-
     private boolean showDeleted;
 
     public BaseNotesFragmentAdapter(boolean showDeleted, ItemSwipeListener<NoteDTO> itemSwipeListener) {
-        super(new ItemTouchHelperCallback.ItemTouchHelperConfiguration(showDeleted ? R.drawable.ic_done : R.drawable.ic_delete_icon, R.drawable.ic_delete_icon, showDeleted ? Color.parseColor("#00897B") : Color.parseColor("#f44336"), Color.parseColor("#f44336")));
+        super(new ItemTouchHelperCallback.ItemTouchHelperConfiguration(showDeleted ? R.drawable.ic_done : R.drawable.ic_delete_icon, showDeleted ? R.drawable.ic_delete_icon : R.drawable.ic_delete_forever_icon, showDeleted ? Color.parseColor("#00897B") : Color.parseColor("#f44336"), Color.parseColor("#f44336")));
         itemTouchHelperConfiguration.setItemSwipeListenerMin((pos, swipeDir) -> itemSwipeListener.onItemSwiped(items.get(pos), pos, swipeDir));
         this.showDeleted = showDeleted;
-    }
-
-    public boolean shouldShowDeleted() {
-        return showDeleted;
     }
 
     @NonNull

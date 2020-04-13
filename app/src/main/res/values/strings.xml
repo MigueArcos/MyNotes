@@ -67,7 +67,7 @@
 
     <string name="snackbar_undo_text">Deshacer</string>
     <string name="snackbar_generic_text">Elemento eliminado</string>
-    <string name="activity_main_fragment_deleted_notes_cannot_recover_notes_warning">¿Estás seguro de eliminar este elemento?</string>
+    <string name="activity_main_fragment_deleted_notes_cannot_recover_notes_warning">¿Estás seguro de eliminar este elemento de forma permanente?</string>
     <string name="main_activity_menu_notes">Bloc de Notas</string>
     <string name="main_activity_menu_deleted_notes">Notas eliminadas</string>
     <string name="dialog_info_title">Información</string>
@@ -81,7 +81,7 @@
     <string name="fragment_my_money_dialog_accounts_title">Cuentas</string>
     <string name="sync_loader_message">Sincronizando…Por favor espere.</string>
     <string name="no_internet_connection">No hay conexión a internet</string>
-    <string name="about_app">Acerca de...</string>
+    <string name="about_app">Acerca de…</string>
     <string name="about_app_copyright">© %d Todos los derechos reservados</string>
     <string name="total_text">Total</string>
     <string name="no_title_note">Nota sin título</string>
