@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -35,7 +36,6 @@
             android:textColorLink="#2F66B4"
             android:inputType="textCapWords|textFilter|textNoSuggestions"/>
         <androidx.core.widget.NestedScrollView
-            android:id="@+id/dialog_scrollable_content"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:fillViewport="true"
             android:layout_width="match_parent"

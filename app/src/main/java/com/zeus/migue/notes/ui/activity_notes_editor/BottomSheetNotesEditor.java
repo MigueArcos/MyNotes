@@ -8,13 +8,13 @@ import android.text.util.Linkify;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.graphics.ColorUtils;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -146,7 +146,7 @@ public class BottomSheetNotesEditor extends BottomSheetDialogFragment {
         int initialDialogHeight = (int) (screenHeight * 0.85);
         bottomSheetBehavior.setPeekHeight(initialDialogHeight, true);
 
-        FrameLayout scrollableContent = v.findViewById(R.id.dialog_scrollable_content);
+        CoordinatorLayout scrollableContent = v.findViewById(R.id.dialog_container);
         ViewGroup.LayoutParams params = scrollableContent.getLayoutParams();
         params.height = screenHeight;
         scrollableContent.setLayoutParams(params);
