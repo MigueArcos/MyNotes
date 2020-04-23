@@ -1,89 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.miguel.misnotas">
+    package="com.zeus.migue.notes">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/app_logo"
         android:label="@string/app_name"
+        android:roundIcon="@drawable/app_logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ui.invisible_text_processor.InvisibleTextProcessor"
+            android:label="@string/activity_invisible_text_processor_label">
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
         <activity
-            android:name=".activities.MainActivity"
-            android:label="@string/title_activity_main"
+            android:name=".ui.activity_login.LoginActivity"
+            android:parentActivityName=".ui.activity_main.MainActivity"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="stateHidden">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.activity_main.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ui.activity_notes_editor.NotesEditorActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:parentActivityName=".ui.activity_main.MainActivity"
+            android:theme="@style/AppTheme.ActivityX"
+            android:windowSoftInputMode="stateHidden">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.activity_main.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ui.activity_main.MainActivity"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.Launcher"
             android:windowSoftInputMode="stateAlwaysHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".activities.NotesEditorActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_notes_editor"
-            android:windowSoftInputMode="stateHidden">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" />
-        </activity>
-
-        <activity
-            android:name=".activities.SchedulerActivity"
-            android:label="@string/title_activity_scheduler">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" />
-        </activity>
-
-        <activity
-            android:name=".activities.LoginActivity"
-            android:label="@string/activity_login_sign_in_label"
-            android:windowSoftInputMode="stateHidden">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" />
-        </activity>
-
-        <activity
-            android:name=".activities.SearchNotesActivity"
-            android:label="@string/title_activity_search"
-            android:configChanges="orientation|screenSize">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.miguel.misnotas.activities.MainActivity" />
-        </activity>
-
-        <!-- Register the Alarm Receiver -->
         <receiver
-            android:name=".broadcasts.bootservices.TurnOnWeeklyExpensesNotification"
+            android:name=".infrastructure.broadcast_services.boot_services.TurnOnSyncService"
             android:enabled="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <receiver
-            android:name=".broadcasts.bootservices.TurnOnDatabaseSync"
-            android:enabled="false">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-        <receiver android:name=".broadcasts.WeeklyExpensesNotification" />
-
-        <receiver android:name=".broadcasts.SyncNotesService" />
-
+        <receiver android:name=".infrastructure.broadcast_services.SyncReceiverService" />
     </application>
 
 </manifest>

@@ -1,40 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.NotesEditorActivity">
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-    <EditText
-        android:id="@+id/title"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.activity_notes_editor.NotesEditorActivity">
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:hint="@string/activity_editor_note_placeholder"
-        android:singleLine="true"
-        android:textSize="25sp"
-        android:maxLength="40"
-        android:inputType="textCapWords|textFilter"/>
+        android:theme="@style/AppTheme.AppBarOverlay">
 
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:title="@string/activity_notes_editor_title"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
 
-    <com.example.miguel.misnotas.NiceEditText
-        android:id="@+id/content"
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+    <FrameLayout
+        android:id="@+id/content_frame"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:fadingEdge="vertical"
-        android:gravity="top"
-        android:inputType="textMultiLine|textCapSentences"
-        android:scrollbars="vertical"
-        android:textSize="20sp"
-        android:background="@null"/>
-    </LinearLayout>
-</RelativeLayout>
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <EditText
+                android:id="@+id/title"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:hint="@string/activity_notes_editor_title_placeholder"
+                android:singleLine="true"
+                android:textSize="25sp"
+                android:maxLength="40"
+                android:inputType="textCapWords|textFilter"/>
+
+
+            <com.zeus.migue.notes.ui.shared.components.LinedEditText
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:fadingEdge="vertical"
+                android:gravity="top"
+                android:inputType="textMultiLine|textCapSentences"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:scrollbars="vertical"
+                android:textSize="20sp" />
+        </LinearLayout>
+    </FrameLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
