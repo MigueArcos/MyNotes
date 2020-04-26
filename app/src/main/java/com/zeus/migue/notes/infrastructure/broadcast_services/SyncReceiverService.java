@@ -28,9 +28,11 @@ public class SyncReceiverService extends BroadcastReceiver {
         if (connectivityChecker.isConnectedToInternet() && userPreferences.userIsAuthenticated()) {
             IResponseListener<SyncPayload> syncSuccessListener = syncPayload -> {
                 userPreferences.setLastSyncDate(syncPayload.getLastSync());
+                if (syncPayload.getJwt() != null)
+                    userPreferences.setAuthInfo(syncPayload.getJwt(), false);
             };
             IResponseListener<ErrorCode> syncErrorListener = errorCode -> logger.log(Utils.stringIsNullOrEmpty(errorCode.getMessage()) ? "Sync Error" : errorCode.getMessage());
-            synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), userPreferences.getRefreshToken(), userPreferences.getLastSyncDate(), syncSuccessListener, syncErrorListener);
+            synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), userPreferences.tokenHasExpired() ? userPreferences.getRefreshToken() : null, userPreferences.getLastSyncDate(), syncSuccessListener, syncErrorListener);
         }
     }
 

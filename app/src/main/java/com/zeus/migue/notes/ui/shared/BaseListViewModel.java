@@ -24,7 +24,6 @@ import com.zeus.migue.notes.infrastructure.services.implementations.UserPreferen
 import com.zeus.migue.notes.infrastructure.utils.Event;
 import com.zeus.migue.notes.infrastructure.utils.LiveDataEvent;
 import com.zeus.migue.notes.infrastructure.utils.Utils;
-import com.zeus.migue.notes.ui.shared.BasicViewModel;
 
 import java.util.List;
 
@@ -37,6 +36,7 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
     private UserPreferences userPreferences;
     private IAuthorizationService authorizationService;
     private IConnectivityChecker connectivityChecker;
+
     public BaseListViewModel(@NonNull Application application) {
         super(application);
         repository = getRepository(application);
@@ -67,27 +67,22 @@ public abstract class BaseListViewModel<Entity extends BaseEntity, DTO extends I
     }
 
     public void startSynchronization() {
-        if (!connectivityChecker.isConnectedToInternet()){
+        if (!connectivityChecker.isConnectedToInternet()) {
             networkResponse.setValue(null);
             eventData.setValue(new LiveDataEvent<>(Event.NO_INTERNET));
             return;
         }
         IResponseListener<SyncPayload> syncSuccessListener = syncPayload -> {
             userPreferences.setLastSyncDate(syncPayload.getLastSync());
+            if (syncPayload.getJwt() != null)
+                userPreferences.setAuthInfo(syncPayload.getJwt(), false);
             networkResponse.setValue(syncPayload);
         };
         IResponseListener<ErrorCode> syncErrorListener = errorCode -> {
             eventData.setValue(new LiveDataEvent<>(errorCode.toEvent(Event.MessageType.SHOW_IN_DIALOG)));
             networkResponse.setValue(null);
         };
-        if (userPreferences.tokenHasExpired()){
-            authorizationService.refreshToken(userPreferences.getRefreshToken(), signInResponse -> {
-                userPreferences.setAuthInfo(signInResponse, false);
-                synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), null, userPreferences.getLastSyncDate(), syncSuccessListener, syncErrorListener);
-            }, syncErrorListener);
-        }else{
-            synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), null, userPreferences.getLastSyncDate(), syncSuccessListener, syncErrorListener);
-        }
+        synchronizer.syncDatabases(userPreferences.getAuthorizationToken(), userPreferences.tokenHasExpired() ? userPreferences.getRefreshToken() : null, userPreferences.getLastSyncDate(), syncSuccessListener, syncErrorListener);
     }
 
     public void deleteItem(DTO dto) {

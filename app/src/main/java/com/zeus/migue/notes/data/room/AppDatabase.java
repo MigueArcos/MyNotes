@@ -1,8 +1,6 @@
 package com.zeus.migue.notes.data.room;
 
 import android.content.Context;
-import android.os.Build;
-import android.os.Environment;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
@@ -29,17 +27,16 @@ public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase Instance;
 
     public abstract NotesDao notesDao();
+
     public abstract ClipNotesDao clipsDao();
+
     public abstract AccountsDao accountsDao();
+
     public abstract DeleteLogDao deleteLogDao();
 
     public synchronized static AppDatabase getInstance(Context context) {
         if (Instance == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                externalStoragePath = context.getExternalFilesDir(null).getAbsolutePath();
-            } else {
-                externalStoragePath = Environment.getExternalStorageDirectory().getAbsolutePath();
-            }
+            externalStoragePath = context.getExternalFilesDir(null).getAbsolutePath();
             Instance = buildDatabase(context.getApplicationContext());
         }
         return Instance;

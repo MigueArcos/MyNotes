@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.zeus.migue.notes.data.DTO.ClipNoteDTO;
 import com.zeus.migue.notes.data.DTO.NoteDTO;
+import com.zeus.migue.notes.data.DTO.SignInResponse;
 import com.zeus.migue.notes.infrastructure.contracts.JsonConverter;
 
 public class SyncPayload extends JsonConverter {
@@ -16,8 +17,19 @@ public class SyncPayload extends JsonConverter {
     @SerializedName("LastSync")
     @Expose
     private String lastSync;
+    @SerializedName("JWT")
+    @Expose
+    private SignInResponse jwt;
 
     public SyncPayload() {
+    }
+
+    public SignInResponse getJwt() {
+        return jwt;
+    }
+
+    public void setJwt(SignInResponse jwt) {
+        this.jwt = jwt;
     }
 
     public EntityChanges<NoteDTO> getNotes() {

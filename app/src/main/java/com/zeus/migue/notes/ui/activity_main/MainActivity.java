@@ -1,5 +1,11 @@
 package com.zeus.migue.notes.ui.activity_main;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
@@ -8,12 +14,6 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 
 import com.ferfalk.simplesearchview.SimpleSearchView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -29,12 +29,13 @@ import com.zeus.migue.notes.ui.shared.BaseActivity;
 
 import java.util.Calendar;
 
-public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
     private MainActivityViewModel mainActivityViewModel;
     private DrawerLayout drawer;
     private NavigationView navigationView;
     private int currentFragmentId;
     private Fragment currentFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme_NoActionBar);
@@ -50,13 +51,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             View header = navigationView.getHeaderView(0);
             TextView username = header.findViewById(R.id.header_username);
             TextView email = header.findViewById(R.id.header_email);
-            if (userInfo.isLoggedIn()){
+            if (userInfo.isLoggedIn()) {
                 username.setText(userInfo.getUserName());
                 email.setText(userInfo.getEmail());
                 email.setTextSize(15);
                 navigationView.getMenu().findItem(R.id.logout).setVisible(true);
                 navigationView.getMenu().findItem(R.id.login).setVisible(false);
-            }else{
+            } else {
                 email.setVisibility(View.GONE);
                 username.setVisibility(View.GONE);
                 navigationView.getMenu().findItem(R.id.logout).setVisible(false);
@@ -68,20 +69,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private void getFragment() {
         MenuItem item = null;
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
-        if (fragment != null){
-            if (fragment instanceof NotesFragment){
+        if (fragment != null) {
+            if (fragment instanceof NotesFragment) {
                 item = navigationView.getMenu().findItem(R.id.notes);
-            }else if (fragment instanceof DeletedNotesFragment){
+            } else if (fragment instanceof DeletedNotesFragment) {
                 item = navigationView.getMenu().findItem(R.id.deleted_notes);
-            }
-            else if (fragment instanceof ClipboardFragment){
+            } else if (fragment instanceof ClipboardFragment) {
+                item = navigationView.getMenu().findItem(R.id.clipboard);
+            } else if (fragment instanceof AccountsFragment) {
                 item = navigationView.getMenu().findItem(R.id.clipboard);
             }
-            else if (fragment instanceof AccountsFragment){
-                item = navigationView.getMenu().findItem(R.id.clipboard);
-            }
-        }
-        else{
+        } else {
             switch (mainActivityViewModel.getUserPreferences().getLastSelectedFragment()) {
                 case 1:
                     item = navigationView.getMenu().findItem(R.id.notes);
@@ -105,6 +103,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         currentFragmentId = item.getItemId();
         getSupportActionBar().setTitle(item.getTitle());
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+        currentFragment = fragment;
     }
 
     @Override
@@ -174,7 +173,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             case R.id.about_app:
                 final BottomSheetDialog aboutAppDialog = new BottomSheetDialog(this);
                 final View bottomSheetLayout = getLayoutInflater().inflate(R.layout.bottom_sheet_dialog, null);
-                ((TextView)bottomSheetLayout.findViewById(R.id.about_app_copyright))
+                ((TextView) bottomSheetLayout.findViewById(R.id.about_app_copyright))
                         .setText(String.format(getString(R.string.about_app_copyright), Calendar.getInstance().get(Calendar.YEAR)));
                 View.OnClickListener doNothingOnClickHandler = view -> aboutAppDialog.dismiss();
                 bottomSheetLayout.findViewById(R.id.button_close).setOnClickListener(doNothingOnClickHandler);
