@@ -51,12 +51,13 @@ public class AccountDialog extends AlertDialog.Builder {
     }
 
     public AccountDTO getCurrentAccount() {
+        String isoDate = Utils.toIso8601(new Date(), true);
         if (account == null) {
-            String isoDate = Utils.toIso8601(new Date(), true);
             account = new AccountDTO(accountNameEdit.getText(), Double.parseDouble(accountValueEdit.getText()), isoDate, isoDate);
         } else {
             account.setName(accountNameEdit.getText());
             account.setTotal(Double.parseDouble(accountValueEdit.getText()));
+            account.setModificationDate(isoDate);
         }
         return account;
     }

@@ -77,7 +77,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             } else if (fragment instanceof ClipboardFragment) {
                 item = navigationView.getMenu().findItem(R.id.clipboard);
             } else if (fragment instanceof AccountsFragment) {
-                item = navigationView.getMenu().findItem(R.id.clipboard);
+                item = navigationView.getMenu().findItem(R.id.accounts);
             }
         } else {
             switch (mainActivityViewModel.getUserPreferences().getLastSelectedFragment()) {
